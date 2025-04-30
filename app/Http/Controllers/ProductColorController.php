@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use ApiResponse;
+use App\Http\Resources\Product\ProductColorResource;
 use App\Models\Product;
 use App\Models\ProductColor;
 use App\Services\UserService;
@@ -28,13 +29,13 @@ class ProductColorController extends Controller
         $search = $req->input('search', '');
 
         // Build query
-        $query = ProductColor::query();
+        $query = ProductColor::query()->with('product:id,name');
         if (!empty($search)) {
             $query->where('id', $search)
                 ->orWhere('name', 'like', "%$search%");
         }
         $productColors = $query->orderBy($sortCol, $sortDir)->paginate($perPage);
-        return ApiResponse::Pagination($productColors, $req, 'Get Product Colors');
+        return res_paginate($productColors, "Get all prodcut color success", ProductColorResource::collection($productColors));
     }
 
 

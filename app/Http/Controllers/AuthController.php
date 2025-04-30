@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -106,11 +107,12 @@ class AuthController extends Controller
 
         // verify otp & expire
         $email = $req->input('email');
+        Log::info($email);
         $reset = PasswordResetToken::where('email', $email)->first(['token', 'updated_at']);
         if (!$reset) return res_fail('This email did not send otp.');
         if (!Hash::check($req->input('otp'), $reset->token)) return res_fail('This OTP did not match or is incorrect.');
         if (Carbon::parse($reset->updated_at)->addMinutes(30)->isPast()) return res_fail('This OTP is expired! Please request again.', [], 2);
-        
+
         // update password and response back
         $user = User::where('email', $email)->first('id');
         $user->password = $req->input('new_pass');

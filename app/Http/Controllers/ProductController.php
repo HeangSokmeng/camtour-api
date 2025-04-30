@@ -56,7 +56,9 @@ class ProductController extends Controller
         $products = new Product();
         if ($req->filled('search')) {
             $s = $req->input('search');
-            $products = $products->where(function ($q) use ($s) {
+            $products = $products
+            ->with(['brand', 'pcategory'])
+            ->where(function ($q) use ($s) {
                 $q->where('name', "like", "%$s%")
                     ->orWhere("name_km", "like", "%$s%");
             });

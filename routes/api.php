@@ -106,7 +106,7 @@ Route::delete('/product-categories/{id}', [ProductCategoryController::class, 'de
 
 Route::post('/products', [ProductController::class, 'store'])->middleware('admin');
 Route::delete('/products/{id}', [ProductController::class, 'destroy'])->middleware('admin');
-Route::post('/products/{id}', [ProductController::class, 'update'])->middleware('admin');
+Route::put('/products/{id}', [ProductController::class, 'update'])->middleware('admin');
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'find']);
 
@@ -118,6 +118,7 @@ Route::put('/product-colors/{id}', [ProductColorController::class, 'update'])->m
 Route::delete('/product-colors/{id}', [ProductColorController::class, 'destroy'])->middleware('admin');
 
 Route::post('/product-sizes', [ProductSizeController::class, 'store'])->middleware('admin');
+Route::get('/product-sizes', [ProductSizeController::class, 'index'])->middleware('admin');
 Route::put('/product-sizes/{id}', [ProductSizeController::class, 'update'])->middleware('admin');
 Route::delete('/product-sizes/{id}', [ProductSizeController::class, 'destroy'])->middleware('admin');
 
@@ -126,5 +127,7 @@ Route::post('/product-images/{id}', [ProductImageController::class, 'update'])->
 Route::delete('/product-images/{id}', [ProductImageController::class, 'destroy'])->middleware('admin');
 
 Route::post('/product-variants', [ProductVariantController::class, 'store'])->middleware('admin');
+Route::get('/product-variants', [ProductVariantController::class, 'index'])->middleware('admin');
+Route::get('/product-variants/{id}', [ProductVariantController::class, 'show'])->middleware('admin');
 Route::put('/product-variants/{id}', [ProductVariantController::class, 'update'])->middleware('admin');
 Route::delete('/product-variants/{id}', [ProductVariantController::class, 'destory'])->middleware('admin');

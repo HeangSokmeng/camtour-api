@@ -15,7 +15,10 @@ class ProductIndexResource extends JsonResource
             "name_km" => $this->name_km,
             "code" => $this->code,
             "thumbnail" => asset("storage/{$this->thumbnail}"),
-            "price" => floatval($this->price)
+            "price" => floatval($this->price),
+            "status" => $this->status,
+            "product_category" => new ProductIndexResource($this->pcategory),
+            "brand" => new ProductIndexResource($this->brand),
         ];
     }
 }
