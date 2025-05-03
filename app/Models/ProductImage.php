@@ -11,7 +11,12 @@ class ProductImage extends Model
     protected $table = "product_images";
     protected $fillable = [
         'product_id',
-        'image'
+        'image',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     // setup relationship

@@ -22,6 +22,11 @@ class Product extends Model
         'description',
         'status',
         'price',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     // setup relationship

@@ -9,5 +9,12 @@ class ProductCategory extends Model
     // setup prop
     public $timestamps = false;
     protected $table = "product_categories";
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
+    ];
 }

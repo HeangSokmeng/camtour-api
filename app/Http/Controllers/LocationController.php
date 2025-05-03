@@ -7,7 +7,8 @@ use App\Http\Resources\LocationIndexResource;
 use App\Models\Location;
 use App\Models\LocationImage;
 use Illuminate\Http\Request;
-use Storage;
+use App\Services\UserService;
+use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
 {
@@ -16,18 +17,18 @@ class LocationController extends Controller
         // validation
         $req->merge(['tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
-            'name' => 'required|string|max:250|unique:locations,name',
-            'name_local' => 'required|string|max:250|unique:locations,name_local',
+            'name' => 'required|string|max:250|unique:locations,name,NULL,id,is_deleted,0',
+            'name_local' => 'required|string|max:250|unique:locations,name_local,NULL,id,is_deleted,0',
             'thumbnail' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
             'url_location' => 'nullable|url',
             'short_description' => 'nullable|string|max:250',
             'description' => 'nullable|string|max:65530',
             'lat' => 'nullable|numeric|min:0',
             'lot' => 'nullable|numeric|min:0',
-            'category_id' => 'required|integer|min:1|exists:categories,id',
+            'category_id' => 'required|integer|min:1|exists:categories,id,is_deleted,0',
             'province_id' => 'required|integer|min:1|exists:provinces,id',
-            'district_id' => 'required|integer|min:1|exists:districts,id',
-            'commune_id' => 'required|integer|min:1|exists:communes,id',
+            'district_id' => 'required|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune_id' => 'required|integer|min:1|exists:communes,id,is_deleted,0',
             'village_id' => 'required|integer|min:1|exists:villages,id',
             'tag_ids' => 'required|array|min:0|max:5',
             'tag_ids.*' => 'integer|min:1|exists:tags,id',
@@ -61,11 +62,17 @@ class LocationController extends Controller
         if ($req->filled('published_at')) {
             $location->published_at = $req->input('published_at');
         }
+
+        // Set user info
+        $user = UserService::getAuthUser($req);
+        $location->create_uid = $user->id;
+        $location->update_uid = $user->id;
+
         $location->save();
 
         // store location tag & response
         $location->tags()->sync($req->input('tag_ids'));
-        return res_success('Store location successful.');
+        return res_success('Store location successful.', new LocationDetailResource($location));
     }
 
     public function index(Request $req)
@@ -77,10 +84,10 @@ class LocationController extends Controller
             'sort_col' => 'nullable|string|in:id,total_view',
             'sort_dir' => 'nullable|string|in:asc,desc',
             'search' => 'nullable|string|max:50',
-            'category' => 'nullable|integer|min:1|exists:categories,id',
+            'category' => 'nullable|integer|min:1|exists:categories,id,is_deleted,0',
             'province' => 'nullable|integer|min:1|exists:provinces,id',
-            'district' => 'nullable|integer|min:1|exists:districts,id',
-            'commune' => 'nullable|integer|min:1|exists:commune,id',
+            'district' => 'nullable|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0',
             'village' => 'nullable|integer|min:1|exists:villages,id'
         ]);
 
@@ -91,6 +98,7 @@ class LocationController extends Controller
 
         // add search
         $locations = new Location();
+        $locations = $locations->where('is_deleted', 0);
         if ($req->filled('search')) {
             $s = $req->input('search');
             $locations = $locations->where(function ($q) use ($s) {
@@ -140,16 +148,17 @@ class LocationController extends Controller
     {
         // validation
         $req->merge(['id' => $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:locations,id']);
+        $req->validate(['id' => 'required|integer|min:1|exists:locations,id,is_deleted,0']);
 
         // get location by id
         $location = Location::where('id', $id)
+            ->where('is_deleted', 0)
             ->with(['tags', 'category', 'province', 'district', 'commune', 'village', 'stars', 'stars.rater', 'photos'])
             ->withAvg('stars', 'star')
             ->whereNotNull('published_at')
             ->first();
         if (!$location) {
-            return res_fail('Location is not publish yet');
+            return res_fail('Location is not publish yet or not found', [], 1, 404);
         }
 
         // response back
@@ -161,24 +170,29 @@ class LocationController extends Controller
         // validation
         $req->merge(['id' => $id, 'tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
-            'id'=> 'required|integer|min:1|exists:locations,id',
-            'name' => 'nullable|string|max:250|unique:locations,name,' . $id,
-            'name_local' => 'nullable|string|max:250|unique:locations,name_local,' . $id,
+            'id'=> 'required|integer|min:1|exists:locations,id,is_deleted,0',
+            'name' => 'nullable|string|max:250|unique:locations,name,' . $id . ',id,is_deleted,0',
+            'name_local' => 'nullable|string|max:250|unique:locations,name_local,' . $id . ',id,is_deleted,0',
             'thumbnail' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
             'url_location' => 'nullable|url',
             'short_description' => 'nullable|string|max:250',
             'description' => 'nullable|string|max:65530',
             'lat' => 'nullable|numeric|min:0',
             'lot' => 'nullable|numeric|min:0',
-            'category_id' => 'nullable|integer|min:1|exists:categories,id',
+            'category_id' => 'nullable|integer|min:1|exists:categories,id,is_deleted,0',
             'province_id' => 'nullable|integer|min:1|exists:provinces,id',
-            'district_id' => 'nullable|integer|min:1|exists:districts,id',
-            'commune_id' => 'nullable|integer|min:1|exists:communes,id',
+            'district_id' => 'nullable|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune_id' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0',
             'village_id' => 'nullable|integer|min:1|exists:villages,id',
             'tag_ids' => 'required|array|min:0|max:5',
             'tag_ids.*' => 'integer|min:1|exists:tags,id',
         ]);
-        $location = Location::where('id', $id)->first();
+        $location = Location::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$location) return res_fail('Location not found.', [], 1, 404);
+
+        // Set user info
+        $user = UserService::getAuthUser($req);
+        $location->update_uid = $user->id;
 
         // update name
         if ($req->filled('name')) {
@@ -239,8 +253,8 @@ class LocationController extends Controller
 
         // save location & check tags
         $location->save();
-        $location->tags()->sync($req->input('tags'));
-        return res_success('Update location successful');
+        $location->tags()->sync($req->input('tag_ids'));
+        return res_success('Update location successful', new LocationDetailResource($location));
     }
 
     public function destroy(Request $req, $id)
@@ -248,18 +262,27 @@ class LocationController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate([
-            'id' => 'required|integer|min:1|exists:locations,id'
+            'id' => 'required|integer|min:1|exists:locations,id,is_deleted,0'
         ]);
 
-        // delete thumbnail & photo
-        $location = Location::where('id', $id)->with('photos')->first(['id', 'thumbnail']);
+        // find location
+        $location = Location::where('id', $id)->where('is_deleted', 0)->with('photos')->first();
+        if (!$location) return res_fail('Location not found.', [], 1, 404);
+
+        // Before soft delete, handle any needed cleanup
         if ($location->thumbnail != Location::DEFAULT_THUMBNAIL) {
             Storage::disk('public')->delete($location->thumbnail);
+            $location->thumbnail = Location::DEFAULT_THUMBNAIL;
         }
-        foreach ($location->photos as $photo) {
-            Storage::disk('public')->delete($photo->photo);
-        }
-        $location->delete();
+
+        // Soft delete
+        $user = UserService::getAuthUser($req);
+        $location->update([
+            'is_deleted' => 1,
+            'deleted_uid' => $user->id,
+            'deleted_datetime' => now()
+        ]);
+
         return res_success('Delete location successful.');
     }
 }

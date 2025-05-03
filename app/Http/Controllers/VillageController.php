@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\VillageResource;
 use App\Models\Village;
 use Illuminate\Http\Request;
+use App\Services\UserService;
 
 class VillageController extends Controller
 {
@@ -18,8 +19,8 @@ class VillageController extends Controller
             'sort_dir' => 'nullable|string|in:asc,desc',
             'search' => 'nullable|string|max:50',
             'province' => 'nullable|integer|min:1|exists:provinces,id',
-            'district' => 'nullable|integer|min:1|exists:districts,id',
-            'commune' => 'nullable|integer|min:1|exists:communes,id'
+            'district' => 'nullable|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0'
         ]);
 
         // setup default data
@@ -33,6 +34,7 @@ class VillageController extends Controller
 
         // build query & get data
         $villages = new Village();
+        $villages = $villages->where('is_deleted', 0);
         if (strlen($search) > 0) {
             $villages = $villages->where(function ($query) use ($search) {
                 $query->where('id', $search)
@@ -62,12 +64,15 @@ class VillageController extends Controller
             'name' => 'required|string|max:250',
             'local_name' => 'required|string|max:250',
             'province_id' => 'required|integer|min:1|exists:provinces,id',
-            'district_id' => 'required|integer|min:1|exists:districts,id',
-            'commune_id' => 'required|integer|min:1|exists:communes,id',
+            'district_id' => 'required|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune_id' => 'required|integer|min:1|exists:communes,id,is_deleted,0',
         ]);
 
         // store new village
         $village = new Village($req->only(['name', 'local_name', 'province_id', 'district_id', 'commune_id']));
+        $user = UserService::getAuthUser($req);
+        $village->create_uid = $user->id;
+        $village->update_uid = $user->id;
         $village->save();
         return res_success('Create village successful.', new VillageResource($village));
     }
@@ -77,16 +82,21 @@ class VillageController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate([
-            'id' => 'required|integer|min:1|exists:villages,id',
+            'id' => 'required|integer|min:1|exists:villages,id,is_deleted,0',
             'name' => 'nullable|string|max:250',
             'local_name' => 'nullable|string|max:250',
             'province_id' => 'nullable|integer|min:1|exists:provinces,id',
-            'district_id' => 'nullable|integer|min:1|exists:districts,id',
-            'commune_id' => 'nullable|integer|min:1|exists:communes,id',
+            'district_id' => 'nullable|integer|min:1|exists:districts,id,is_deleted,0',
+            'commune_id' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0',
         ]);
 
         // update data
-        $village = Village::where('id', $id)->first();
+        $village = Village::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$village) return res_fail('Village not found.', [], 1, 404);
+
+        $user = UserService::getAuthUser($req);
+        $village->update_uid = $user->id;
+
         if ($req->filled('name')) {
             $village->name = $req->input('name');
         }
@@ -110,21 +120,33 @@ class VillageController extends Controller
     {
         // validation
         $req->merge(['id' => $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:villages,id']);
+        $req->validate(['id' => 'required|integer|min:1|exists:villages,id,is_deleted,0']);
 
-        // delete village
-        $village = Village::where('id', $id)->first();
-        $village->delete();
+        // find village
+        $village = Village::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$village) return res_fail('Village not found.', [], 1, 404);
+
+        // soft delete
+        $user = UserService::getAuthUser($req);
+        $village->update([
+            'is_deleted' => 1,
+            'deleted_uid' => $user->id,
+            'deleted_datetime' => now()
+        ]);
+
         return res_success('Delete village successful.');
     }
+
     public function find(Request $req, $id)
     {
         // validation
         $req->merge(['id' => $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:villages,id']);
+        $req->validate(['id' => 'required|integer|min:1|exists:villages,id,is_deleted,0']);
 
         // get one village
-        $village = Village::where('id', $id)->with(['province', 'district', 'commune'])->first();
+        $village = Village::where('id', $id)->where('is_deleted', 0)->with(['province', 'district', 'commune'])->first();
+        if (!$village) return res_fail('Village not found.', [], 1, 404);
+
         return res_success('Get one village success.', new VillageResource($village));
     }
 }

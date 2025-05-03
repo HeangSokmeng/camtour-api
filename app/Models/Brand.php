@@ -13,6 +13,11 @@ class Brand extends Model
     protected $table = 'brands';
     protected $fillable = [
         'name',
-        'name_km'
+        'name_km',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 }

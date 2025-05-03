@@ -31,12 +31,20 @@ class ProductVariantController extends Controller
             'search' => 'nullable|string|max:50',
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1',
+            'product_id' => 'nullable|integer|exists:products,id',
+            'brand_id' => 'nullable|integer|exists:brands,id',
+            'color_id' => 'nullable|integer|exists:product_colors,id',
+            'sort_col' => 'nullable|string|in:id,product,color,size,qty,price,brand',
+            'sort_dir' => 'nullable|string|in:asc,desc',
         ]);
 
         // setup default value
         $perPage = $req->input('per_page', 15);
+        $sortCol = $req->input('sort_col', 'id');
+        $sortDir = $req->input('sort_dir', 'desc');
 
-        $products = ProductVariant::with(['product.brand', 'color'])
+        $variants = ProductVariant::with(['product.brand', 'color', 'size'])
+            // Search functionality
             ->when($req->filled('search'), function ($query) use ($req) {
                 $search = $req->input('search');
 
@@ -50,19 +58,73 @@ class ProductVariantController extends Controller
                         $q->where('name', 'like', "%$search%");
                     });
             })
-            ->orderByDesc('id')
+            // Filter by product_id
+            ->when($req->filled('product_id'), function ($query) use ($req) {
+                $query->where('product_id', $req->input('product_id'));
+            })
+            // Filter by brand_id
+            ->when($req->filled('brand_id'), function ($query) use ($req) {
+                $query->where('brand_id', $req->input('brand_id'));
+            })
+            // Filter by color_id
+            ->when($req->filled('color_id'), function ($query) use ($req) {
+                $query->where('product_color_id', $req->input('color_id'));
+            })
+            // Apply sorting
+            ->when($sortCol === 'id', function ($query) use ($sortDir) {
+                $query->orderBy('id', $sortDir);
+            })
+            ->when($sortCol === 'product', function ($query) use ($sortDir) {
+                $query->orderBy(function ($query) {
+                    $query->select('name')
+                        ->from('products')
+                        ->whereColumn('products.id', 'product_variants.product_id')
+                        ->limit(1);
+                }, $sortDir);
+            })
+            ->when($sortCol === 'color', function ($query) use ($sortDir) {
+                $query->orderBy(function ($query) {
+                    $query->select('name')
+                        ->from('product_colors')
+                        ->whereColumn('product_colors.id', 'product_variants.product_color_id')
+                        ->limit(1);
+                }, $sortDir);
+            })
+            ->when($sortCol === 'size', function ($query) use ($sortDir) {
+                $query->orderBy(function ($query) {
+                    $query->select('size')
+                        ->from('product_sizes')
+                        ->whereColumn('product_sizes.id', 'product_variants.product_size_id')
+                        ->limit(1);
+                }, $sortDir);
+            })
+            ->when($sortCol === 'qty', function ($query) use ($sortDir) {
+                $query->orderBy('qty', $sortDir);
+            })
+            ->when($sortCol === 'price', function ($query) use ($sortDir) {
+                $query->orderBy('price', $sortDir);
+            })
+            ->when($sortCol === 'brand', function ($query) use ($sortDir) {
+                $query->orderBy(function ($query) {
+                    $query->select('name')
+                        ->from('brands')
+                        ->whereColumn('brands.id', 'product_variants.brand_id')
+                        ->limit(1);
+                }, $sortDir);
+            })
             ->paginate($perPage);
 
-        return res_paginate($products, "Get all product variants success", ProductVariantResource::collection($products));
+        return res_paginate($variants, "Get all product variants success", ProductVariantResource::collection($variants));
     }
-        public function show($id)
-        {
-            $variant = ProductVariant::with(['product.brand', 'color', 'size'])->find($id);
-            if (!$variant) {
-                return res_fail("Product variant not found", 404);
-            }
-            return res_success( "Product variant detail", new ProductVariantResource($variant),);
+
+    public function show($id)
+    {
+        $variant = ProductVariant::with(['product.brand', 'color', 'size'])->find($id);
+        if (!$variant) {
+            return res_fail("Product variant not found", 404);
         }
+        return res_success("Product variant detail", new ProductVariantResource($variant),);
+    }
 
 
     public function update(Request $req, $id)

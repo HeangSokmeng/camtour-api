@@ -6,6 +6,7 @@ use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\UserService;
 
 class CategoryController extends Controller
 {
@@ -26,6 +27,12 @@ class CategoryController extends Controller
             $image = $file->store('categories', ['disk' => 'public']);
         }
         $category->image = $image;
+
+        // Set user info
+        $user = UserService::getAuthUser($req);
+        $category->create_uid = $user->id;
+        $category->update_uid = $user->id;
+
         $category->save();
         return res_success('Store new category successful.', new CategoryResource($category));
     }
@@ -34,42 +41,40 @@ class CategoryController extends Controller
     {
         // validation
         $req->validate([
-            'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1',
-            'sort_col' => 'nullable|string|in:id,name',
-            'sort_dir' => 'nullable|string|in:asc,desc',
-            'search' => 'nullable|string|max:50',
+            'search' => 'nullable|string|max:50'
         ]);
 
-        // setup default data
-        $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 50;
-        $sortCol = $req->filled('sort_col') ? $req->input('sort_col') : 'name';
-        $sortDir = $req->filled('sort_dir') ? $req->input('sort_dir') : 'asc';
-        $search = $req->filled('search') ? $req->input('search') : '';
-
-        // build query & response
+        // add search option
         $categories = new Category();
-        if (strlen($search) > 0) {
-            $categories = $categories->where('id', $search)
-                ->orWhere('name', 'like', "%$search%");
+        if ($req->filled('search')) {
+            $s = $req->input('search');
+            $categories = $categories->where(function ($q) use ($s) {
+                $q->where('id', $s)
+                   ->orWhere('name', 'like', "%$s%");
+            });
         }
-        $categories = $categories->orderBy($sortCol, $sortDir)->paginate($perPage);
-        return res_paginate($categories, 'Get all categories successful.', CategoryResource::collection($categories));
+
+        // get categories & response
+        $categories = $categories->where('is_deleted', 0)->orderBy('name', 'asc')->get();
+        return res_success('Get all categories successful.', CategoryResource::collection($categories));
     }
 
     public function update(Request $req, $id)
     {
-        // validate
+        // validation
         $req->merge(['id' => $id]);
         $req->validate([
-            'id' => 'required|integer|min:1|exists:categories,id',
+            'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0',
             'name' => 'nullable|string|max:250',
             'description' => 'nullable|string|max:65530',
             'image' => 'nullable|image|mimetypes:image/jpeg,image/png|max:2048',
         ]);
 
+        // find category
+        $category = Category::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$category) return res_fail('Category not found.', [], 1, 404);
+
         // update category
-        $category = Category::where('id', $id)->first();
         if ($req->filled('name')) {
             $category->name = $req->input('name');
         }
@@ -84,38 +89,78 @@ class CategoryController extends Controller
             }
             $category->image = $imageName;
         }
+
+        // Set user info
+        $user = UserService::getAuthUser($req);
+        $category->update_uid = $user->id;
+
         $category->save();
         return res_success('Update category successful.', new CategoryResource($category));
+    }
+
+    public function find(Request $req, $id)
+    {
+        // validation
+        $req->merge(['id' => $id]);
+        $req->validate([
+            'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
+        ]);
+
+        // get one category
+        $category = Category::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$category) return res_fail('Category not found.', [], 1, 404);
+
+        return res_success('Get one category successful.', new CategoryResource($category));
     }
 
     public function destroy(Request $req, $id)
     {
         // validation
-        $req->merge(['id'=> $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:categories,id']);
+        $req->merge(['id' => $id]);
+        $req->validate([
+            'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
+        ]);
 
-        // delete image & data
-        $category = Category::where('id', $id)->first();
+        // find category
+        $category = Category::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$category) return res_fail('Category not found.', [], 1, 404);
+
+        // Before soft delete, handle image if needed
         if ($category->image != Category::DEFAULT_IMAGE) {
             Storage::disk('public')->delete($category->image);
+            $category->image = Category::DEFAULT_IMAGE;
         }
-        $category->delete();
+
+        // Soft delete
+        $user = UserService::getAuthUser($req);
+        $category->update([
+            'is_deleted' => 1,
+            'deleted_uid' => $user->id,
+            'deleted_datetime' => now()
+        ]);
+
         return res_success('Delete category successful.');
     }
 
     public function destroyImage(Request $req, $id)
     {
         // validation
-        $req->merge(['id'=> $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:categories,id']);
+        $req->merge(['id' => $id]);
+        $req->validate([
+            'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
+        ]);
+
+        // find category
+        $category = Category::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$category) return res_fail('Category not found.', [], 1, 404);
 
         // delete image
-        $category = Category::where('id', $id)->first();
         if ($category->image != Category::DEFAULT_IMAGE) {
             Storage::disk('public')->delete($category->image);
         }
         $category->image = Category::DEFAULT_IMAGE;
         $category->save();
+
         return res_success('Reset image category successful.', new CategoryResource($category));
     }
 }

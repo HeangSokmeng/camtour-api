@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Carbon;
 
 class VillageResource extends JsonResource
 {
@@ -27,7 +28,8 @@ class VillageResource extends JsonResource
                 'id' => $this->commune->id,
                 'name' => $this->commune->name,
                 'local_name' => $this->commune->local_name
-            ]
+            ],
+            'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
 }

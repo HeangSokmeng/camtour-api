@@ -47,6 +47,7 @@ class LocationDetailResource extends JsonResource
             'tags' => TagResource::collection($this->tags),
             'stars' => LocationStarResource::collection($this->stars),
             'photos' => LocationImageResource::collection($this->photos),
+            'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
     }
 }

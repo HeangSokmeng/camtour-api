@@ -29,6 +29,8 @@ class AddressSeeder extends Seeder
             $province = new Province();
             $province->name = $provinceValue->name->latin;
             $province->local_name = $provinceValue->name->km;
+            $province->create_uid = 1;
+            $province->update_uid = 1;
             $province->save();
 
             foreach ($dataDistricts as $districtKey => $districtValue) {
@@ -38,6 +40,8 @@ class AddressSeeder extends Seeder
                     $district->province_id = $province->id;
                     $district->name = $districtValue->name->latin;
                     $district->local_name = $districtValue->name->km;
+                    $district->update_uid = 1;
+                    $district->create_uid = 1;
                     $district->save();
 
                     foreach ($dataCommunes as $communeKey => $communeValue) {
@@ -48,6 +52,8 @@ class AddressSeeder extends Seeder
                             $commune->district_id = $district->id;
                             $commune->name = $communeValue->name->latin;
                             $commune->local_name = $communeValue->name->km;
+                            $commune->update_uid = 1;
+                            $commune->create_uid = 1;
                             $commune->save();
 
                             foreach ($dataVillages as $villageKey => $villageValue) {
@@ -59,6 +65,8 @@ class AddressSeeder extends Seeder
                                     $village->commune_id = $commune->id;
                                     $village->name = $villageValue->name->latin;
                                     $village->local_name = $villageValue->name->km;
+                                    $village->update_uid = 1;
+                                    $village->create_uid = 1;
                                     $village->save();
                                 }
                             }

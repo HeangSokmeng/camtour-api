@@ -6,6 +6,7 @@ use App\Http\Resources\Tag\IndexResource;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use App\Services\UserService;
 
 class TagController extends Controller
 {
@@ -13,11 +14,14 @@ class TagController extends Controller
     {
         // validation
         $req->validate([
-            'name' => 'required|string|max:250|unique:tags,name',
+            'name' => 'required|string|max:250|unique:tags,name,NULL,id,is_deleted,0',
         ]);
 
         // store tag & response
         $tag = new Tag($req->only(['name']));
+        $user = UserService::getAuthUser($req);
+        $tag->create_uid = $user->id;
+        $tag->update_uid = $user->id;
         $tag->save();
         return res_success('Store tag successful.', new TagResource($tag));
     }
@@ -41,8 +45,12 @@ class TagController extends Controller
 
         // build query & get tag
         $tags = new Tag();
+        $tags = $tags->where('is_deleted', 0);
         if (strlen($search) > 0) {
-            $tags = $tags->where('id', $search)->orWhere('name', 'like', "%$search%");
+            $tags = $tags->where(function($q) use ($search) {
+                $q->where('id', $search)
+                  ->orWhere('name', 'like', "%$search%");
+            });
         }
         $tags = $tags->orderBy($sortCol, $sortDir)->paginate($perPage);
         return res_paginate($tags, 'Get all tags successful.', TagResource::collection($tags));
@@ -53,12 +61,17 @@ class TagController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate([
-            'id' => 'required|integer|min:1|exists:tags,id',
-            'name' => "nullable|string|max:250|unique:tags,name,$id"
+            'id' => 'required|integer|min:1|exists:tags,id,is_deleted,0',
+            'name' => "nullable|string|max:250|unique:tags,name,$id,id,is_deleted,0"
         ]);
 
         // update tag data
-        $tag = Tag::where('id', $id)->first();
+        $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$tag) return res_fail('Tag not found.', [], 1, 404);
+
+        $user = UserService::getAuthUser($req);
+        $tag->update_uid = $user->id;
+
         if ($req->filled('name')) {
             $tag->name = $req->input('name');
         }
@@ -70,10 +83,33 @@ class TagController extends Controller
     {
         // validation
         $req->merge(['id'=> $id]);
-        $req->validate(['id' => 'required|integer|min:1|exists:tags,id']);
+        $req->validate(['id' => 'required|integer|min:1|exists:tags,id,is_deleted,0']);
 
-        // delete tag & response
-        Tag::where('id', $id)->delete();
+        // find tag
+        $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$tag) return res_fail('Tag not found.', [], 1, 404);
+
+        // soft delete
+        $user = UserService::getAuthUser($req);
+        $tag->update([
+            'is_deleted' => 1,
+            'deleted_uid' => $user->id,
+            'deleted_datetime' => now()
+        ]);
+
         return res_success('Delete tag successful.');
+    }
+
+    public function find(Request $req, $id)
+    {
+        // validation
+        $req->merge(['id' => $id]);
+        $req->validate(['id' => 'required|integer|min:1|exists:tags,id,is_deleted,0']);
+
+        // get one tag
+        $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$tag) return res_fail('Tag not found.', [], 1, 404);
+
+        return res_success('Get one tag successful.', new TagResource($tag));
     }
 }

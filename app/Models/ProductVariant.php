@@ -14,7 +14,12 @@ class ProductVariant extends Model
         'product_color_id',
         'product_size_id',
         'qty',
-        'price'
+        'price',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     // setup relationship

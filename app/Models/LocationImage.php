@@ -10,6 +10,11 @@ class LocationImage extends Model
     protected $fillable = [
         'location_id',
         'photo',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     // setup relationship

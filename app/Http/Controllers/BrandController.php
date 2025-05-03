@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Services\UserService;
 use ApiResponse;
 use App\Models\Brand;
-use App\Models\Brands;
-use App\Models\ProductModel;
 
 class BrandController
 {
@@ -24,12 +22,14 @@ class BrandController
     {
         // validation
         $req->validate([
-            'name' => 'required|string|max:250|unique:brands,name',
-            'name_km' => 'required|string|max:250|unique:brands,name_km'
+            'name' => 'required|string|max:250|unique:brands,name,NULL,id,is_deleted,0',
+            'name_km' => 'required|string|max:250|unique:brands,name_km,NULL,id,is_deleted,0'
         ]);
-
         // store new brand
         $brand = new Brand($req->only(['name', 'name_km']));
+        $user = UserService::getAuthUser($req);
+        $brand->create_uid = $user->id;
+        $brand->update_uid = $user->id;
         $brand->save();
         return res_success('Store new brand successful.');
     }
@@ -40,12 +40,15 @@ class BrandController
         $req->merge(['id' => $id]);
         $req->validate([
             'id' => 'required|integer|min:1|exists:brands,id',
-            'name' => "required|string|max:250|unique:brands,name,$id",
-            "name_km" => "required|string|max:250|unique:brands,name_km,$id"
+            'name' => "required|string|max:250|unique:brands,name,$id,id,is_deleted,0",
+            "name_km" => "required|string|max:250|unique:brands,name_km,$id,id,is_deleted,0"
         ]);
 
-        // update brand
-        Brand::where('id', $id)->update($req->only(['name', 'name_km']));
+        $brand = Brand::where('id', $id)->where('is_deleted', 0)->first();
+        if (!$brand)  return res_fail('Brand not found.', [], 1, 404);
+        $user = UserService::getAuthUser($req);
+        $brand->update_uid = $user->id;
+        $brand->update($req->only(['name', 'name_km']));
         return res_success('Update brand successful.');
     }
 
@@ -55,7 +58,6 @@ class BrandController
         $req->validate([
             'search' => 'nullable|string|max:50'
         ]);
-
         // add search option
         $brands = new Brand();
         if ($req->filled('search')) {
@@ -65,9 +67,8 @@ class BrandController
                     ->where('name_km', 'like', "%$s%");
             });
         }
-
         // get brands & response
-        $brands = $brands->orderByDesc('id')->get();
+        $brands = $brands->where('is_deleted',0)->orderByDesc('id')->get();
         return res_success('Get all brands successful.', BrandResource::collection($brands));
     }
 
@@ -77,24 +78,24 @@ class BrandController
         // validation
         $req->merge(['id' => $id]);
         $req->validate([
-            'id' => 'required|integer|min:1|exists:brands,id'
+            'id' => 'required|integer|min:1|exists:brands,id,is_deleted,0'
         ]);
-
         // get one branch
-        $brand = Brand::where('id', $id)->first();
+        $brand = Brand::where('id', $id)->where('is_deleted',0)->first();
         return res_success('Get one brand successful', new BrandResource($brand));
     }
 
     public function destroy(Request $req, $id)
     {
-        // validation
-        $req->merge(['id' => $id]);
-        $req->validate([
-            'id' => 'required|integer|exists:brands,id'
+        $user = UserService::getAuthUser($req);
+        $id = $req->id;
+        $Brand = Brand::where('is_deleted',0)->find($id);
+        if(!$Brand) return ApiResponse::NotFound('Brand not found');
+        $Brand->update([
+            'is_deleted' => 1,
+            'deleted_uid' => $user->id,
+            'deleted_datetime'=> now()
         ]);
-
-        // delete brand
-        $brand = Brand::where('id', $id)->delete();
-        return res_success('Delete brand successful.');
+        return ApiResponse::JsonResult(null,'Deleted');
     }
 }

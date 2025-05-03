@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LocationImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Storage;
+use Illuminate\Support\Facades\Storage;
 
 class LocationImageController extends Controller
 {

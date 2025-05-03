@@ -24,6 +24,11 @@ class Location extends Model
         'district_id',
         'commune_id',
         'village_id',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     // setup relationship

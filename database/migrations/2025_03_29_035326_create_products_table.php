@@ -1,15 +1,17 @@
 <?php
 
+use App\Traits\BaseMigrationField;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+    use BaseMigrationField;
 
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->id();
+            $this->AddBaseFields($table);
             $table->unsignedSmallInteger('product_category_id')->nullable();
             $table->unsignedTinyInteger('category_id')->nullable();
             $table->unsignedBigInteger('brand_id')->nullable();
@@ -21,7 +23,6 @@ return new class extends Migration {
             $table->enum('status', ['drafting', 'published'])->default('drafting');
             $table->string('thumbnail')->nullable();
             $table->decimal('total_views')->default(0);
-            $table->timestamps();
 
             $table->foreign('product_category_id')->references('id')->on('product_categories')->cascadeOnDelete()->cascadeOnUpdate();
             $table->foreign('category_id')->references('id')->on('categories')->cascadeOnDelete()->cascadeOnUpdate();

@@ -11,7 +11,12 @@ class Commune extends Model
         'province_id',
         'district_id',
         'name',
-        'local_name'
+        'local_name',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     public function province(): BelongsTo

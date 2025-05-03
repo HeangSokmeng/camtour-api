@@ -96,3 +96,134 @@ if (!function_exists('json_to_arr')) {
         return json_decode($json) ?? [];
     }
 }
+class DataResponse //extends Model
+{
+    // use HasFactory;
+    static function ValidateFail($message = null,$errors = [])
+    {
+        return (object)[
+            'status_code' => 422,
+            'error' => true,
+            'status' => 'Unprocessable',
+            'errors' => $errors,
+            'message' => $message,
+        ];
+    }
+
+    static function Duplicated($message, $errors = [])
+    {
+        return (object)[
+            'status_code' => 409,
+            'error' => true,
+            'status' => 'Conflict',
+            'errors' => $errors,
+            'message' => $message,
+        ];
+    }
+
+    static function Unauthorized($err_msg = 'Unauthorized')
+    {
+        return (object)[
+            'status_code' => 401,
+            'error' => true,
+            'status' => 'Unauthorized',
+            'message' => $err_msg
+        ];
+    }
+
+    static function JsonResult($data, $error = false, $message = null,$errors=[],$status_code=200,$status="OK" )
+    {
+        return (object)[
+            'error' => $error,
+            'status' => $status,
+            'message' => $message,
+            'status_code' => $status_code,
+            'errors' => $errors,
+            'data' => $data,
+        ];
+    }
+
+    static function JsonRaw($json, $status = null)
+    {
+        $jsonRes = (object)[];
+        foreach($json as $key=>$j){
+            $jsonRes->{$key} = $j;
+        }
+        return $jsonRes;
+    }
+
+    static function NotFound($message)
+    {
+        return (object)[
+            'status_code' => 404,
+            'error' => true,
+            'status' => 'Not Found',
+            'message' => $message,
+            'errors' => []
+        ];
+    }
+}
+class ApiResponse
+{
+
+    static function ValidateFail($message=null,$errors=[]){
+        return response()->json([
+            'error' => true,
+            'status' => 'Unprocessable',
+            'errors' => $errors,
+            'message' => $message,
+        ],422);
+    }
+
+    static function Duplicated($message=null,$errors=[]){
+        return response()->json([
+            'error' => true,
+            'status' => 'Conflict',
+            'errors' => $errors,
+            'message' => $message,
+        ],409);
+    }
+
+    static function Unauthorized($err_msg='Unauthorized',$errors=[]){
+        return response()->json([
+            'error' => true,
+            'status' => 'Unauthorized',
+            'errors' => $errors,
+            'message' => $err_msg
+        ],401);
+    }
+
+    static function JsonResult($data,$message=null,$error=false,$errors=[],$statusCode=200,$status="OK"){
+        return response()->json([
+            'error' => $error,
+            'status' => $status,
+            'message' => $message,
+            'errors' => $errors,
+            'data' => $data,
+        ],$statusCode);
+    }
+
+    static function JsonRaw($json,$statusCode=200){
+        // $status_code = $statusCode ?? is_array($json) ? (isset($data['status_code']) ? $json['status_code']:200): (isset($data->status_code)?$json->status_code:200); //($data['status_code'] ?? 200) : ($data->status_code ?? 200);
+        return response()->json($json,$statusCode);
+    }
+    static function NotFound($message='Not found',$errors=[]){
+        return response()->json([
+            'error' => true,
+            'status' => "Not Found",
+            'message' => $message,
+            'errors' => $errors
+        ],404);
+    }
+
+    static function Error($message){
+        return response()->json([
+            'error' => true,
+            'status' => 'Error',
+            'data' => null,
+            'message' => $message,
+            'errors' => []
+        ],500);
+    }
+
+}

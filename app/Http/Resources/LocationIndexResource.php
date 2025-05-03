@@ -21,6 +21,7 @@ class LocationIndexResource extends JsonResource
             'published_at' => $this->published_at ? Carbon::parse($this->published_at)->format('Y-m-d H:i:s') : null,
             'category' => new CategoryResource($this->category),
             'province' => new ProvinceResource($this->province),
+            'district' => new ProvinceResource($this->district),
             'tags' => TagResource::collection($this->tags),
             'avg_star' => floatval(number_format($this->stars_avg_star ?: 0, 2))
         ];

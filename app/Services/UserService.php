@@ -1,28 +1,38 @@
 <?php
 
 namespace App\Services;
+
 use App\Models\User;
 use DataResponse;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class UserService
 {
-    // Your service methods go here
-    public static function getAuthUser($action=''){
-        $user = JWTAuth::user();
-        if($user){
-            $hasUser = User::where('id',$user->id)->first();
-            if($hasUser){
+    public static function getAuthUser(Request $request,$action = '')
+    {
+        $user = $request->user('sanctum');
+
+        if ($user) {
+            Log::info("Authenticated user ID: " . $user->id);
+
+            $hasUser = User::find($user->id);
+            if ($hasUser) {
                 return DataResponse::JsonRaw([
-                    'error'=>false,
+                    'error' => false,
                     'status_code' => 200,
                     'status' => 'OK',
                     'id' => $hasUser->id,
-                    'user_name' => $hasUser->first_name  . ' ' . $hasUser->last_name,
-                    'info'=>$hasUser
+                    'user_name' => $hasUser->first_name . ' ' . $hasUser->last_name,
+                    'info' => $hasUser,
                 ]);
             }
         }
+
+        Log::warning("Unauthenticated request to getAuthUser");
+
         return DataResponse::Unauthorized();
     }
+
 }

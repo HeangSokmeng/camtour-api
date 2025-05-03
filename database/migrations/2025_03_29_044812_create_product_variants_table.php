@@ -1,16 +1,19 @@
 <?php
 
+use App\Traits\BaseMigrationField;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
+    use BaseMigrationField;
 
     public function up(): void
     {
         Schema::create('product_variants', function (Blueprint $table) {
             // setup column
-            $table->id();
+            $this->AddBaseFields($table);
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('product_color_id')->nullable();
             $table->unsignedBigInteger('product_size_id');

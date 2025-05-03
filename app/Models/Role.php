@@ -11,8 +11,15 @@ class Role extends Model
     public const REGULAR_USER = 1;
 
     // setup prop
-    public $timestamps = false;
-    protected $fillable = ['name'];
+    public $timestamps  = false;
+    protected $fillable = [
+        'name',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes'
+    ];
 
     // setup relationship
     public function users()

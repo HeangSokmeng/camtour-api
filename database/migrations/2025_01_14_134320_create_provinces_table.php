@@ -1,5 +1,6 @@
 <?php
 
+use App\Traits\BaseMigrationField;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -9,13 +10,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    use BaseMigrationField;
+
     public function up(): void
     {
         Schema::create('provinces', function (Blueprint $table) {
-            $table->id();
+            $this->AddBaseFields($table);
             $table->string('name');
             $table->string('local_name');
-            $table->timestamps();
         });
     }
 

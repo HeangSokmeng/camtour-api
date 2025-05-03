@@ -14,9 +14,9 @@ class GeneralSettingController extends Controller
     {
         $this->gs = $gs;
     }
-    public function getFormLocation()
+    public function getFormLocation(Request $req)
     {
-        $user = UserService::getAuthUser();
+        $user = UserService::getAuthUser($req);
         $obj = (object)[
             'tags' => $this->gs::getOptionsTag($user),
             'category' => $this->gs::getOptionsCategory($user),
@@ -28,9 +28,9 @@ class GeneralSettingController extends Controller
         return ApiResponse::JsonResult($obj);
     }
 
-    public function getFormVariant()
+    public function getFormVariant(Request $req)
     {
-        $user = UserService::getAuthUser();
+        $user = UserService::getAuthUser($req);
         $obj = (object)[
             'product' => $this->gs::getOptionsProduct($user),
             'color' => $this->gs::getOptionsColor($user),
@@ -39,9 +39,9 @@ class GeneralSettingController extends Controller
         return ApiResponse::JsonResult($obj);
     }
 
-    public function getFormProduct()
+    public function getFormProduct(Request $req)
     {
-        $user = UserService::getAuthUser();
+        $user = UserService::getAuthUser($req);
         $obj = (object)[
             'category' => $this->gs::getOptionsCategory($user),
             'brand' => $this->gs::getOptionsBrand($user),

@@ -1,10 +1,14 @@
 <?php
 
+use App\Traits\BaseMigrationField;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
+
+    use BaseMigrationField;
+
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {
@@ -12,10 +16,7 @@ return new class extends Migration {
             $table->string('name');
         });
 
-        Schema::create('product_categories', function (Blueprint $table) {
-            $table->unsignedSmallInteger('id', true)->primary();
-            $table->string('name')->unique();
-        });
+
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
@@ -31,6 +32,12 @@ return new class extends Migration {
             $table->rememberToken();
             $table->timestamps();
             $table->foreign('role_id')->references('id')->on('roles')->cascadeOnDelete()->cascadeOnUpdate();
+        });
+
+        Schema::create('product_categories', function (Blueprint $table) {
+            $this->AddBaseFields($table);
+            // $table->unsignedSmallInteger('id', true)->primary();
+            $table->string('name')->unique();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
