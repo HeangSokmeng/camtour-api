@@ -76,9 +76,9 @@ Route::middleware('login')->group(function () {
             Route::delete('/images/{imageId}', [LocationImageController::class, 'destroy']);
 
             // Location reviews
-            Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
-            Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
-            Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
+            // Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
+            // Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
+            // Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
         });
 
         // Category Management Routes
