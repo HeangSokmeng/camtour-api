@@ -15,11 +15,8 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
         });
-
-
-
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $this->AddBaseFields($table);
             $table->unsignedBigInteger('role_id');
             $table->string('first_name');
             $table->string('last_name')->nullable();
@@ -27,11 +24,18 @@ return new class extends Migration {
             $table->string('image')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->unique();
+            $table->enum('is_lock', ['lock', 'unlock'])->default('unlock');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
-            $table->timestamps();
             $table->foreign('role_id')->references('id')->on('roles')->cascadeOnDelete()->cascadeOnUpdate();
+        });
+
+        Schema::create('role_user', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('role_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
         });
 
         Schema::create('product_categories', function (Blueprint $table) {
@@ -55,13 +59,32 @@ return new class extends Migration {
             $table->integer('last_activity')->index();
         });
     }
-
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('roles');
+        // Drop FKs from product_categories
+        Schema::table('product_categories', function (Blueprint $table) {
+            $table->dropForeign(['create_uid']);
+            $table->dropForeign(['update_uid']);
+        });
+
+        // Drop FKs from users
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['role_id']);
+        });
+
+        // Drop FKs from role_user
+        Schema::table('role_user', function (Blueprint $table) {
+            $table->dropForeign(['role_id']);
+            $table->dropForeign(['user_id']);
+        });
+
+        // Drop tables in dependency-safe order
         Schema::dropIfExists('product_categories');
+        Schema::dropIfExists('role_user');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('roles');
     }
+
 };

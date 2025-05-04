@@ -13,10 +13,7 @@ class UserService
     public static function getAuthUser(Request $request,$action = '')
     {
         $user = $request->user('sanctum');
-
         if ($user) {
-            Log::info("Authenticated user ID: " . $user->id);
-
             $hasUser = User::find($user->id);
             if ($hasUser) {
                 return DataResponse::JsonRaw([

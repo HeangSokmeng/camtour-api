@@ -19,7 +19,8 @@ class LoginResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'is_email_verified' => !($this->email_verified_at == null),
-            'role' => new RoleResource($this->role),
+            // 'role' => $this->roles->name,
+            'role_id' => $this->role_id,
             'created_at' => Carbon::parse($this->created_at)->format('Y-m-d H:i:s'),
         ];
         if ($this->token) {

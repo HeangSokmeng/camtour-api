@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\LocationImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -56,5 +57,25 @@ class LocationImageController extends Controller
 
         // response back
         return res_success('Delete photo successful');
+    }
+
+    public function getImages($id)
+    {
+        $location = Location::with('photos')->find($id);
+
+        if (!$location) {
+            return res_fail('Location not found.', 404);
+        }
+
+        // Format image URLs
+        $images = $location->images->map(function ($img) {
+            return [
+                'id' => $img->id,
+                'photo' => $img->photo,
+                'url' => asset('storage/' . $img->photo)
+            ];
+        });
+
+        return res_success('Images fetched successfully.', $images);
     }
 }

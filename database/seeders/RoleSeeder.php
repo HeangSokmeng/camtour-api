@@ -1,4 +1,5 @@
 <?php
+// database/seeders/RoleSeeder.php
 
 namespace Database\Seeders;
 
@@ -7,19 +8,18 @@ use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $dataRoles = [
-            ['id' => Role::REGULAR_USER, 'name' => 'User'],
+            ['id' => Role::CUSTOMER, 'name' => 'Customer'],
+            ['id' => Role::STAFF, 'name' => 'Staff'],
+            ['id' => Role::ADMIN, 'name' => 'Admin'],
             ['id' => Role::SYSTEM_ADMIN, 'name' => 'System Admin'],
         ];
+
         foreach ($dataRoles as $dataRole) {
-            $role = new Role($dataRole);
-            $role->id = $dataRole['id'];
-            $role->save();
+            Role::updateOrCreate(['id' => $dataRole['id']], ['name' => $dataRole['name']]);
         }
     }
 }
+

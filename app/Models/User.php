@@ -26,6 +26,12 @@ class User extends Authenticatable
         'phone',
         'email',
         'password',
+        'is_lock',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
     protected $hidden = [
         'password',
@@ -42,10 +48,12 @@ class User extends Authenticatable
     }
 
     // setup relationship
-    public function role()
+// app/Models/User.php
+    public function roles()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
+        return $this->belongsToMany(Role::class)->withTimestamps();
     }
+
     public function location_stars()
     {
         return $this->hasMany(LocationStar::class, 'rater_id', 'id');

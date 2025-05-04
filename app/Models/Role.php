@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Role extends Model
 {
     // global const
-    public const SYSTEM_ADMIN = 2;
-    public const REGULAR_USER = 1;
+    public const CUSTOMER = 4;
+    public const STAFF = 3;
+    public const ADMIN = 2;
+    public const SYSTEM_ADMIN = 1;
 
     // setup prop
     public $timestamps  = false;
@@ -21,9 +23,10 @@ class Role extends Model
         'delete_notes'
     ];
 
-    // setup relationship
+    // setup relationship// app/Models/Role.php
     public function users()
     {
-        return $this->hasMany(User::class, 'role_id', 'id');
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
+
 }

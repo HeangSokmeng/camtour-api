@@ -8,7 +8,6 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\GeneralSettingController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationImageController;
-use App\Http\Controllers\LocationStar;
 use App\Http\Controllers\LocationStarController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
@@ -22,112 +21,181 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 use Illuminate\Support\Facades\Route;
 
-// auth api
-Route::post('/auth/login', [AuthController::class, 'login']);
-Route::get('/auth/me', [AuthController::class, 'me'])->middleware('login');
-Route::delete('/auth/logout', [AuthController::class, 'logout'])->middleware('login');
-Route::post('/auth/forgot-pass', [AuthController::class, 'forgotPass']);
-Route::post('/auth/forgot-pass/verify-otp', [AuthController::class, 'verifyForgotPassOTP']);
-Route::post('/auth/reset-pass', [AuthController::class, 'resetPass']);
+// ===============================
+// PUBLIC ROUTES - No Authentication Required
+// ===============================
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/forgot-pass', [AuthController::class, 'forgotPass']);
+    Route::post('/forgot-pass/verify-otp', [AuthController::class, 'verifyForgotPassOTP']);
+    Route::post('/reset-pass', [AuthController::class, 'resetPass']);
+});
 
-// profile api
-Route::put('/profile/pass', [ProfileController::class, 'updatePass'])->middleware('login');
-Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->middleware('login');
-Route::delete('/profile/image', [ProfileController::class, 'resetImage'])->middleware('login');
+// ===============================
+// ALL OTHER ROUTES - LOGIN REQUIRED
+// ===============================
+Route::middleware('login')->group(function () {
 
-// location api
-Route::post('/locations', [LocationController::class, 'store'])->middleware('admin');
-Route::get('/locations', [LocationController::class, 'index']);
-Route::delete('/locations/{id}', [LocationController::class, 'destroy'])->middleware('admin');
-Route::get('/locations/{id}', [LocationController::class, 'find']);
-Route::put('/locations/{id}', [LocationController::class, 'update'])->middleware('admin');
+    // ===============================
+    // AUTH ROUTES - All Authenticated Users
+    // ===============================
+    Route::prefix('auth')->group(function () {
+        Route::get('/me', [AuthController::class, 'me']);
+        Route::delete('/logout', [AuthController::class, 'logout']);
+    });
 
-// location image api
-Route::post('/locations/images/{id}', [LocationImageController::class, 'storeImage'])->middleware('admin');
-Route::delete('/locations/images/{imageId}', [LocationImageController::class, 'destroy'])->middleware('admin');
+    // ===============================
+    // PROFILE ROUTES - All Authenticated Users
+    // ===============================
+    Route::prefix('profile')->group(function () {
+        Route::put('/pass', [ProfileController::class, 'updatePass']);
+        Route::post('/info', [ProfileController::class, 'updateInfo']);
+        Route::delete('/image', [ProfileController::class, 'resetImage']);
+    });
 
-// location review api
-Route::post('/locations/reviews/{id}', [LocationStarController::class, 'store'])->middleware('login');
-Route::delete('/locations/reviews/{reviewId}', [LocationStarController::class, 'destroy'])->middleware('login');
-Route::put('/locations/reviews/{reviewId}', [LocationStarController::class, 'update'])->middleware('login');
+    // ===============================
+    // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
+    // ===============================
+    Route::middleware('admin:staff,admin,system_admin')->group(function () {
 
-// setting . category api
-Route::post('/categories', [CategoryController::class, 'store'])->middleware('admin');
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/categories/{id}', [CategoryController::class, 'update'])->middleware('admin');
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->middleware('admin');
-Route::delete('/categories/image/{id}', [CategoryController::class, 'destroyImage'])->middleware('admin');
+        // Location Management Routes
+        Route::prefix('locations')->group(function () {
+            Route::get('/', [LocationController::class, 'index']);
+            Route::post('/', [LocationController::class, 'store']);
+            Route::get('/{id}', [LocationController::class, 'find']);
+            Route::put('/{id}', [LocationController::class, 'update']);
+            Route::delete('/{id}', [LocationController::class, 'destroy']);
 
-// setting . tags api
-Route::post('/tags', [TagController::class, 'store'])->middleware('login');
-Route::get('/tags', [TagController::class, 'index']);
-Route::put('/tags/{id}', [TagController::class, 'update'])->middleware('admin');
-Route::delete('/tags/{id}', [TagController::class, 'destroy'])->middleware('admin');
+            // Location images
+            Route::get('/get/images', [LocationImageController::class, 'getImages']);
+            Route::post('/images/{id}', [LocationImageController::class, 'storeImage']);
+            Route::delete('/images/{imageId}', [LocationImageController::class, 'destroy']);
 
-// setting . provinces api
-Route::get('/provinces', [ProvinceController::class, 'index']);
-Route::post('/provinces', [ProvinceController::class, 'store'])->middleware('admin');
-Route::put('/provinces/{id}', [ProvinceController::class, 'update'])->middleware('admin');
-Route::delete('/provinces/{id}', [ProvinceController::class, 'destroy'])->middleware('admin');
+            // Location reviews
+            Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
+            Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
+            Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
+        });
 
-// setting . district api
-Route::get('/districts', [DistrictController::class, 'index']);
-Route::post('/districts', [DistrictController::class, 'store'])->middleware('admin');
-Route::get('/districts/{id}', [DistrictController::class, 'find']);
-Route::put('/districts/{id}', [DistrictController::class, 'update'])->middleware('admin');
-Route::delete('/districts/{id}', [DistrictController::class, 'destroy'])->middleware('admin');
+        // Category Management Routes
+        Route::prefix('categories')->group(function () {
+            Route::get('/', [CategoryController::class, 'index']);
+            Route::post('/', [CategoryController::class, 'store']);
+            Route::post('/{id}', [CategoryController::class, 'update']);
+            Route::delete('/{id}', [CategoryController::class, 'destroy']);
+            Route::delete('/image/{id}', [CategoryController::class, 'destroyImage']);
+        });
 
-// setting . commune api
-Route::get('/communes', [CommuneController::class, 'index']);
-Route::post('/communes', [CommuneController::class, 'store'])->middleware('admin');
-Route::get('/communes/{id}', [CommuneController::class, 'find']);
-Route::put('/communes/{id}', [CommuneController::class, 'update'])->middleware('admin');
-Route::delete('/communes/{id}', [CommuneController::class, 'destroy'])->middleware('admin');
+        // Tag Management Routes
+        Route::prefix('tags')->group(function () {
+            Route::get('/', [TagController::class, 'index']);
+            Route::post('/', [TagController::class, 'store']);
+            Route::put('/{id}', [TagController::class, 'update']);
+            Route::delete('/{id}', [TagController::class, 'destroy']);
+        });
 
-// setting . village api
-Route::get('/villages', [VillageController::class, 'index']);
-Route::post('/villages', [VillageController::class, 'store'])->middleware('admin');
-Route::get('/villages/{id}', [VillageController::class, 'find']);
-Route::put('/villages/{id}', [VillageController::class, 'update'])->middleware('admin');
-Route::delete('/villages/{id}', [VillageController::class, 'destroy'])->middleware('admin');
+        // Address Hierarchy Management Routes
+        Route::get('provinces', [ProvinceController::class, 'index']);
+        Route::post('provinces', [ProvinceController::class, 'store']);
+        Route::get('provinces/{id}', [ProvinceController::class, 'show']);
+        Route::put('provinces/{id}', [ProvinceController::class, 'update']);
+        Route::delete('provinces/{id}', [ProvinceController::class, 'destroy']);
 
-Route::post('/brands', [BrandController::class, 'store'])->middleware('admin');
-Route::get('/brands', [BrandController::class, 'index']);
-Route::get('/brands/{id}', [BrandController::class, 'find']);
-Route::put('/brands/{id}', [BrandController::class, 'update'])->middleware('admin');
-Route::delete('/brands/{id}', [BrandController::class, 'destroy'])->middleware('admin');
+        Route::get('districts', [DistrictController::class, 'index']);
+        Route::post('districts', [DistrictController::class, 'store']);
+        Route::get('districts/{id}', [DistrictController::class, 'show']);
+        Route::put('districts/{id}', [DistrictController::class, 'update']);
+        Route::delete('districts/{id}', [DistrictController::class, 'destroy']);
 
-Route::post('/product-categories', [ProductCategoryController::class, 'store'])->middleware('admin');
-Route::get('/product-categories', [ProductCategoryController::class, 'index']);
-Route::put('/product-categories/{id}', [ProductCategoryController::class, 'update'])->middleware('admin');
-Route::delete('/product-categories/{id}', [ProductCategoryController::class, 'destroy'])->middleware('admin');
+        Route::get('communes', [CommuneController::class, 'index']);
+        Route::post('communes', [CommuneController::class, 'store']);
+        Route::get('communes/{id}', [CommuneController::class, 'show']);
+        Route::put('communes/{id}', [CommuneController::class, 'update']);
+        Route::delete('communes/{id}', [CommuneController::class, 'destroy']);
 
-Route::post('/products', [ProductController::class, 'store'])->middleware('admin');
-Route::delete('/products/{id}', [ProductController::class, 'destroy'])->middleware('admin');
-Route::put('/products/{id}', [ProductController::class, 'update'])->middleware('admin');
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'find']);
+        Route::get('villages', [VillageController::class, 'index']);
+        Route::post('villages', [VillageController::class, 'store']);
+        Route::get('villages/{id}', [VillageController::class, 'show']);
+        Route::put('villages/{id}', [VillageController::class, 'update']);
+        Route::delete('villages/{id}', [VillageController::class, 'destroy']);
 
-Route::post('/product-tags', [ProductTagController::class, 'sync'])->middleware('admin');
+        // Brand Management Routes
+        Route::get('brands', [BrandController::class, 'index']);
+        Route::post('brands', [BrandController::class, 'store']);
+        Route::get('brands/{id}', [BrandController::class, 'show']);
+        Route::put('brands/{id}', [BrandController::class, 'update']);
+        Route::delete('brands/{id}', [BrandController::class, 'destroy']);
 
-Route::post('/product-colors', [ProductColorController::class, 'store'])->middleware('admin');
-Route::get('/product-colors', [ProductColorController::class, 'index'])->middleware('admin');
-Route::put('/product-colors/{id}', [ProductColorController::class, 'update'])->middleware('admin');
-Route::delete('/product-colors/{id}', [ProductColorController::class, 'destroy'])->middleware('admin');
+        // Product Management Routes
+        Route::prefix('products')->group(function () {
+            Route::get('/', [ProductController::class, 'index']);
+            Route::post('/', [ProductController::class, 'store']);
+            Route::get('/{id}', [ProductController::class, 'find']);
+            Route::put('/{id}', [ProductController::class, 'update']);
+            Route::delete('/{id}', [ProductController::class, 'destroy']);
+        });
 
-Route::post('/product-sizes', [ProductSizeController::class, 'store'])->middleware('admin');
-Route::get('/product-sizes', [ProductSizeController::class, 'index'])->middleware('admin');
-Route::put('/product-sizes/{id}', [ProductSizeController::class, 'update'])->middleware('admin');
-Route::delete('/product-sizes/{id}', [ProductSizeController::class, 'destroy'])->middleware('admin');
+        // Product Relations Management - Changed from apiResource to individual routes
+        Route::prefix('product-categories')->group(function () {
+            Route::get('/', [ProductCategoryController::class, 'index']);
+            Route::post('/', [ProductCategoryController::class, 'store']);
+            Route::get('/{id}', [ProductCategoryController::class, 'show']);
+            Route::put('/{id}', [ProductCategoryController::class, 'update']);
+            Route::delete('/{id}', [ProductCategoryController::class, 'destroy']);
+        });
 
-Route::post('/product-images', [ProductImageController::class, 'store'])->middleware('admin');
-Route::post('/product-images/{id}', [ProductImageController::class, 'update'])->middleware('admin');
-Route::delete('/product-images/{id}', [ProductImageController::class, 'destroy'])->middleware('admin');
+        Route::post('/product-tags', [ProductTagController::class, 'sync']);
 
-Route::post('/product-variants', [ProductVariantController::class, 'store'])->middleware('admin');
-Route::get('/product-variants', [ProductVariantController::class, 'index'])->middleware('admin');
-Route::get('/product-variants/{id}', [ProductVariantController::class, 'show'])->middleware('admin');
-Route::put('/product-variants/{id}', [ProductVariantController::class, 'update'])->middleware('admin');
-Route::delete('/product-variants/{id}', [ProductVariantController::class, 'destory'])->middleware('admin');
+        Route::prefix('product-colors')->group(function () {
+            Route::get('/', [ProductColorController::class, 'index']);
+            Route::post('/', [ProductColorController::class, 'store']);
+            Route::get('/{id}', [ProductColorController::class, 'show']);
+            Route::put('/{id}', [ProductColorController::class, 'update']);
+            Route::delete('/{id}', [ProductColorController::class, 'destroy']);
+        });
+
+        Route::prefix('product-sizes')->group(function () {
+            Route::get('/', [ProductSizeController::class, 'index']);
+            Route::post('/', [ProductSizeController::class, 'store']);
+            Route::get('/{id}', [ProductSizeController::class, 'show']);
+            Route::put('/{id}', [ProductSizeController::class, 'update']);
+            Route::delete('/{id}', [ProductSizeController::class, 'destroy']);
+        });
+
+        // Product Images Management
+        Route::prefix('product-images')->group(function () {
+            Route::post('/', [ProductImageController::class, 'store']);
+            Route::post('/{id}', [ProductImageController::class, 'update']);
+            Route::delete('/{id}', [ProductImageController::class, 'destroy']);
+        });
+
+        // Product Variants Management
+        Route::prefix('product-variants')->group(function () {
+            Route::get('/', [ProductVariantController::class, 'index']);
+            Route::post('/', [ProductVariantController::class, 'store']);
+            Route::get('/{id}', [ProductVariantController::class, 'show']);
+            Route::put('/{id}', [ProductVariantController::class, 'update']);
+            Route::delete('/{id}', [ProductVariantController::class, 'destory']);
+        });
+    });
+
+    // ===============================
+    // ROUTES FOR ADMIN AND SYSTEM_ADMIN ONLY (USER MANAGEMENT)
+    // ===============================
+    Route::middleware('admin:admin,system_admin')->group(function () {
+        // User Management Routes - ONLY admin and system_admin can access
+        Route::prefix('users')->group(function () {
+            Route::get('/', [UserController::class, 'index']);
+            Route::post('/', [UserController::class, 'store']);
+            Route::get('/{id}', [UserController::class, 'show']);
+            Route::put('/{id}', [UserController::class, 'update']);
+            Route::put('/islock/{id}', [UserController::class, 'lockUser']);
+            Route::delete('/{id}', [UserController::class, 'destroy']);
+        });
+        Route::get('/roles', [RoleController::class, 'index']);
+    });
+});

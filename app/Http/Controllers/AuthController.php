@@ -26,7 +26,10 @@ class AuthController extends Controller
 
         // check user credential
         $email = $req->input('email');
-        $user = User::where('email', $email)->with('role')->first();
+        $user = User::where('email', $email)->with('roles')->first();
+        if($user->is_lock == 'lock'){
+            return res_fail('You do not have permission to access this resource.', [], 1, 403);
+        }
         if (!$user) return res_fail('Incorrect email or password');
         if (!Hash::check($req->input('password'), $user->password)) return res_fail('Incorrect email or password');
 
@@ -40,7 +43,7 @@ class AuthController extends Controller
     {
         // get current user login & response
         $loginUser = $req->user('sanctum');
-        $user = User::where('id', $loginUser->id)->with('role')->first();
+        $user = User::where('id', $loginUser->id)->with('roles')->first();
         return res_success('Get me successful.', new LoginResource($user));
     }
 

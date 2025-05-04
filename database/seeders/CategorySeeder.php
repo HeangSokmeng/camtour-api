@@ -13,19 +13,16 @@ class CategorySeeder extends Seeder
         // setup default
         $dataCategories = [
             [
-                'id' => 1,
                 'name' => 'រមណីយដ្ឋានធម្មជាតិ',
                 'create_uid' => 1,
                 'update_uid' => 1
             ],
             [
-                'id' => 2,
                 'name' => 'រមណីយដ្ឋានប្រវត្តិសាស្រ្ត',
                 'create_uid' => 1,
                 'update_uid' => 1
             ],
             [
-                'id' => 3,
                 'name' => 'រមណីយដ្ឋានវប្បធម៌',
                 'create_uid' => 1,
                 'update_uid' => 1
@@ -35,7 +32,6 @@ class CategorySeeder extends Seeder
         // store category
         foreach ($dataCategories as $dataCategory) {
             $category = new Category($dataCategory);
-            $category->id = $dataCategory['id'];
             $category->image = Category::DEFAULT_IMAGE;
             $category->save();
         }
