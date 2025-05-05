@@ -23,6 +23,8 @@ use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Web\CommentController;
+use App\Http\Controllers\Web\CustomerController;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -35,11 +37,35 @@ Route::prefix('auth')->group(function () {
     Route::post('/reset-pass', [AuthController::class, 'resetPass']);
 });
 
+
+// ===============================
+// ALL OTHER ROUTES Web
+// ===============================
+
+Route::prefix('web')->group(function () {
+    Route::prefix('customer')->group(function () {
+        Route::post('/', [CustomerController::class, 'store']);
+    });
+});
+
 // ===============================
 // ALL OTHER ROUTES - LOGIN REQUIRED
 // ===============================
 Route::middleware('login')->group(function () {
 
+    Route::prefix('web')->group(function () {
+        Route::prefix('customer')->group(function () {
+            Route::get('/', [CustomerController::class, 'theirInfo']);
+            Route::put('/update', [CustomerController::class, 'update']);
+            Route::delete('/delete', [CustomerController::class, 'destroy']);
+        });
+        Route::prefix('comment')->group(function () {
+            Route::post('/', [CommentController::class, 'store']);
+            Route::get('/', [CommentController::class, 'getAllComment']);
+            Route::put('/update', [CustomerController::class, 'update']);
+            Route::delete('/delete', [CustomerController::class, 'destroy']);
+        });
+    });
     // ===============================
     // AUTH ROUTES - All Authenticated Users
     // ===============================
@@ -57,11 +83,18 @@ Route::middleware('login')->group(function () {
         Route::delete('/image', [ProfileController::class, 'resetImage']);
     });
 
+
     // ===============================
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
 
+        // Route::prefix('customer')->group(function () {
+        //     Route::post('/', [CustomerController::class, 'store']);
+        //     Route::get('/', [CustomerController::class, 'index']);
+        //     Route::put('/{id}', [CustomerController::class, 'update']);
+        //     Route::delete('/{id}', [AuthController::class, 'destroy']);
+        // });
         // Location Management Routes
         Route::prefix('locations')->group(function () {
             Route::get('/', [LocationController::class, 'index']);
@@ -71,7 +104,7 @@ Route::middleware('login')->group(function () {
             Route::delete('/{id}', [LocationController::class, 'destroy']);
 
             // Location images
-            Route::get('/get/images', [LocationImageController::class, 'getImages']);
+            Route::get('/get/images/{id}', [LocationImageController::class, 'getImages']);
             Route::post('/images/{id}', [LocationImageController::class, 'storeImage']);
             Route::delete('/images/{imageId}', [LocationImageController::class, 'destroy']);
 
@@ -186,7 +219,7 @@ Route::middleware('login')->group(function () {
     // ===============================
     // ROUTES FOR ADMIN AND SYSTEM_ADMIN ONLY (USER MANAGEMENT)
     // ===============================
-    Route::middleware('admin:admin,system_admin')->group(function () {
+    Route::middleware(['admin:system_admin,admin', 'login'])->group(function () {
         // User Management Routes - ONLY admin and system_admin can access
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index']);

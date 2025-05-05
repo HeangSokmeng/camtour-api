@@ -16,6 +16,7 @@ class BrandController
             'name' => 'required|string|max:50',
             'name_km' => 'nullable|string|max:50'
         ]);
+
     }
 
     public function store(Request $req)

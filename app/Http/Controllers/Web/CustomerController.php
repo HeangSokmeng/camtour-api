@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Web;
 
 use ApiResponse;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserIndexResource;
 use App\Models\User;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class UserController extends Controller
+class CustomerController extends Controller
 {
     public function store(Request $req)
     {
@@ -42,13 +43,13 @@ class UserController extends Controller
         $user->image = $image;
         $user->password = Hash::make($req->password);
         if (!$req->role_id) {
-            $user->role_id = 3;
+            $user->role_id = 4;
         }
         $user->save();
         if ($req->has('roles') && !empty($req->roles)) {
             $user->roles()->sync($req->roles);
         } else {
-            $user->roles()->sync([3]);
+            $user->roles()->sync([4]);
         }
         return res_success('Store new user successful', new UserDetailResource($user));
     }
@@ -62,7 +63,7 @@ class UserController extends Controller
             'gender' => 'nullable|integer|in:1,2',
         ]);
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 15;
-        $users = User::with(['roles'])->where('is_deleted',0)->whereIn('role_id',[1, 2, 3]);
+        $users = User::with(['roles'])->where('is_deleted',0)->where('role_id', 4);
         if ($req->filled('search')) {
             $s = $req->input('search');
             $users->where(function ($q) use ($s) {
@@ -84,6 +85,22 @@ class UserController extends Controller
         return res_paginate($users, "Get all users success", UserIndexResource::collection($users));
     }
 
+    public function theirInfo(Request $req)
+    {
+        $user = UserService::getAuthUser($req);
+        $users = User::with(['roles'])->where('is_deleted',0)->where('role_id', 4)->where('id', $user->id)->get();
+        if(!$user) return ApiResponse::Unauthorized();
+        if ($req->filled('role_id')) {
+            $users->whereHas('roles', function ($q) use ($req) {
+                $q->where('roles.id', $req->input('role_id'));
+            });
+        }
+        if ($req->filled('gender')) {
+            $users->where('gender', $req->input('gender'));
+        }
+        return res_success("Get Information success", UserIndexResource::collection($users));
+    }
+
     public function lockUser(Request $req)
     {
         $id = $req->id ?? 0;
@@ -97,19 +114,20 @@ class UserController extends Controller
         return ApiResponse::JsonResult(null, $message);
     }
 
-    public function update(Request $req, $id)
+    public function update(Request $req)
     {
-        $user = User::where('is_deleted', 0)->find($id);
-        if (!$user)  return ApiResponse::NotFound('User not found');
+        $userService = UserService::getAuthUser($req);
+        $user = User::where('is_deleted', 0)->where('id', $userService->id)->first();
+        if (!$user)  return ApiResponse::Unauthorized();
         $req->validate([
             'first_name' => 'nullable|string|max:250',
             'last_name' => 'nullable|string|max:250',
             'gender' => 'nullable|integer|in:1,2',
-            'roles' => 'nullable|array',
-            'roles.*' => 'integer|exists:roles,id',
+            // 'roles' => 'nullable|array',
+            // 'roles.*' => 'integer|exists:roles,id',
             'image' => 'nullable|file|mimetypes:image/png,image/jpeg|max:2048',
             'phone' => 'nullable|string|max:250',
-            'email' => 'nullable|email|max:250|unique:users,email,' . $id,
+            'email' => 'nullable|email|max:250|unique:users,email,' . $userService->id,
             'password' => 'nullable|string|min:8|confirmed',
             'is_lock' => 'nullable'
         ]);
@@ -126,16 +144,15 @@ class UserController extends Controller
             'is_lock'
         ]));
         if ($req->filled('password'))   $user->password = Hash::make($req->password);
-        $authUser = UserService::getAuthUser($req);
-        $user->update_uid = $authUser->id;
+        $user->update_uid = $userService->id;
         $user->save();
-        if ($req->has('roles'))  $user->roles()->sync($req->roles);
         return res_success('User updated successfully', new UserDetailResource($user));
     }
 
-    public function destroy(Request $req, $id)
+    public function destroy(Request $req)
     {
-        $user = User::where('is_deleted', 0)->find($id);
+        $userService = UserService::getAuthUser($req);
+        $user = User::where('is_deleted', 0)->where('id', $userService->id)->first();
         if (!$user)  return ApiResponse::NotFound('User not found');
         $authUser = UserService::getAuthUser($req);
         if ($user->id === $authUser->id)  return ApiResponse::ValidateFail('You cannot delete your own account');

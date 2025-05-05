@@ -68,7 +68,7 @@ class LocationImageController extends Controller
         }
 
         // Format image URLs
-        $images = $location->images->map(function ($img) {
+        $images = $location->photos->map(function ($img) {
             return [
                 'id' => $img->id,
                 'photo' => $img->photo,
@@ -78,4 +78,5 @@ class LocationImageController extends Controller
 
         return res_success('Images fetched successfully.', $images);
     }
+
 }
