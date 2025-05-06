@@ -2,18 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use ApiResponse;
 use App\Http\Resources\LocationDetailResource;
 use App\Http\Resources\LocationIndexResource;
 use App\Models\Location;
 use App\Models\LocationImage;
+use App\Services\MapCoordinateService;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
 {
+    public function extractCoordinates(Request $req)
+    {
+        $req->validate([
+            'url' => 'required|url'
+        ]);
+
+        $url = $req->input('url');
+        $mapService = new MapCoordinateService();
+        $coordinates = $mapService->extractCoordinatesFromUrl($url);
+
+        if ($coordinates) {
+            return res_success('Coordinates extracted successfully.', $coordinates);
+        }
+
+        return ApiResponse::NotFound('Could not extract coordinates from the provided URL.');
+    }
+
+    /**
+     * Store a new location
+     *
+     * @param Request $req
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $req)
     {
+        // Extract coordinates from URL if provided
+        if ($req->filled('url_location') && (!$req->filled('lat') || !$req->filled('lot'))) {
+            $mapService = new MapCoordinateService();
+            $coordinates = $mapService->extractCoordinatesFromUrl($req->input('url_location'));
+
+            if ($coordinates) {
+                $req->merge([
+                    'lat' => $coordinates['lat'],
+                    'lot' => $coordinates['lot']
+                ]);
+            }
+        }
+
         // validation
         $req->merge(['tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
@@ -170,7 +208,7 @@ class LocationController extends Controller
         // validation
         $req->merge(['id' => $id, 'tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
-            'id'=> 'required|integer|min:1|exists:locations,id,is_deleted,0',
+            'id' => 'required|integer|min:1|exists:locations,id,is_deleted,0',
             'name' => 'nullable|string|max:250|unique:locations,name,' . $id . ',id,is_deleted,0',
             'name_local' => 'nullable|string|max:250|unique:locations,name_local,' . $id . ',id,is_deleted,0',
             'thumbnail' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',

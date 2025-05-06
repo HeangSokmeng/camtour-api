@@ -36,20 +36,13 @@ class ProductImageController extends Controller
 
     public function destroy(Request $req, $id)
     {
-        // validation
         $req->merge(['id' => $id]);
         $req->validate([
             'id' => 'required|integer|min:1|exists:product_images,id,is_deleted,0',
         ]);
-
-        // find product image
         $image = ProductImage::where('id', $id)->where('is_deleted', 0)->first();
         if (!$image) return res_fail('Product image not found.', [], 1, 404);
-
-        // delete image file from storage
         Storage::disk('public')->delete($image->image);
-
-        // soft delete
         $user = UserService::getAuthUser($req);
         $image->update([
             'is_deleted' => 1,

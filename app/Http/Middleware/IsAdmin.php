@@ -18,7 +18,6 @@ class IsAdmin
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user('sanctum');
-        Log::info($user);
 
         if (!$user) {
             return res_fail('You need to login first.', [], 1, 403);

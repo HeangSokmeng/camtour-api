@@ -72,9 +72,12 @@ class LocationImageController extends Controller
             return [
                 'id' => $img->id,
                 'photo' => $img->photo,
-                'url' => asset('storage/' . $img->photo)
+                'url' => asset('storage/' . $img->photo),
+                'created_at' => $img->created_at
             ];
         });
+        $images = $images->sortByDesc('id')->values();
+
 
         return res_success('Images fetched successfully.', $images);
     }

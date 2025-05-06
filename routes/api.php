@@ -62,8 +62,10 @@ Route::middleware('login')->group(function () {
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
             Route::get('/', [CommentController::class, 'getAllComment']);
-            Route::put('/update', [CustomerController::class, 'update']);
-            Route::delete('/delete', [CustomerController::class, 'destroy']);
+            Route::get('/{id}', [CommentController::class, 'getOneComment']);
+            Route::put('/update/{id}', [CommentController::class, 'update']);
+            Route::put('/update/status/{id}', [CommentController::class, 'lockComment']);
+            Route::delete('/delete', [CommentController::class, 'destroy']);
         });
     });
     // ===============================

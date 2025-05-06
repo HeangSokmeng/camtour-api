@@ -144,4 +144,5 @@ class UserController extends Controller
         $user->save();
         return res_success('User deleted successfully', null);
     }
+
 }
