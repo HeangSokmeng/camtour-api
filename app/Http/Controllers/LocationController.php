@@ -25,6 +25,7 @@ class LocationController extends Controller
         $coordinates = $mapService->extractCoordinatesFromUrl($url);
 
         if ($coordinates) {
+
             return res_success('Coordinates extracted successfully.', $coordinates);
         }
 
