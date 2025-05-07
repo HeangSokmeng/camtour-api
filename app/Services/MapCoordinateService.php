@@ -14,38 +14,34 @@ class MapCoordinateService
      * @return array|null Array with 'lat' and 'lot' keys or null if extraction failed
      */
     public function extractCoordinatesFromUrl($url)
-    {
-        // Clean the URL
-        $url = trim($url);
+{
+    \Log::info('Extracting coordinates from URL: ' . $url);
 
-        // Try direct extraction from URL
-        $coordinates = $this->extractFromUrlPattern($url);
-        if ($coordinates) {
-            return $coordinates;
-        }
+    // Pattern for the standard Google Maps URL with q parameter
+    if (preg_match('/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
+        $coordinates = [
+            'lat' => (float)$matches[1],
+            'lot' => (float)$matches[2]
+        ];
 
-        // If it's a short URL (goo.gl or maps.app.goo.gl), follow the redirect
-        if (strpos($url, 'goo.gl') !== false || strpos($url, 'maps.app.goo.gl') !== false) {
-            $longUrl = $this->followRedirect($url);
-            if ($longUrl) {
-                $coordinates = $this->extractFromUrlPattern($longUrl);
-                if ($coordinates) {
-                    return $coordinates;
-                }
-            }
-        }
-
-        // As a last resort, use Geocoding API for the location
-        if (strpos($url, 'q=') !== false) {
-            $query = $this->extractQueryParam($url, 'q');
-            if ($query) {
-                return $this->geocodeAddress($query);
-            }
-        }
-
-        return null;
+        \Log::info('Extracted coordinates (q parameter): ', $coordinates);
+        return $coordinates;
     }
 
+    // Pattern for complex Google Maps URL with 3d and 4d parameters
+    if (preg_match('/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/', $url, $matches)) {
+        $coordinates = [
+            'lat' => (float)$matches[1],
+            'lot' => (float)$matches[2]
+        ];
+
+        \Log::info('Extracted coordinates (3d/4d parameters): ', $coordinates);
+        return $coordinates;
+    }
+
+    \Log::info('No coordinates found in URL');
+    return null;
+}
     /**
      * Extract coordinates directly from URL patterns
      */

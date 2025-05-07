@@ -65,7 +65,7 @@ Route::middleware('login')->group(function () {
             Route::get('/{id}', [CommentController::class, 'getOneComment']);
             Route::put('/update/{id}', [CommentController::class, 'update']);
             Route::put('/update/status/{id}', [CommentController::class, 'lockComment']);
-            Route::delete('/delete', [CommentController::class, 'destroy']);
+            Route::delete('/{id}', [CommentController::class, 'destroy']);
         });
     });
     // ===============================
@@ -81,7 +81,7 @@ Route::middleware('login')->group(function () {
     // ===============================
     Route::prefix('profile')->group(function () {
         Route::put('/pass', [ProfileController::class, 'updatePass']);
-        Route::post('/info', [ProfileController::class, 'updateInfo']);
+        Route::put('/info', [ProfileController::class, 'updateInfo']);
         Route::delete('/image', [ProfileController::class, 'resetImage']);
     });
 
@@ -111,9 +111,9 @@ Route::middleware('login')->group(function () {
             Route::delete('/images/{imageId}', [LocationImageController::class, 'destroy']);
 
             // Location reviews
-            // Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
-            // Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
-            // Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
+            Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
+            Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
+            Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
         });
 
         // Category Management Routes
@@ -204,6 +204,7 @@ Route::middleware('login')->group(function () {
         // Product Images Management
         Route::prefix('product-images')->group(function () {
             Route::post('/', [ProductImageController::class, 'store']);
+            Route::get('/get/{id}', [ProductImageController::class, 'getImages']);
             Route::post('/{id}', [ProductImageController::class, 'update']);
             Route::delete('/{id}', [ProductImageController::class, 'destroy']);
         });

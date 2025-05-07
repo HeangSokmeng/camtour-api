@@ -97,9 +97,7 @@ class ProductController extends Controller
             ->where('status', 'published')
             ->with(['brand', 'category', 'pcategory', 'colors', 'sizes', 'tags', 'images', 'variants'])
             ->first();
-
         if (!$product) return res_fail('Product not found or not published.', [], 1, 404);
-
         return res_success("Get detail product success.", new ProductDetailResource($product));
     }
 
@@ -110,11 +108,9 @@ class ProductController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:products,id,is_deleted,0'
         ]);
-
         // find product
         $product = Product::where('id', $id)->where('is_deleted', 0)->first(['id', 'thumbnail']);
         if (!$product) return res_fail('Product not found.', [], 1, 404);
-
         // handle thumbnail if needed
         if ($product->thumbnail != Product::DEFAULT_THUMBNAIL) {
             Storage::disk('public')->delete($product->thumbnail);

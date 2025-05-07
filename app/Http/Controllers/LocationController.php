@@ -6,7 +6,6 @@ use ApiResponse;
 use App\Http\Resources\LocationDetailResource;
 use App\Http\Resources\LocationIndexResource;
 use App\Models\Location;
-use App\Models\LocationImage;
 use App\Services\MapCoordinateService;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -19,16 +18,10 @@ class LocationController extends Controller
         $req->validate([
             'url' => 'required|url'
         ]);
-
         $url = $req->input('url');
         $mapService = new MapCoordinateService();
         $coordinates = $mapService->extractCoordinatesFromUrl($url);
-
-        if ($coordinates) {
-
-            return res_success('Coordinates extracted successfully.', $coordinates);
-        }
-
+        if ($coordinates) return res_success('Coordinates extracted successfully.', $coordinates);
         return ApiResponse::NotFound('Could not extract coordinates from the provided URL.');
     }
 
@@ -40,11 +33,9 @@ class LocationController extends Controller
      */
     public function store(Request $req)
     {
-        // Extract coordinates from URL if provided
         if ($req->filled('url_location') && (!$req->filled('lat') || !$req->filled('lot'))) {
             $mapService = new MapCoordinateService();
             $coordinates = $mapService->extractCoordinatesFromUrl($req->input('url_location'));
-
             if ($coordinates) {
                 $req->merge([
                     'lat' => $coordinates['lat'],
@@ -52,18 +43,19 @@ class LocationController extends Controller
                 ]);
             }
         }
-
         // validation
         $req->merge(['tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
-            'name' => 'required|string|max:250|unique:locations,name,NULL,id,is_deleted,0',
-            'name_local' => 'required|string|max:250|unique:locations,name_local,NULL,id,is_deleted,0',
+            'name' => 'required|string|max:250',
+            'name_local' => 'required|string|max:250',
             'thumbnail' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
             'url_location' => 'nullable|url',
             'short_description' => 'nullable|string|max:250',
             'description' => 'nullable|string|max:65530',
             'lat' => 'nullable|numeric|min:0',
             'lot' => 'nullable|numeric|min:0',
+            'min_money' => 'nullable|numeric|min:0',
+            'max_money' => 'nullable|numeric|min:0',
             'category_id' => 'required|integer|min:1|exists:categories,id,is_deleted,0',
             'province_id' => 'required|integer|min:1|exists:provinces,id',
             'district_id' => 'required|integer|min:1|exists:districts,id,is_deleted,0',
@@ -81,8 +73,6 @@ class LocationController extends Controller
             $thumbnail = $req->file('thumbnail');
             $thumbnailPath = $thumbnail->store('locations/thumbnails', ['disk' => 'public']);
         }
-
-        // store location
         $location = new Location($req->only([
             'name',
             'name_local',
@@ -98,22 +88,14 @@ class LocationController extends Controller
             'village_id'
         ]));
         $location->thumbnail = $thumbnailPath;
-        if ($req->filled('published_at')) {
-            $location->published_at = $req->input('published_at');
-        }
-
-        // Set user info
+        if ($req->filled('published_at'))  $location->published_at = $req->input('published_at');
         $user = UserService::getAuthUser($req);
         $location->create_uid = $user->id;
         $location->update_uid = $user->id;
-
         $location->save();
-
-        // store location tag & response
         $location->tags()->sync($req->input('tag_ids'));
         return res_success('Store location successful.', new LocationDetailResource($location));
     }
-
     public function index(Request $req)
     {
         // validation
@@ -148,37 +130,27 @@ class LocationController extends Controller
             });
         }
 
-        // add option filter category
         if ($req->filled('category')) {
             $category = intval($req->input('category'));
             $locations = $locations->where('category_id', $category);
         }
-
-        // add option filter province
         if ($req->filled('province')) {
             $province = intval($req->input('province'));
             $locations = $locations->where('province_id', $province);
         }
-
-        // add option filter district
         if ($req->filled('district')) {
             $district = intval($req->input('district'));
             $locations = $locations->where('district_id', $district);
         }
-
-        // add option filter commune
         if ($req->filled('commune')) {
             $commune = intval($req->input('commune'));
             $locations = $locations->where('commune_id', $commune);
         }
-
-        // add option filter village
         if ($req->filled('village')) {
             $village = intval($req->input('village'));
             $locations = $locations->where('village_id', $village);
         }
 
-        // add sortable & get data
         $locations = $locations->whereNotNull('published_at')->with(['tags', 'category', 'province'])->withAvg('stars', 'star')->orderBy($sortCol, $sortDir)->paginate($perPage);
         return res_paginate($locations, 'Get locations successful.', LocationIndexResource::collection($locations));
     }
@@ -210,8 +182,8 @@ class LocationController extends Controller
         $req->merge(['id' => $id, 'tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
             'id' => 'required|integer|min:1|exists:locations,id,is_deleted,0',
-            'name' => 'nullable|string|max:250|unique:locations,name,' . $id . ',id,is_deleted,0',
-            'name_local' => 'nullable|string|max:250|unique:locations,name_local,' . $id . ',id,is_deleted,0',
+            'name' => 'required|string|max:250',
+            'name_local' => 'required|string|max:250',
             'thumbnail' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
             'url_location' => 'nullable|url',
             'short_description' => 'nullable|string|max:250',

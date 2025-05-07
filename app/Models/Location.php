@@ -22,6 +22,8 @@ class Location extends Model
         'category_id',
         'province_id',
         'district_id',
+        'min_money',
+        'max_money',
         'commune_id',
         'village_id',
         'create_uid',

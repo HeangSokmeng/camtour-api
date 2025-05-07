@@ -62,7 +62,7 @@ class UserController extends Controller
             'gender' => 'nullable|integer|in:1,2',
         ]);
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 15;
-        $users = User::with(['roles'])->where('is_deleted',0)->whereIn('role_id',[1, 2, 3]);
+        $users = User::with(['roles'])->where('is_deleted',0)->whereIn('role_id',[2, 3]);
         if ($req->filled('search')) {
             $s = $req->input('search');
             $users->where(function ($q) use ($s) {
@@ -87,6 +87,10 @@ class UserController extends Controller
     public function lockUser(Request $req)
     {
         $id = $req->id ?? 0;
+        $userAuth = UserService::getAuthUser($req);
+        if($id = $userAuth->id){
+            return res_fail('Can not lock youself.');
+        }
         $user = User::where('is_deleted', 0)->find($id);
         if (!$user)  return ApiResponse::NotFound('user not found');
         $authUser = UserService::getAuthUser($req);
@@ -94,7 +98,7 @@ class UserController extends Controller
         $user->is_lock = $user->is_lock === 'lock' ? 'unlock' : 'lock';
         $user->save();
         $message = $user->is_lock === 'lock' ? 'User has been locked' : 'User has been unlocked';
-        return ApiResponse::JsonResult(null, $message);
+        return res_success($message);
     }
 
     public function update(Request $req, $id)

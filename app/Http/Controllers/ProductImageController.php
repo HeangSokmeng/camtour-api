@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\UserService;
 use App\Http\Resources\ProductImageResource;
+use App\Models\Product;
 
 class ProductImageController extends Controller
 {
@@ -34,24 +35,43 @@ class ProductImageController extends Controller
         return res_success("Store new product image success.", new ProductImageResource($productImage));
     }
 
-    public function destroy(Request $req, $id)
-    {
-        $req->merge(['id' => $id]);
-        $req->validate([
-            'id' => 'required|integer|min:1|exists:product_images,id,is_deleted,0',
-        ]);
-        $image = ProductImage::where('id', $id)->where('is_deleted', 0)->first();
-        if (!$image) return res_fail('Product image not found.', [], 1, 404);
-        Storage::disk('public')->delete($image->image);
-        $user = UserService::getAuthUser($req);
-        $image->update([
-            'is_deleted' => 1,
-            'deleted_uid' => $user->id,
-            'deleted_datetime' => now()
-        ]);
 
-        return res_success("Delete image success.");
+    public function getImages($id)
+    {
+        $location = Product::with('images')->where('is_deleted',0)->find($id);
+
+        if (!$location) {
+            return res_fail('Location not found.', 404);
+        }
+        $images = $location->photos->map(function ($img) {
+            return [
+                'id' => $img->id,
+                'photo' => $img->image,
+                'url' => asset('storage/' . $img->image),
+                'created_at' => $img->created_at
+            ];
+        });
+        $images = $images->sortByDesc('id')->values();
+
+
+        return res_success('Images fetched successfully.', $images);
     }
+
+    public function destroy(Request $req, $imageId)
+    {
+        // validation
+        $req->merge(['id' => $imageId]);
+        $req->validate(['id' => 'required|integer|min:1|exists:product_images,id,is_deleted,0']);
+
+        // delete image file
+        $image = ProductImage::where('id', $imageId)->first(['id', 'image']);
+        Storage::disk('public')->delete($image->image);
+        $image->delete();
+
+        // response back
+        return res_success('Delete photo successful');
+    }
+
 
     public function update(Request $req, $id)
     {

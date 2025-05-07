@@ -154,6 +154,17 @@ class CommentController extends Controller
         $comment->status = !$comment->status;
         $comment->save();
         $message = $comment->status ? 'comment has been unlocked' : 'comment has been locked';
-        return res_success('success created.');
+        return res_success($message);
+    }
+
+    public function destroy(Request $req, $id)
+    {
+        $user = Comment::where('is_deleted', 0)->find($id);
+        if (!$user)  return ApiResponse::NotFound('User not found');
+        $authUser = UserService::getAuthUser($req);
+        $user->is_deleted = 1;
+        $user->deleted_uid = $authUser->id;
+        $user->save();
+        return res_success('User deleted successfully', null);
     }
 }

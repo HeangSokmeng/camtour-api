@@ -12,10 +12,7 @@ class LocationImageController extends Controller
 {
     public function storeImage(Request $req, $id)
     {
-        // Merge ID into request for validation
         $req->merge(['id' => $id]);
-
-        // Validate input
         $req->validate([
             'id' => 'required|integer|min:1|exists:locations,id',
             'images' => 'required|array',
@@ -66,8 +63,6 @@ class LocationImageController extends Controller
         if (!$location) {
             return res_fail('Location not found.', 404);
         }
-
-        // Format image URLs
         $images = $location->photos->map(function ($img) {
             return [
                 'id' => $img->id,
@@ -77,8 +72,6 @@ class LocationImageController extends Controller
             ];
         });
         $images = $images->sortByDesc('id')->values();
-
-
         return res_success('Images fetched successfully.', $images);
     }
 

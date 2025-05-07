@@ -17,6 +17,8 @@ class LocationIndexResource extends JsonResource
             'thumbnail' => asset("storage/{$this->thumbnail}"),
             'short_description' => $this->short_description,
             'url_location' => $this->url_location,
+            'min_money' => $this->min_money,
+            'max_money' => $this->max_money,
             'total_view' => $this->total_view,
             'published_at' => $this->published_at ? Carbon::parse($this->published_at)->format('Y-m-d H:i:s') : null,
             'category' => new CategoryResource($this->category),

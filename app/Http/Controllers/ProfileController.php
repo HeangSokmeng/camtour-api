@@ -23,7 +23,7 @@ class ProfileController extends Controller
 
         // check current password
         $loginUser = $req->user('sanctum');
-        $user = User::where('id', $loginUser->id)->with('role')->first();
+        $user = User::where('id', $loginUser->id)->with('roles')->first();
         if (!Hash::check($req->input('current_password'), $user->password)) return res_fail('Incorrect current password.');
         // update password
         $user->password = $req->input('new_password');
@@ -45,7 +45,7 @@ class ProfileController extends Controller
         ]);
 
         // update data & response
-        $user = User::where('id', $loginUser->id)->with('role')->first();
+        $user = User::where('id', $loginUser->id)->with('roles')->first();
         if ($req->filled('first_name')) {
             $user->first_name = $req->input('first_name');
         }
@@ -82,7 +82,7 @@ class ProfileController extends Controller
     {
         // reset image & response
         $loginUser = $req->user('sanctum');
-        $user = User::where('id', $loginUser->id)->with('role')->first();
+        $user = User::where('id', $loginUser->id)->with('roles')->first();
         if ($user->image != User::DEFAULT_IMAGE) {
             Storage::disk('public')->delete('avatars/' . $user->image);
         }
