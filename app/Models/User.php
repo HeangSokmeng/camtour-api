@@ -48,7 +48,7 @@ class User extends Authenticatable
     }
 
     // setup relationship
-// app/Models/User.php
+    // app/Models/User.php
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
@@ -57,5 +57,14 @@ class User extends Authenticatable
     public function location_stars()
     {
         return $this->hasMany(LocationStar::class, 'rater_id', 'id');
+    }
+    public function wishlistItems()
+    {
+        return $this->hasMany(WishlistItem::class);
+    }
+
+    public function wishlistLocations()
+    {
+        return $this->belongsToMany(Location::class, 'wishlist_items');
     }
 }

@@ -24,6 +24,7 @@ class Location extends Model
         'district_id',
         'min_money',
         'max_money',
+        'status',
         'commune_id',
         'village_id',
         'create_uid',
@@ -66,4 +67,9 @@ class Location extends Model
     {
         return $this->hasMany(LocationStar::class, 'location_id', 'id');
     }
+    public function wishlistUsers()
+    {
+        return $this->belongsToMany(User::class, 'wishlist_items');
+    }
+
 }

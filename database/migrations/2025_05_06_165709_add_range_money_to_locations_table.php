@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::table('locations', function (Blueprint $table) {
             $table->decimal('min_money')->nullable();
             $table->decimal('max_money')->nullable();
+            $table->boolean('status')->default(true);
+
         });
     }
 
@@ -25,6 +27,7 @@ return new class extends Migration
         Schema::table('locations', function (Blueprint $table) {
             $table->dropColumn('min_money');
             $table->dropColumn('max_money');
+            $table->dropColumn('status');
         });
     }
 };

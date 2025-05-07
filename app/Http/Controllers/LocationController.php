@@ -6,6 +6,8 @@ use ApiResponse;
 use App\Http\Resources\LocationDetailResource;
 use App\Http\Resources\LocationIndexResource;
 use App\Models\Location;
+use App\Models\User;
+use App\Models\WishlistItem;
 use App\Services\MapCoordinateService;
 use Illuminate\Http\Request;
 use App\Services\UserService;
@@ -293,7 +295,95 @@ class LocationController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete location successful.');
+    }
+
+    public function addToWishlist(Request $req)
+    {
+        $req->validate([
+            'location_id' => 'required|integer|exists:locations,id,is_deleted,0'
+        ]);
+
+        $user = UserService::getAuthUser($req);
+        $locationId = $req->location_id;
+        $location = Location::where('is_deleted', 0)->find($locationId);
+        if (!$location) {
+            return res_fail('Location not found.', [], 1, 404);
+        }
+        WishlistItem::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'location_id' => $locationId
+            ]
+        );
+        return res_success('Location added to wishlist successfully.');
+    }
+
+
+    public function removeFromWishlist(Request $req)
+    {
+        $req->validate([
+            'location_id' => 'required|integer|exists:locations,id'
+        ]);
+        $user = UserService::getAuthUser($req);
+        $locationId = $req->location_id;
+        $deleted = WishlistItem::where('user_id', $user->id)
+            ->where('location_id', $locationId)
+            ->delete();
+        if ($deleted) {
+            return res_success('Location removed from wishlist successfully.');
+        } else {
+            return res_fail('Location not found in wishlist.', [], 1, 404);
+        }
+    }
+
+    public function getWishlist(Request $req)
+    {
+        $user = UserService::getAuthUser($req);
+        $wishlistLocations = WishlistItem::with(
+            'user',
+            'location',
+            'location.province:id,name',
+            'location.district:id,name',
+            'location.commune:id,name',
+            'location.village:id,name',
+
+        )
+            ->where('user_id', $user->id)
+            ->selectRaw('id,location_id,user_id')
+            ->get();
+        foreach ($wishlistLocations as $wishlist) {
+            $wishlist->creator = $wishlist->user->first_name . ' ' . $wishlist->user->last_name ?? '';
+            $wishlist->location_name = $wishlist->location->name ?? '';
+            $wishlist->location_km = $wishlist->location->name_local ?? '';
+            $wishlist->short_description = $wishlist->location->short_description ?? '';
+            $wishlist->description = $wishlist->location->description ?? '';
+            $wishlist->url_location = $wishlist->location->url_location ?? '';
+            $wishlist->published_at = $wishlist->location->published_at ?? '';
+            $wishlist->min_money = $wishlist->location->min_money ?? '';
+            $wishlist->max_money = $wishlist->location->max_money ?? '';
+            $wishlist->lat = $wishlist->location->lat ?? '';
+            $wishlist->lot = $wishlist->location->lot ?? '';
+            $wishlist->thumbnail = asset("storage/{$wishlist->location->thumbnail}");
+            $wishlist->total_view = $wishlist->location->total_view ?? '';
+            $wishlist->status = $wishlist->location->status ?? '';
+            unset(
+                $wishlist->user,
+                $wishlist->location,
+            );
+        }
+        return res_success('Wishlist retrieved successfully.', $wishlistLocations);
+    }
+
+    // Add this method to check if a location is in the user's wishlist
+    public function isInWishlist(Request $req, $locationId)
+    {
+        $user = UserService::getAuthUser($req);
+        $exists = WishlistItem::where('user_id', $user->id)
+            ->where('location_id', $locationId)
+            ->exists();
+        return res_success('Wishlist status retrieved.', [
+            'in_wishlist' => $exists
+        ]);
     }
 }

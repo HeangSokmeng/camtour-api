@@ -23,6 +23,7 @@ use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +59,19 @@ Route::middleware('login')->group(function () {
             Route::get('/', [CustomerController::class, 'theirInfo']);
             Route::put('/update', [CustomerController::class, 'update']);
             Route::delete('/delete', [CustomerController::class, 'destroy']);
+        });
+        Route::prefix('wishlist')->group(function () {
+            Route::post('/', [LocationController::class, 'addToWishlist']);
+            Route::delete('/', [LocationController::class, 'removeFromWishlist']);
+            Route::get('/', [LocationController::class, 'getWishlist']);
+            Route::get('/{locationId}', [LocationController::class, 'isInWishlist']);
+        });
+        Route::prefix('cart')->group(function () {
+            Route::post('/', [CartController::class, 'addToCart']);
+            Route::get('/', [CartController::class, 'getCart']);
+            Route::put('/', [CartController::class, 'updateCartItem']);
+            Route::delete('/{id}', [CartController::class, 'removeCartItem']);
+            Route::delete('/cart/clear', [CartController::class, 'clearCart']);
         });
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
