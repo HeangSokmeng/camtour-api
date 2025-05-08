@@ -22,6 +22,8 @@ class Location extends Model
         'category_id',
         'province_id',
         'district_id',
+        'total_view',
+        'published_at',
         'min_money',
         'max_money',
         'status',

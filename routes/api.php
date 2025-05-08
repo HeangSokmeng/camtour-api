@@ -26,6 +26,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
+use App\Http\Controllers\Web\HomePageViewController;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -43,9 +44,13 @@ Route::prefix('auth')->group(function () {
 // ALL OTHER ROUTES Web
 // ===============================
 
-Route::prefix('web')->group(function () {
+Route::prefix('web/view')->group(function () {
     Route::prefix('customer')->group(function () {
         Route::post('/', [CustomerController::class, 'store']);
+    });
+    Route::prefix('location')->group(function () {
+        Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
+        Route::get('/{id}', [HomePageViewController::class, 'find']);
     });
 });
 
