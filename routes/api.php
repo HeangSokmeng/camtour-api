@@ -27,6 +27,7 @@ use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
 use App\Http\Controllers\Web\HomePageViewController;
+use App\Http\Controllers\Web\LocationDetailController;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -49,6 +50,7 @@ Route::prefix('web/view')->group(function () {
         Route::post('/', [CustomerController::class, 'store']);
     });
     Route::prefix('location')->group(function () {
+        Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
     });
