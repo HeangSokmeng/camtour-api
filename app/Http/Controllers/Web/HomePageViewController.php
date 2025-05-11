@@ -28,7 +28,7 @@ class HomePageViewController extends Controller
         $totalLocations = $locationsQuery->count();
         $locations = $locationsQuery->get();
         foreach ($locations as $location) {
-            $location->rate_star = $location->stars->avg('star') ?? 0;
+            $location->rate_star = round($location->stars->avg('star'), 2) ?? 0;
             $location->is_thumbnail = asset("storage/{$location->thumbnail}");
             unset($location->stars, $location->thumbnail);
         }

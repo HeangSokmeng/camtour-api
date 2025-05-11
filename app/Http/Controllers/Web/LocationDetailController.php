@@ -21,7 +21,10 @@ class LocationDetailController extends Controller
                 'commune:id,name,local_name',
                 'village:id,name,local_name',
                 'category:id,name',
-                'stars:id,location_id,star,comment',
+                'stars' => function ($query) {
+                    $query->select('id', 'location_id', 'star', 'comment', 'rater_id')
+                        ->orderBy('id', 'desc');
+                },
                 'category.products:id,category_id,name,name_km,description,thumbnail',
                 'category.products.variants:id,product_id,product_color_id,product_size_id,qty,price',
                 'category.products.variants.color:id,name,code',
@@ -51,7 +54,14 @@ class LocationDetailController extends Controller
             }
             unset($product->thumbnail, $location->category->products);
         }
+        $location->stars->each(function ($star) {
+            $star->rater_name = optional($star->rater)->first_name . ' ' . optional($star->rater)->last_name;
+            unset($star->rater);
+        });
+
         $location->products = $productRows;
+        $location->increment('total_view');
+        // $location->stars->increment('total_view');
         return res_success("Get detail location", $location);
     }
 }

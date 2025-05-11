@@ -62,6 +62,10 @@ Route::prefix('web/view')->group(function () {
 Route::middleware('login')->group(function () {
 
     Route::prefix('web')->group(function () {
+        Route::prefix('auth')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::delete('/logout', [AuthController::class, 'logout']);
+        });
         Route::prefix('customer')->group(function () {
             Route::get('/', [CustomerController::class, 'theirInfo']);
             Route::put('/update', [CustomerController::class, 'update']);
@@ -87,6 +91,13 @@ Route::middleware('login')->group(function () {
             Route::put('/update/{id}', [CommentController::class, 'update']);
             Route::put('/update/status/{id}', [CommentController::class, 'lockComment']);
             Route::delete('/{id}', [CommentController::class, 'destroy']);
+        });
+         Route::prefix('locations')->group(function () {
+             Route::prefix('reviews')->group(function () {
+                Route::post('/{id}', [LocationStarController::class, 'store']);
+                Route::put('/{reviewId}', [LocationStarController::class, 'update']);
+                Route::delete('/{reviewId}', [LocationStarController::class, 'destroy']);
+            });
         });
     });
     // ===============================
