@@ -84,6 +84,7 @@ Route::middleware('login')->group(function () {
             Route::delete('/{id}', [CartController::class, 'removeCartItem']);
             Route::delete('/cart/clear', [CartController::class, 'clearCart']);
         });
+
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
             Route::get('/', [CommentController::class, 'getAllComment']);
