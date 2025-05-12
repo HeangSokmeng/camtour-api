@@ -166,6 +166,38 @@ class DataResponse //extends Model
 class ApiResponse
 {
 
+    static function Pagination($data, $filter = null, $message = "get list",$additionalKey=[],$limit=1000)
+    {
+        $filter = (object)$filter;
+        $perPage = isset($filter->per_page) ? ($filter->per_page == 0 ? 1:$filter->per_page) : 10;
+        $currentPage = isset($filter->page_no) ? $filter->page_no : 1;
+        $skip_row = $perPage * ($currentPage - 1);
+        $totalCount = $data->count();
+        $count = $totalCount > $limit ? $limit : $totalCount;
+        if(isset($filter->search_value) || isset($filter->search)){
+            $skip_row = 0;
+            $perPage = $count > 0 ? $count : 1;
+        }
+        $limitation = $data->slice($skip_row,$perPage);
+        $total_page = ceil($count/$perPage);
+        $obj = (object)[
+            'status' => "OK",
+            'status_code' => 200,
+            'error' => false,
+            'message'=> $message,
+            'data' => $limitation->values(),
+            'per_page' => (int)$perPage,
+            'total' => (int)$count,
+            'total_page' => (int) $total_page,
+            'page_no' => (int) $currentPage,
+            'errors'=>[],
+        ];
+        foreach ((object)$additionalKey as $key => $value) {
+            $obj->$key = $value;
+        }
+        return $obj;
+    }
+
     static function ValidateFail($message=null,$errors=[]){
         return response()->json([
             'error' => true,

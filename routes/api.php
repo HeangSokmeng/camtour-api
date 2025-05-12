@@ -29,6 +29,7 @@ use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
 use App\Http\Controllers\Web\HomePageViewController;
 use App\Http\Controllers\Web\LocationDetailController;
+use App\Http\Controllers\Web\ProductViewController;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -58,6 +59,10 @@ Route::prefix('web/view')->group(function () {
      Route::prefix('adventure')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [AdventureViewController::class, 'getAdventure']);
+    });
+    Route::prefix('product')->group(function () {
+        Route::get('', [ProductViewController::class, 'index']);
+        Route::get('/detail/{id}', [AdventureViewController::class, 'getAdventure']);
     });
 });
 
