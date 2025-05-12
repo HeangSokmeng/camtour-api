@@ -58,13 +58,56 @@ class ProductViewController extends Controller
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:products,id,is_deleted,0']);
 
-        // get product
+        // get main product
         $product = Product::where('id', $id)
             ->where('is_deleted', 0)
             ->where('status', 'published')
-            ->with(['brand', 'category', 'pcategory', 'colors', 'sizes', 'tags', 'images', 'variants'])
+            ->with([
+                'brand:id,name',
+                'category:id,name',
+                'pcategory:id,name',
+                'colors:id,name,product_id',
+                'sizes:id,size,product_id',
+                'tags',
+                'images:id,image,product_id',
+                'variants:id,product_id,qty,price'
+            ])
             ->first();
+
         if (!$product) return res_fail('Product not found or not published.', [], 1, 404);
-        return res_success("Get detail product success.", new ProductDetailResource($product));
+            $product->thumbnail = asset("storage/{$product->thumbnail}");
+        // format image URL
+        foreach ($product->images as $pro) {
+            $pro->image_url = asset("storage/{$pro->image}");
+        }
+
+        // get related products (same category, not deleted, not the same ID)
+        $relatedProducts = Product::where('category_id', $product->category_id)
+    ->where('id', '!=', $product->id)
+    ->where('is_deleted', 0)
+    ->where('status', 'published')
+    ->with([
+        'brand:id,name',
+        'pcategory:id,name',
+        'colors:id,name,product_id',
+        'sizes:id,size,product_id',
+        'tags',
+        'images:id,image,product_id',
+        'variants:id,product_id,qty,price'
+    ])
+    ->limit(6)
+    ->get();
+
+foreach ($relatedProducts as $repo) {
+    $repo->thumbnail = $repo->thumbnail
+        ? asset("storage/{$repo->thumbnail}")
+        : asset("images/default-thumbnail.png"); // fallback image
+}
+
+return res_success("Get detail product success.", [
+    'product' => $product,
+    'related_products' => $relatedProducts
+]);
+
     }
 }

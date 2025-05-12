@@ -62,7 +62,7 @@ Route::prefix('web/view')->group(function () {
     });
     Route::prefix('product')->group(function () {
         Route::get('', [ProductViewController::class, 'index']);
-        Route::get('/detail/{id}', [AdventureViewController::class, 'getAdventure']);
+        Route::get('/{id}', [ProductViewController::class, 'find']);
     });
 });
 
