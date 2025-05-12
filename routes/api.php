@@ -23,6 +23,7 @@ use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\Web\AdventureViewController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
@@ -53,6 +54,10 @@ Route::prefix('web/view')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
+    });
+     Route::prefix('adventure')->group(function () {
+        Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
+        Route::get('/', [AdventureViewController::class, 'getAdventure']);
     });
 });
 
