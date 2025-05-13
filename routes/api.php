@@ -25,6 +25,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\Web\AdventureViewController;
 use App\Http\Controllers\Web\CartController;
+use App\Http\Controllers\Web\ChatbotController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
 use App\Http\Controllers\Web\HomePageViewController;
@@ -64,6 +65,8 @@ Route::prefix('web/view')->group(function () {
         Route::get('', [ProductViewController::class, 'index']);
         Route::get('/{id}', [ProductViewController::class, 'find']);
     });
+    Route::post('/chatbot', [ChatbotController::class, 'process']);
+Route::get('/chatbot/status', [ChatbotController::class, 'status']);
 });
 
 // ===============================
@@ -97,8 +100,8 @@ Route::middleware('login')->group(function () {
 
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
-            Route::get('/', [CommentController::class, 'getAllComment']);
-            Route::get('/{id}', [CommentController::class, 'getOneComment']);
+            Route::get('/', [CommentController::class, 'getAll']);
+            Route::get('/{id}', [CommentController::class, 'getOne']);
             Route::put('/update/{id}', [CommentController::class, 'update']);
             Route::put('/update/status/{id}', [CommentController::class, 'lockComment']);
             Route::delete('/{id}', [CommentController::class, 'destroy']);
@@ -125,7 +128,7 @@ Route::middleware('login')->group(function () {
     Route::prefix('profile')->group(function () {
         Route::put('/pass', [ProfileController::class, 'updatePass']);
         Route::put('/info', [ProfileController::class, 'updateInfo']);
-        Route::delete('/image', [ProfileController::class, 'resetImage']);
+        Route::put('/image', [ProfileController::class, 'resetImage']);
     });
 
 
@@ -270,8 +273,8 @@ Route::middleware('login')->group(function () {
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index']);
             Route::post('/', [UserController::class, 'store']);
+            Route::put('/update/{id}', [UserController::class, 'update']);
             Route::get('/{id}', [UserController::class, 'show']);
-            Route::put('/{id}', [UserController::class, 'update']);
             Route::put('/islock/{id}', [UserController::class, 'lockUser']);
             Route::delete('/{id}', [UserController::class, 'destroy']);
         });

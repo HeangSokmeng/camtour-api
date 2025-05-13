@@ -11,6 +11,7 @@ class LocationStar extends Model
         'rater_id',
         'location_id',
         'star',
+        'status',
         'comment',
         'create_uid',
         'update_uid',

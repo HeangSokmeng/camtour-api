@@ -4,167 +4,126 @@ namespace App\Http\Controllers\Web;
 
 use ApiResponse;
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
+use App\Models\LocationStar;
 use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class CommentController extends Controller
 {
     public function store(Request $req)
     {
         $req->validate([
-            "customer_id" => "nullable",
             "location_id" => "required|integer|min:1|exists:locations,id",
-            "comment" => "required|string|max:5000",
-            "photos" => "sometimes|array",
-            "photos.*" => "file|mimetypes:image/png,image/jpeg|max:2048",
+            "comment" => "nullable|string|max:5000",
+            "star" => "required|numeric|min:1|max:5",
             "status" => "sometimes|boolean"
         ]);
-        $imagePaths = [];
-        if ($req->hasFile('photos')) {
-            foreach ($req->file('photos') as $image) {
-                $path = $image->store("comments", ["disk" => "public"]);
-                $imagePaths[] = $path;
-            }
-        }
-        $comment = new Comment($req->only([
-            'location_id',
-            'comment',
-            'customer_id'
-        ]));
-        $comment->photos = $imagePaths;
-        if (!$req->location_id) return ApiResponse::NotFound('Location not fount');
-        $comment->status = $req->has('status') ? $req->status : true;
+
         $user = UserService::getAuthUser($req);
-        $comment->create_uid = $user->id;
-        $comment->update_uid = $user->id;
-        $comment->customer_id = $user->id;
-        $comment->save();
-        return res_success('success created.');
+
+        $locationStar = new LocationStar([
+            'rater_id' => $user->id,
+            'location_id' => $req->location_id,
+            'star' => $req->star,
+            'comment' => $req->comment,
+            'status' => $req->has('status') ? $req->status : true,
+            'create_uid' => $user->id,
+            'update_uid' => $user->id,
+        ]);
+
+        $locationStar->save();
+
+        return res_success('Rating submitted successfully.');
     }
 
     public function update(Request $req, $id)
     {
-        $comment = Comment::where('is_deleted', 0)->find($id);
-        if (!$comment) return ApiResponse::NotFound('Comment not found');
+        $locationStar = LocationStar::where('is_deleted', 0)->find($id);
+        if (!$locationStar) return ApiResponse::NotFound('Rating not found');
+
         $req->validate([
             "location_id" => "sometimes|integer|min:1|exists:locations,id",
-            "comment" => "sometimes|string|max:5000",
-            "photos" => "sometimes|array",
-            "photos.*" => "file|mimetypes:image/png,image/jpeg|max:2048",
-            "status" => "sometimes|boolean",
-            "remove_photos" => "sometimes|array",
-            "remove_photos.*" => "string"
+            "comment" => "nullable|string|max:5000",
+            "star" => "sometimes|numeric|min:1|max:5",
+            "status" => "sometimes|boolean"
         ]);
-        if ($req->has('location_id')) {
-            $comment->location_id = $req->location_id;
-        }
-        if ($req->has('comment')) {
-            $comment->comment = $req->comment;
-        }
-        if ($req->has('status')) {
-            $comment->status = $req->status;
-        }
-        if ($req->has('remove_photos') && is_array($req->remove_photos)) {
-            $currentPhotos = $comment->photos;
-            $remainingPhotos = [];
 
-            foreach ($currentPhotos as $photo) {
-                if (!in_array($photo, $req->remove_photos)) {
-                    $remainingPhotos[] = $photo;
-                } else {
-                    Storage::disk('public')->delete($photo);
-                }
-            }
-            $comment->photos = $remainingPhotos;
-        }
-        if ($req->hasFile('photos')) {
-            $newPhotos = [];
-            foreach ($req->file('photos') as $image) {
-                $path = $image->store("comments", ["disk" => "public"]);
-                $newPhotos[] = $path;
-            }
-            if (!empty($comment->photos) && is_array($comment->photos)) {
-                $comment->photos = array_merge($comment->photos, $newPhotos);
-            } else {
-                $comment->photos = $newPhotos;
-            }
-        }
+        if ($req->has('location_id')) $locationStar->location_id = $req->location_id;
+        if ($req->has('comment')) $locationStar->comment = $req->comment;
+        if ($req->has('star')) $locationStar->star = $req->star;
+        if ($req->has('status')) $locationStar->status = $req->status;
+
         $user = UserService::getAuthUser($req);
-        $comment->update_uid = $user->id;
-        $comment->save();
-        return res_success('Comment updated successfully.');
+        $locationStar->update_uid = $user->id;
+        $locationStar->save();
+
+        return res_success('Rating updated successfully.');
     }
 
-    /**
-     * Get a single comment by ID
-     */
-    public function getOneComment(Request $req, $id)
+    public function getOne(Request $req, $id)
     {
-        $comment = Comment::where('id', $id)
+        $rating = LocationStar::with('rater', 'location')
+            ->where('id', $id)
             ->where('is_deleted', 0)
             ->first();
-        if (!$comment) {
-            return ApiResponse::NotFound('Comment not found');
-        }
-        $comment->load('customer', 'location');
-        $comment->commender = $comment->customer->first_name . ' ' . $comment->customer->last_name;
-        $comment->location_name = $comment->location->name;
-        if (is_array($comment->photos) && !empty($comment->photos)) {
-            $comment->photos = array_map(function ($photo) {
-                if (filter_var($photo, FILTER_VALIDATE_URL)) {
-                    return $photo;
-                }
-                return url('storage/' . $photo);
-            }, $comment->photos);
-        }
-        unset($comment->customer, $comment->location);
 
-        return res_success('Comment details retrieved successfully', $comment);
+        if (!$rating) return ApiResponse::NotFound('Rating not found');
+
+        $rating->rater_name = $rating->rater->first_name . ' ' . $rating->rater->last_name;
+        $rating->location_name = $rating->location->name;
+
+        unset($rating->rater, $rating->location);
+
+        return res_success('Rating details retrieved successfully', $rating);
     }
 
-    public function getAllComment(Request $req)
+    public function getAll(Request $req)
     {
-        $comments = Comment::query()->with('customer', 'location')
-            ->selectRaw('id,customer_id,location_id,comment,photos,status')
+        $ratings = LocationStar::with('rater', 'location')
             ->where('is_deleted', 0)
             ->get();
-        foreach ($comments as $comment) {
-            $comment->commender = $comment->customer->first_name . ' ' . $comment->customer->last_name;
-            $comment->location_name = $comment->location->name;
-            if (is_array($comment->photos) && !empty($comment->photos)) {
-                $comment->photos = array_map(function ($photo) {
-                    if (filter_var($photo, FILTER_VALIDATE_URL)) {
-                        return $photo;
-                    }
-                    return url('storage/' . $photo);
-                }, $comment->photos);
-            }
-            unset($comment->customer, $comment->location);
+
+        foreach ($ratings as $rating) {
+            $rating->rater_name = $rating->rater->first_name . ' ' . $rating->rater->last_name;
+            $rating->location_name = $rating->location->name;
+            unset($rating->rater, $rating->location);
         }
 
-        return res_success("Get all comments", $comments);
+        return res_success("All ratings retrieved successfully.", $ratings);
     }
 
-    public function lockComment(Request $req, $id)
+    public function toggleStatus(Request $req, $id)
     {
-        $comment = Comment::where('is_deleted', 0)->find($id);
-        if (!$comment) return ApiResponse::NotFound('user not found');
-        $comment->status = !$comment->status;
-        $comment->save();
-        $message = $comment->status ? 'comment has been unlocked' : 'comment has been locked';
+        $rating = LocationStar::where('is_deleted', 0)->find($id);
+        if (!$rating) return ApiResponse::NotFound('Rating not found');
+
+        $rating->status = !$rating->status;
+        $rating->save();
+
+        $message = $rating->status ? 'Rating has been activated.' : 'Rating has been deactivated.';
         return res_success($message);
     }
 
     public function destroy(Request $req, $id)
     {
-        $user = Comment::where('is_deleted', 0)->find($id);
-        if (!$user)  return ApiResponse::NotFound('User not found');
-        $authUser = UserService::getAuthUser($req);
-        $user->is_deleted = 1;
-        $user->deleted_uid = $authUser->id;
-        $user->save();
-        return res_success('User deleted successfully', null);
+        $rating = LocationStar::where('is_deleted', 0)->find($id);
+        if (!$rating) return ApiResponse::NotFound('Rating not found');
+
+        $user = UserService::getAuthUser($req);
+        $rating->is_deleted = 1;
+        $rating->deleted_uid = $user->id;
+        $rating->delete_notes = $req->delete_notes ?? null;
+        $rating->save();
+
+        return res_success('Rating deleted successfully.');
+    }
+    public function lockComment(Request $req, $id)
+    {
+        $rating = LocationStar::where('is_deleted', 0)->find($id);
+        if (!$rating)  return ApiResponse::NotFound('Rating not found');
+        $rating->status = !$rating->status;
+        $rating->save();
+        $message = $rating->status ? 'Rating has been unlocked (active).' : 'Rating has been locked (inactive).';
+        return res_success($message);
     }
 }

@@ -23,6 +23,7 @@ class LocationDetailController extends Controller
                 'category:id,name',
                 'stars' => function ($query) {
                     $query->select('id', 'location_id', 'star', 'comment', 'rater_id')
+                    ->where('status',1)
                         ->orderBy('id', 'desc');
                 },
                 'category.products:id,category_id,name,name_km,description,thumbnail',
