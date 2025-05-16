@@ -75,7 +75,7 @@ class ProductViewController extends Controller
             ->first();
 
         if (!$product) return res_fail('Product not found or not published.', [], 1, 404);
-            $product->thumbnail = asset("storage/{$product->thumbnail}");
+        $product->thumbnail = asset("storage/{$product->thumbnail}");
         // format image URL
         foreach ($product->images as $pro) {
             $pro->image_url = asset("storage/{$pro->image}");
@@ -83,31 +83,30 @@ class ProductViewController extends Controller
 
         // get related products (same category, not deleted, not the same ID)
         $relatedProducts = Product::where('category_id', $product->category_id)
-    ->where('id', '!=', $product->id)
-    ->where('is_deleted', 0)
-    ->where('status', 'published')
-    ->with([
-        'brand:id,name',
-        'pcategory:id,name',
-        'colors:id,name,product_id',
-        'sizes:id,size,product_id',
-        'tags',
-        'images:id,image,product_id',
-        'variants:id,product_id,qty,price'
-    ])
-    ->limit(6)
-    ->get();
+            ->where('id', '!=', $product->id)
+            ->where('is_deleted', 0)
+            ->where('status', 'published')
+            ->with([
+                'brand:id,name',
+                'pcategory:id,name',
+                'colors:id,name,product_id',
+                'sizes:id,size,product_id',
+                'tags',
+                'images:id,image,product_id',
+                'variants:id,product_id,qty,price'
+            ])
+            ->limit(6)
+            ->get();
 
-foreach ($relatedProducts as $repo) {
-    $repo->thumbnail = $repo->thumbnail
-        ? asset("storage/{$repo->thumbnail}")
-        : asset("images/default-thumbnail.png"); // fallback image
-}
-
-return res_success("Get detail product success.", [
-    'product' => $product,
-    'related_products' => $relatedProducts
-]);
-
+        foreach ($relatedProducts as $repo) {
+            $repo->thumbnail = $repo->thumbnail
+                ? asset("storage/{$repo->thumbnail}")
+                : asset("images/default-thumbnail.png"); // fallback image
+        }
+         $product->increment('total_views');
+        return res_success("Get detail product success.", [
+            'product' => $product,
+            'related_products' => $relatedProducts
+        ]);
     }
 }

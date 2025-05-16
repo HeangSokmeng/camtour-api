@@ -22,6 +22,10 @@ class UserService
                     'status' => 'OK',
                     'id' => $hasUser->id,
                     'user_name' => $hasUser->first_name . ' ' . $hasUser->last_name,
+                    'first_name' => $hasUser->first_name,
+                    'last_name' => $hasUser->last_name,
+                    'email' => $hasUser->email,
+                    'phone' => $hasUser->phone,
                     'info' => $hasUser,
                 ]);
             }

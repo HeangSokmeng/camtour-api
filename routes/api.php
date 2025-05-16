@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
@@ -93,6 +94,14 @@ Route::middleware('login')->group(function () {
         Route::prefix('cart')->group(function () {
             Route::post('/', [CartController::class, 'addToCart']);
             Route::get('/', [CartController::class, 'getCart']);
+            Route::put('/', [CartController::class, 'updateCartItem']);
+            Route::delete('/{id}', [CartController::class, 'removeCartItem']);
+            Route::delete('/cart/clear', [CartController::class, 'clearCart']);
+        });
+        Route::prefix('product/order')->group(function () {
+            Route::post('/', [OrderController::class, 'createOrder']);
+            Route::get('/', [OrderController::class, 'getOrderList']);
+            Route::get('/{id}', [OrderController::class, 'getOrderDetail']);
             Route::put('/', [CartController::class, 'updateCartItem']);
             Route::delete('/{id}', [CartController::class, 'removeCartItem']);
             Route::delete('/cart/clear', [CartController::class, 'clearCart']);

@@ -21,6 +21,7 @@ class Product extends Model
         'thumbnail',
         'description',
         'status',
+        'total_views',
         'price',
         'create_uid',
         'update_uid',
