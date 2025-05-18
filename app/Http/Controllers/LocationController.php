@@ -90,7 +90,9 @@ class LocationController extends Controller
             'village_id'
         ]));
         $location->thumbnail = $thumbnailPath;
-        if ($req->filled('published_at'))  $location->published_at = $req->input('published_at');
+        $location->published_at = $req->has('published_at')
+            ? $req->input('published_at')
+            : now();
         $user = UserService::getAuthUser($req);
         $location->create_uid = $user->id;
         $location->update_uid = $user->id;
@@ -153,7 +155,7 @@ class LocationController extends Controller
             $locations = $locations->where('village_id', $village);
         }
 
-        $locations = $locations->whereNotNull('published_at')->with(['tags', 'category', 'province'])->withAvg('stars', 'star')->orderBy($sortCol, $sortDir)->paginate($perPage);
+        $locations = $locations->with(['tags', 'category', 'province'])->withAvg('stars', 'star')->orderBy($sortCol, $sortDir)->paginate($perPage);
         return res_paginate($locations, 'Get locations successful.', LocationIndexResource::collection($locations));
     }
 
@@ -168,7 +170,6 @@ class LocationController extends Controller
             ->where('is_deleted', 0)
             ->with(['tags', 'category', 'province', 'district', 'commune', 'village', 'stars', 'stars.rater', 'photos'])
             ->withAvg('stars', 'star')
-            ->whereNotNull('published_at')
             ->first();
         if (!$location) {
             return res_fail('Location is not publish yet or not found', [], 1, 404);

@@ -282,8 +282,8 @@ Route::middleware('login')->group(function () {
         Route::prefix('users')->group(function () {
             Route::get('/', [UserController::class, 'index']);
             Route::post('/', [UserController::class, 'store']);
-            Route::put('/update/{id}', [UserController::class, 'update']);
             Route::get('/{id}', [UserController::class, 'show']);
+            Route::put('/update/{id}', [UserController::class, 'update']);
             Route::put('/islock/{id}', [UserController::class, 'lockUser']);
             Route::delete('/{id}', [UserController::class, 'destroy']);
         });

@@ -43,14 +43,10 @@ class ProfileController extends Controller
             'email' => "nullable|email|max:250|unique:users,email,$loginUser->id",
             'image' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
         ]);
-
         // update data & response
         $user = User::where('id', $loginUser->id)->with('roles')->first();
         if ($req->filled('first_name')) {
             $user->first_name = $req->input('first_name');
-        }
-        if ($req->has('last_name')) {
-            $user->last_name = $req->input('last_name');
         }
         if ($req->filled('gender')) {
             $gender = intval($req->input('gender'));
@@ -60,11 +56,14 @@ class ProfileController extends Controller
                 $user->gender = $gender;
             }
         }
-        if ($req->has('phone')) {
-            $user->phone = $req->input('phone');
-        }
         if ($req->filled('email')) {
             $user->email = $req->input('email');
+        }
+        if ($req->filled('first_name')) {
+            $user->first_name = $req->input('first_name');
+        }
+        if ($req->filled('phone')) {
+            $user->phone = $req->input('phone');
         }
         if ($req->hasFile('image')) {
             $image = $req->file('image');

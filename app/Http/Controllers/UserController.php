@@ -108,83 +108,89 @@ class UserController extends Controller
         return res_success($message);
     }
 
-   public function update(Request $req, $id)
-{
-    $validator = validator($req->all(), [
-        'first_name' => 'nullable|string|max:250',
-        'last_name' => 'nullable|string|max:250',
-        'gender' => 'nullable|integer|in:1,2',
-        'role_id' => 'nullable|integer|min:1|exists:roles,id',
-        'roles' => 'nullable|array',
-        'roles.*' => 'integer|exists:roles,id',
-        'image' => 'nullable|file|mimetypes:image/png,image/jpeg|max:2048',
-        'phone' => 'nullable|string|max:250',
-        'email' => 'nullable|email|max:250|unique:users,email,' . $id,
-        'password' => 'nullable|string|min:8|confirmed',
-        'is_lock' => 'nullable'
-    ]);
+    public function update(Request $req, $id)
+    {
+        $validator = validator($req->all(), [
+            'first_name' => 'nullable|string|max:250',
+            'last_name' => 'nullable|string|max:250',
+            'gender' => 'nullable|integer|in:1,2',
+            'role_id' => 'nullable|integer|min:1|exists:roles,id',
+            'roles' => 'nullable|array',
+            'roles.*' => 'integer|exists:roles,id',
+            'image' => 'nullable|file|mimetypes:image/png,image/jpeg|max:2048',
+            'phone' => 'nullable|string|max:250',
+            'email' => 'nullable|email|max:250|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'is_lock' => 'nullable'
+        ]);
 
-    if ($validator->fails()) return ApiResponse::ValidateFail($validator->errors()->first(), $validator->errors());
+        if ($validator->fails()) return ApiResponse::ValidateFail($validator->errors()->first(), $validator->errors());
 
-    $user = User::find($id);
+        $user = User::find($id);
 
-    if (!$user) return ApiResponse::NotFound(__('messages.user_not_found'));
+        if (!$user) return ApiResponse::NotFound(__('messages.user_not_found'));
 
-    // Create input array with only the fields from the request
-    $input = [];
+        // Create input array with only the fields from the request
+        $input = [];
 
-    // Only add fields that are present in the request
-    foreach(['first_name', 'last_name', 'gender', 'role_id', 'phone', 'email', 'is_lock'] as $field) {
-        if ($req->has($field)) {
-            $input[$field] = $req->input($field);
+        // Only add fields that are present in the request
+        // foreach(['first_name', 'last_name', 'gender', 'role_id', 'phone', 'email', 'is_lock'] as $field) {
+        //     if ($req->has($field)) {
+        //         $input[$field] = $req->input($field);
+        //     }
+        // }
+
+        // Handle password separately
+        if ($req->filled('password')) {
+            $input['password'] = Hash::make($req->password);
         }
-    }
-
-    // Handle password separately
-    if ($req->filled('password')) {
-        $input['password'] = Hash::make($req->password);
-    }
-
-    // Handle image upload
-    if ($req->hasFile('image')) {
-        // Delete old image if it's not the default
-        if ($user->image !== User::DEFAULT_IMAGE) {
-            Storage::disk('public')->delete($user->image);
+        if ($req->filled('first_name')) {
+            $input['first_name'] = $req->input('first_name');
         }
-        $image = $req->file('image')->store('users', ['disk' => 'public']);
-        $input['image'] = $image;
+        if ($req->filled('last_name')) {
+            $input['last_name'] = $req->input('last_name');
+        }
+
+        // Handle image upload
+        if ($req->hasFile('image')) {
+            // Delete old image if it's not the default
+            if ($user->image !== User::DEFAULT_IMAGE) {
+                Storage::disk('public')->delete($user->image);
+            }
+            $image = $req->file('image')->store('users', ['disk' => 'public']);
+            $input['image'] = $image;
+        }
+
+        // Set default role_id if needed
+        if (!$req->has('role_id') && $user->role_id === null) {
+            $input['role_id'] = 3;
+        }
+
+        // Log the input data before update
+        Log::info("Update input data:", $input);
+
+        // Update user with the input data
+        $result = $user->update($input);
+
+        // Log the update result
+        Log::info("Update result: " . ($result ? 'success' : 'failure'));
+        Log::info("Updated user:", $user->toArray());
+
+        if (!$result) return ApiResponse::Error('fail_update');
+
+        // Handle roles relationship
+        if ($req->has('roles')) {
+            $user->roles()->sync($req->roles);
+            Log::info("Synced roles array:", $req->roles);
+        } else if ($req->has('role_id')) {
+            $user->roles()->sync([$req->input('role_id')]);
+            Log::info("Synced single role_id: " . $req->input('role_id'));
+        }
+
+        $user->load('roles');
+
+        return res_success('Update user successful', new UserDetailResource($user));
     }
-
-    // Set default role_id if needed
-    if (!$req->has('role_id') && $user->role_id === null) {
-        $input['role_id'] = 3;
-    }
-
-    // Log the input data before update
-    Log::info("Update input data:", $input);
-
-    // Update user with the input data
-    $result = $user->update($input);
-
-    // Log the update result
-    Log::info("Update result: " . ($result ? 'success' : 'failure'));
-    Log::info("Updated user:", $user->toArray());
-
-    if (!$result) return ApiResponse::Error('fail_update');
-
-    // Handle roles relationship
-    if ($req->has('roles')) {
-        $user->roles()->sync($req->roles);
-        Log::info("Synced roles array:", $req->roles);
-    } else if ($req->has('role_id')) {
-        $user->roles()->sync([$req->input('role_id')]);
-        Log::info("Synced single role_id: " . $req->input('role_id'));
-    }
-
-    $user->load('roles');
-
-    return ApiResponse::JsonResult(new UserDetailResource($user), 'Update user successful');
-}
 
     public function destroy(Request $req, $id)
     {
