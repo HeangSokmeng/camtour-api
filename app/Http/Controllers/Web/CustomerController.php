@@ -16,12 +16,14 @@ class CustomerController extends Controller
 {
     public function store(Request $req)
     {
-        $req->validate([
+         $req->validate([
             'first_name' => 'required|string|max:250',
             'last_name' => 'required|string|max:250',
             'gender' => 'nullable|integer|in:1,2',
             'role_id' => 'nullable|integer|min:1|exists:roles,id',
-            'image' => 'nullable|file|mimetypes:image/png,image/jpeg|max:2048',
+            'roles' => 'nullable|array',
+            'roles.*' => 'integer|exists:roles,id',  // Add validation for roles array
+            'image' => 'required|file|mimetypes:image/png,image/jpeg|max:2048',
             'phone' => 'nullable|string|max:250',
             'email' => 'required|email|max:250|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
@@ -46,11 +48,15 @@ class CustomerController extends Controller
             $user->role_id = 4;
         }
         $user->save();
-        if ($req->has('roles') && !empty($req->roles)) {
+        if ($req->has('roles')) {
             $user->roles()->sync($req->roles);
+        } else if ($req->role_id) {
+            $user->roles()->sync([$req->role_id]);
         } else {
             $user->roles()->sync([4]);
         }
+        $user->load('roles');
+
         return res_success('Store new user successful', new UserDetailResource($user));
     }
     public function index(Request $req)

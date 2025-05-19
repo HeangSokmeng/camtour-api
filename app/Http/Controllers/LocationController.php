@@ -266,6 +266,9 @@ class LocationController extends Controller
         }
 
         // save location & check tags
+        $location->published_at = $req->has('published_at')
+            ? $req->input('published_at')
+            : now();
         $location->save();
         $location->tags()->sync($req->input('tag_ids'));
         return res_success('Update location successful', new LocationDetailResource($location));

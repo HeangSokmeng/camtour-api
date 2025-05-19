@@ -20,7 +20,7 @@ class UserIndexResource extends JsonResource
             'role_id' => $this->role_id,
             'email' => $this->email,
             'phone' => $this->phone,
-            'image' => $this->image,
+            'image' => $this->getImageUrl(),
             'image_url' => $this->getImageUrl(),
             'created_at' => $this->created_at,
             'roles' => $this->whenLoaded('roles'),

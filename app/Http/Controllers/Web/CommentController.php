@@ -15,7 +15,7 @@ class CommentController extends Controller
         $req->validate([
             "location_id" => "required|integer|min:1|exists:locations,id",
             "comment" => "nullable|string|max:5000",
-            "star" => "required|numeric|min:1|max:5",
+            "star" => "nullable|numeric|min:1|max:5",
             "status" => "sometimes|boolean"
         ]);
 
@@ -66,31 +66,33 @@ class CommentController extends Controller
             ->where('id', $id)
             ->where('is_deleted', 0)
             ->first();
-
         if (!$rating) return ApiResponse::NotFound('Rating not found');
-
         $rating->rater_name = $rating->rater->first_name . ' ' . $rating->rater->last_name;
         $rating->location_name = $rating->location->name;
-
         unset($rating->rater, $rating->location);
-
         return res_success('Rating details retrieved successfully', $rating);
     }
 
     public function getAll(Request $req)
     {
-        $ratings = LocationStar::with('rater', 'location')
-            ->where('is_deleted', 0)
-            ->get();
-
+        $query = LocationStar::with(['rater', 'location'])
+            ->where('is_deleted', 0);
+        if ($req->has('status'))   $query->where('status', (bool)$req->status);
+        if ($req->has('location_name')) {
+            $query->whereHas('location', function ($q) use ($req) {
+                $q->where('name', 'like', '%' . $req->location_name . '%');
+            });
+        }
+        $ratings = $query->orderByDesc('id')->get();
         foreach ($ratings as $rating) {
             $rating->rater_name = $rating->rater->first_name . ' ' . $rating->rater->last_name;
             $rating->location_name = $rating->location->name;
             unset($rating->rater, $rating->location);
         }
-
         return res_success("All ratings retrieved successfully.", $ratings);
     }
+
+
 
     public function toggleStatus(Request $req, $id)
     {
