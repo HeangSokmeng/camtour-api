@@ -42,7 +42,8 @@ class LocationController extends Controller
     {
         if ($req->filled('url_location') && (!$req->filled('lat') || !$req->filled('lot'))) {
             $mapService = new MapCoordinateService();
-            $coordinates = $mapService->extractCoordinatesFromUrl($req->input('url_location'));
+            $coordinates = $mapService->extractFromUrlPattern($req->input('url_location'));
+            // Log::info($coordinates['lat']);
             if ($coordinates) {
                 $req->merge([
                     'lat' => $coordinates['lat'],
@@ -186,7 +187,6 @@ class LocationController extends Controller
 
     public function update(Request $req, $id)
     {
-        // validation
         $req->merge(['id' => $id, 'tag_ids' => json_decode($req->input('tag_ids')) ?? []]);
         $req->validate([
             'id' => 'required|integer|min:1|exists:locations,id,is_deleted,0',
@@ -235,6 +235,17 @@ class LocationController extends Controller
         // update url
         if ($req->filled('url_location')) {
             $location->url_location = $req->input('url_location');
+            if ($req->filled('url_location') && (!$req->filled('lat') || !$req->filled('lot'))) {
+                $mapService = new MapCoordinateService();
+                $coordinates = $mapService->extractFromUrlPattern($req->input('url_location'));
+                // Log::info($coordinates['lat']);
+                if ($coordinates) {
+                    $req->merge([
+                        'lat' => $coordinates['lat'],
+                        'lot' => $coordinates['lot']
+                    ]);
+                }
+            }
         }
 
         // update description
@@ -246,12 +257,12 @@ class LocationController extends Controller
         }
 
         // update lat log
-        if ($req->filled('lat')) {
-            $location->lat = $req->input('lat');
-        }
-        if ($req->filled('lot')) {
-            $location->lot = $req->input('lot');
-        }
+        // if ($req->filled('lat')) {
+        //     $location->lat = $req->input('lat');
+        // }
+        // if ($req->filled('lot')) {
+        //     $location->lot = $req->input('lot');
+        // }
         if ($req->filled('min_money')) {
             $location->min_money = $req->input('min_money');
         }
@@ -425,6 +436,6 @@ class LocationController extends Controller
     public function getVillages($communeId)
     {
         $villages = Village::getVillagesByCommuneId($communeId);
-       return res_success('villages retrieved successfully.', $villages);
+        return res_success('villages retrieved successfully.', $villages);
     }
 }

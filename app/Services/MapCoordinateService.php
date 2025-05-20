@@ -14,38 +14,38 @@ class MapCoordinateService
      * @return array|null Array with 'lat' and 'lot' keys or null if extraction failed
      */
     public function extractCoordinatesFromUrl($url)
-{
-    \Log::info('Extracting coordinates from URL: ' . $url);
+    {
+        \Log::info('Extracting coordinates from URL: ' . $url);
 
-    // Pattern for the standard Google Maps URL with q parameter
-    if (preg_match('/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
-        $coordinates = [
-            'lat' => (float)$matches[1],
-            'lot' => (float)$matches[2]
-        ];
+        // Pattern for the standard Google Maps URL with q parameter
+        if (preg_match('/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
+            $coordinates = [
+                'lat' => (float)$matches[1],
+                'lot' => (float)$matches[2]
+            ];
 
-        \Log::info('Extracted coordinates (q parameter): ', $coordinates);
-        return $coordinates;
+            \Log::info('Extracted coordinates (q parameter): ', $coordinates);
+            return $coordinates;
+        }
+
+        // Pattern for complex Google Maps URL with 3d and 4d parameters
+        if (preg_match('/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/', $url, $matches)) {
+            $coordinates = [
+                'lat' => (float)$matches[1],
+                'lot' => (float)$matches[2]
+            ];
+
+            \Log::info('Extracted coordinates (3d/4d parameters): ', $coordinates);
+            return $coordinates;
+        }
+
+        \Log::info('No coordinates found in URL');
+        return null;
     }
-
-    // Pattern for complex Google Maps URL with 3d and 4d parameters
-    if (preg_match('/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/', $url, $matches)) {
-        $coordinates = [
-            'lat' => (float)$matches[1],
-            'lot' => (float)$matches[2]
-        ];
-
-        \Log::info('Extracted coordinates (3d/4d parameters): ', $coordinates);
-        return $coordinates;
-    }
-
-    \Log::info('No coordinates found in URL');
-    return null;
-}
     /**
      * Extract coordinates directly from URL patterns
      */
-    private function extractFromUrlPattern($url)
+    public function extractFromUrlPattern($url)
     {
         // Pattern for @lat,lng format common in Google Maps
         if (preg_match('/@(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
