@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use ApiResponse;
 use App\Http\Resources\LocationDetailResource;
 use App\Http\Resources\LocationIndexResource;
+use App\Models\Commune;
+use App\Models\District;
 use App\Models\Location;
+use App\Models\Province;
 use App\Models\User;
+use App\Models\Village;
 use App\Models\WishlistItem;
 use App\Services\MapCoordinateService;
 use Illuminate\Http\Request;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
@@ -200,10 +205,12 @@ class LocationController extends Controller
             'village_id' => 'nullable|integer|min:1|exists:villages,id',
             'tag_ids' => 'required|array|min:0|max:5',
             'tag_ids.*' => 'integer|min:1|exists:tags,id',
+            'min_money' => 'nullable|numeric|min:0',
+            'max_money' => 'nullable|numeric|min:0',
         ]);
         $location = Location::where('id', $id)->where('is_deleted', 0)->first();
         if (!$location) return res_fail('Location not found.', [], 1, 404);
-
+        Log::info($req);
         // Set user info
         $user = UserService::getAuthUser($req);
         $location->update_uid = $user->id;
@@ -244,6 +251,12 @@ class LocationController extends Controller
         }
         if ($req->filled('lot')) {
             $location->lot = $req->input('lot');
+        }
+        if ($req->filled('min_money')) {
+            $location->min_money = $req->input('min_money');
+        }
+        if ($req->filled('max_money')) {
+            $location->max_money = $req->input('max_money');
         }
 
         // update category
@@ -389,5 +402,29 @@ class LocationController extends Controller
         return res_success('Wishlist status retrieved.', [
             'in_wishlist' => $exists
         ]);
+    }
+
+    public function getProvinces()
+    {
+        $provinces = Province::getAllProvinces();
+        return res_success('Provinces retrieved successfully.', $provinces);
+    }
+
+    public function getDistricts($provinceId)
+    {
+        $districts = District::getDistrictsByProvinceId($provinceId);
+        return res_success('districts retrieved successfully.', $districts);
+    }
+
+    public function getCommunes($districtId)
+    {
+        $communes = Commune::getCommunesByDistrictId($districtId);
+        return res_success('communes retrieved successfully.', $communes);
+    }
+
+    public function getVillages($communeId)
+    {
+        $villages = Village::getVillagesByCommuneId($communeId);
+       return res_success('villages retrieved successfully.', $villages);
     }
 }

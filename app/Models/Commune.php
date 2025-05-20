@@ -19,13 +19,24 @@ class Commune extends Model
         'delete_notes',
     ];
 
-    public function province(): BelongsTo
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function province()
     {
         return $this->belongsTo(Province::class);
     }
 
-    public function district(): BelongsTo
+    public function villages()
     {
-        return $this->belongsTo(District::class);
+        return $this->hasMany(Village::class);
+    }
+
+    // Get communes by district ID
+    public static function getCommunesByDistrictId($districtId)
+    {
+        return self::where('district_id', $districtId)->orderByDesc('id')->selectRaw('id,name,local_name,district_id')->get();
     }
 }

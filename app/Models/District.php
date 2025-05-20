@@ -18,8 +18,19 @@ class District extends Model
         'delete_notes',
     ];
 
-    public function province(): BelongsTo
+    public function province()
     {
         return $this->belongsTo(Province::class);
+    }
+
+    public function communes()
+    {
+        return $this->hasMany(Commune::class);
+    }
+
+    // Get districts by province ID
+    public static function getDistrictsByProvinceId($provinceId)
+    {
+        return self::where('province_id', $provinceId)->orderByDesc('id')->selectRaw('id,name,local_name,province_id')->get();
     }
 }

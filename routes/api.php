@@ -58,7 +58,7 @@ Route::prefix('web/view')->group(function () {
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
     });
-     Route::prefix('adventure')->group(function () {
+    Route::prefix('adventure')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [AdventureViewController::class, 'getAdventure']);
     });
@@ -67,7 +67,7 @@ Route::prefix('web/view')->group(function () {
         Route::get('/{id}', [ProductViewController::class, 'find']);
     });
     Route::post('/chatbot', [ChatbotController::class, 'process']);
-Route::get('/chatbot/status', [ChatbotController::class, 'status']);
+    Route::get('/chatbot/status', [ChatbotController::class, 'status']);
 });
 
 // ===============================
@@ -115,8 +115,8 @@ Route::middleware('login')->group(function () {
             Route::put('/update/status/{id}', [CommentController::class, 'lockComment']);
             Route::delete('/{id}', [CommentController::class, 'destroy']);
         });
-         Route::prefix('locations')->group(function () {
-             Route::prefix('reviews')->group(function () {
+        Route::prefix('locations')->group(function () {
+            Route::prefix('reviews')->group(function () {
                 Route::post('/{id}', [LocationStarController::class, 'store']);
                 Route::put('/{reviewId}', [LocationStarController::class, 'update']);
                 Route::delete('/{reviewId}', [LocationStarController::class, 'destroy']);
@@ -154,6 +154,12 @@ Route::middleware('login')->group(function () {
         // });
         // Location Management Routes
         Route::prefix('locations')->group(function () {
+
+            Route::get('/provinces', [LocationController::class, 'getProvinces']);
+            Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
+            Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);
+            Route::get('/villages/{communeId}', [LocationController::class, 'getVillages']);
+
             Route::get('/', [LocationController::class, 'index']);
             Route::post('/', [LocationController::class, 'store']);
             Route::get('/{id}', [LocationController::class, 'find']);
@@ -169,6 +175,8 @@ Route::middleware('login')->group(function () {
             Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
             Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
             Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
+
+
         });
 
         // Category Management Routes

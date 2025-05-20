@@ -20,19 +20,24 @@ class Village extends Model
         'delete_notes',
     ];
 
-    public function province(): BelongsTo
+    public function commune()
+    {
+        return $this->belongsTo(Commune::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function province()
     {
         return $this->belongsTo(Province::class);
     }
 
-    public function district(): BelongsTo
+    // Get villages by commune ID
+    public static function getVillagesByCommuneId($communeId)
     {
-        return $this->belongsTo(District::class);
-
-    }
-
-    public function commune(): BelongsTo
-    {
-        return $this->belongsTo(Commune::class);
+        return self::where('commune_id', $communeId)->orderByDesc('id')->selectRaw('id,name,local_name,commune_id')->get();
     }
 }

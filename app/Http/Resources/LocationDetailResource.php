@@ -15,6 +15,8 @@ class LocationDetailResource extends JsonResource
             'name' => $this->name,
             'name_local' => $this->name_local,
             'thumbnail' => asset("storage/{$this->thumbnail}"),
+            "min_money" => $this->min_money,
+            "max_money" => $this->max_money,
             'short_description' => $this->short_description,
             'description' => htmlspecialchars_decode($this->description),
             'url_location' => $this->url_location,
