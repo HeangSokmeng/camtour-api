@@ -30,6 +30,10 @@ class Product extends Model
         'delete_notes',
     ];
 
+     public function stars()
+    {
+        return $this->hasMany(ProductStar::class, 'product_id', 'id');
+    }
     // setup relationship
     public function brand()
     {

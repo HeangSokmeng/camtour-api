@@ -24,7 +24,12 @@ class ProductViewController extends Controller
         $products = Product::with([
             'brand:id,name',
             'pcategory:id,name',
-            'tags'
+            'tags',
+            'stars' => function ($query) {
+                $query->select('id', 'product_id', 'star', 'comment', 'rater_id')
+                    ->where('status', 1)
+                    ->orderBy('id', 'desc');
+            },
         ])
             ->where('is_deleted', 0)
             ->where('status', 'published');
@@ -46,6 +51,13 @@ class ProductViewController extends Controller
         }
         // paginate
         $products = $products->orderByDesc('id')->get();
+        $products->each(function ($product) {
+            $product->stars->each(function ($star) {
+                $star->rater_name = optional($star->rater)->first_name . ' ' . optional($star->rater)->last_name;
+                unset($star->rater);
+            });
+        });
+
         $products->each(function ($product) {
             $product->is_thumbnail = asset("storage/{$product->thumbnail}");
             unset($product->thumbnail);
@@ -70,7 +82,12 @@ class ProductViewController extends Controller
                 'sizes:id,size,product_id',
                 'tags',
                 'images:id,image,product_id',
-                'variants:id,product_id,qty,price'
+                'variants:id,product_id,qty,price',
+                'stars' => function ($query) {
+                    $query->select('id', 'product_id', 'star', 'comment', 'rater_id')
+                        ->where('status', 1)
+                        ->orderBy('id', 'desc');
+                },
             ])
             ->first();
 
@@ -103,7 +120,11 @@ class ProductViewController extends Controller
                 ? asset("storage/{$repo->thumbnail}")
                 : asset("images/default-thumbnail.png"); // fallback image
         }
-         $product->increment('total_views');
+        $product->stars->each(function ($star) {
+            $star->rater_name = optional($star->rater)->first_name . ' ' . optional($star->rater)->last_name;
+            unset($star->rater);
+        });
+        $product->increment('total_views');
         return res_success("Get detail product success.", [
             'product' => $product,
             'related_products' => $relatedProducts

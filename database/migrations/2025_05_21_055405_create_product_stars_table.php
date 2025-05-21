@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->string('comment')->nullable();
             $table->unsignedTinyInteger('star')->nullable();
-
+            $table->boolean('status')->default(true);
             // setup relationship
             $table->foreign('rater_id')->references('id')->on('users')->cascadeOnUpdate()->cascadeOnDelete();
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnUpdate()->cascadeOnDelete();
