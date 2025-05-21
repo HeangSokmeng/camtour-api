@@ -73,5 +73,10 @@ class Location extends Model
     {
         return $this->belongsToMany(User::class, 'wishlist_items');
     }
+    public function travelGuides()
+    {
+        return $this->hasMany(TravelGuide::class);
+    }
+
 
 }

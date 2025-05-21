@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\LocationGuideController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\ProductStarController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Web\CustomerController;
 use App\Http\Controllers\Web\HomePageViewController;
 use App\Http\Controllers\Web\LocationDetailController;
 use App\Http\Controllers\Web\ProductViewController;
+use App\Models\TravelGuide;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -193,6 +195,14 @@ Route::middleware('login')->group(function () {
             Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
             Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
             Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
+
+            Route::prefix('guide')->group(function () {
+                Route::post('/', [LocationGuideController::class, 'store']);
+                Route::get('/get', [LocationGuideController::class, 'index']);
+                Route::post('/{id}', [LocationGuideController::class, 'update']);
+                Route::delete('/{id}', [LocationGuideController::class, 'destroy']);
+                Route::delete('/image/{id}', [LocationGuideController::class, 'destroyImage']);
+            });
         });
 
         // Category Management Routes
