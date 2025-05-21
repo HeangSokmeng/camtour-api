@@ -20,6 +20,7 @@ use App\Http\Controllers\TagController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductColorController;
+use App\Http\Controllers\ProductStarController;
 use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
@@ -37,6 +38,15 @@ use Illuminate\Support\Facades\Route;
 // ===============================
 // PUBLIC ROUTES - No Authentication Required
 // ===============================
+Route::prefix('web')->group(function () {
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/forgot-pass', [AuthController::class, 'forgotPass']);
+        Route::post('/forgot-pass/verify-otp', [AuthController::class, 'verifyForgotPassOTP']);
+        Route::post('/reset-pass', [AuthController::class, 'resetPass']);
+    });
+});
+
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-pass', [AuthController::class, 'forgotPass']);
@@ -122,6 +132,14 @@ Route::middleware('login')->group(function () {
                 Route::delete('/{reviewId}', [LocationStarController::class, 'destroy']);
             });
         });
+        Route::prefix('product')->group(function () {
+            Route::prefix('reviews')->group(function () {
+                Route::post('/{id}', [ProductStarController::class, 'store']);
+                Route::get('', [ProductStarController::class, 'index']);
+                Route::put('/{reviewId}', [ProductStarController::class, 'update']);
+                Route::delete('/{reviewId}', [ProductStarController::class, 'destroy']);
+            });
+        });
     });
     // ===============================
     // AUTH ROUTES - All Authenticated Users
@@ -175,8 +193,6 @@ Route::middleware('login')->group(function () {
             Route::post('/reviews/{id}', [LocationStarController::class, 'store']);
             Route::put('/reviews/{reviewId}', [LocationStarController::class, 'update']);
             Route::delete('/reviews/{reviewId}', [LocationStarController::class, 'destroy']);
-
-
         });
 
         // Category Management Routes
