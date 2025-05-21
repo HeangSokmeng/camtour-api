@@ -69,7 +69,6 @@ class ProductViewController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:products,id,is_deleted,0']);
-
         // get main product
         $product = Product::where('id', $id)
             ->where('is_deleted', 0)
