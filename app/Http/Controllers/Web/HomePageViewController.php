@@ -16,28 +16,30 @@ class HomePageViewController extends Controller
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:50',
         ]);
-        $page = $req->filled('page') ? intval($req->input('page')) : 1;
-        $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
-        $locationsQuery = Location::where('is_deleted', 0)
+        $page = $req->input('page', 1);
+        $perPage = $req->input('per_page', 10);
+        $latestLocations = Location::where('is_deleted', 0)
             ->with('stars:id,star,location_id')
             ->where('status', 1)
             ->orderBy('id', 'desc')
-            ->take(100)
-            ->select('id', 'name', 'name_local', 'thumbnail', 'url_location', 'short_description', 'description', 'total_view');
-
-        $totalLocations = $locationsQuery->count();
-        $locations = $locationsQuery->get();
-        foreach ($locations as $location) {
+            ->limit(20)
+            ->select('id', 'name', 'name_local', 'thumbnail', 'url_location', 'short_description', 'description', 'total_view')
+            ->get();
+        foreach ($latestLocations as $location) {
             $location->rate_star = round($location->stars->avg('star'), 2) ?? 0;
             $location->is_thumbnail = asset("storage/{$location->thumbnail}");
             unset($location->stars, $location->thumbnail);
         }
-        $topViewLocation = $locations->sortByDesc('total_view')->values();
+        $totalLocations = $latestLocations->count();
         $offset = ($page - 1) * $perPage;
-        $paginatedLocations = $locations->slice($offset, $perPage)->values();
+        $paginatedLocations = $latestLocations->slice($offset, $perPage)->values();
+        $topViewLocation = $latestLocations->sortByDesc('total_view')->values();
         $paginatedTopViewLocations = $topViewLocation->slice($offset, $perPage)->values();
         $products = Product::where('is_deleted', 0)
-        ->selectRaw('id,name,name_km,description,thumbnail')
+            ->selectRaw('id,name,name_km,description,thumbnail')
+            ->whereHas('category', function ($query) {
+                $query->where('name', '!=', 'Siem Reap');
+            })
             ->with([
                 'variants' => function ($query) {
                     $query->where('is_deleted', 0)
@@ -76,6 +78,7 @@ class HomePageViewController extends Controller
             'pagination' => $pagination,
         ]);
     }
+
 
     public function find(Request $req, $id)
     {
