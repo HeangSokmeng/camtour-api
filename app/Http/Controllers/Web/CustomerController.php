@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
@@ -127,7 +128,7 @@ class CustomerController extends Controller
         if (!$user)  return ApiResponse::Unauthorized();
         $req->validate([
             'first_name' => 'nullable|string|max:250',
-            'last_name' => 'nullable|string|max:250',
+            'last_name' => 'required|string|max:250',
             'gender' => 'nullable|integer|in:1,2',
             // 'roles' => 'nullable|array',
             // 'roles.*' => 'integer|exists:roles,id',
@@ -137,6 +138,7 @@ class CustomerController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'is_lock' => 'nullable'
         ]);
+        Log::info($req);
         if ($req->hasFile('image')) {
             if ($user->image && $user->image !== User::DEFAULT_IMAGE)  Storage::disk('public')->delete($user->image);
             $user->image = $req->file('image')->store('users', ['disk' => 'public']);

@@ -88,6 +88,12 @@ Route::prefix('web/view')->group(function () {
         Route::get('', [ProductViewController::class, 'index']);
         Route::get('/{id}', [ProductViewController::class, 'find']);
     });
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
+    });
+    Route::prefix('brands')->group(function () {
+        Route::get('/', [BrandController::class, 'index']);
+    });
     Route::post('/chatbot', [ChatbotController::class, 'process']);
     Route::get('/chatbot/status', [ChatbotController::class, 'status']);
 });
