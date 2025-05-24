@@ -35,6 +35,7 @@ use App\Http\Controllers\Web\HomePageViewController;
 use App\Http\Controllers\Web\LocationDetailController;
 use App\Http\Controllers\Web\ProductViewController;
 use App\Http\Controllers\Web\SiemReapController;
+use App\Http\Controllers\WishlistController;
 use App\Models\TravelGuide;
 use Illuminate\Support\Facades\Route;
 
@@ -42,6 +43,26 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES - No Authentication Required
 // ===============================
 Route::prefix('web')->group(function () {
+    // Get user's wishlist
+        // Route::get('/wishlist', [WishlistController::class, 'index']);
+
+        // // Add item to wishlist
+        // Route::post('/wishlist', [WishlistController::class, 'store']);
+
+        // // Remove item from wishlist
+        // Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']);
+
+        // // Sync entire wishlist
+        // Route::put('/wishlist/sync', [WishlistController::class, 'sync']);
+
+        // // Get wishlist count
+        // Route::get('/wishlist/count', [WishlistController::class, 'count']);
+
+        // // Check if items are in wishlist
+        // Route::post('/wishlist/check', [WishlistController::class, 'check']);
+
+        // // Get wishlist items by type
+        // Route::get('/wishlist/type/{type}', [WishlistController::class, 'byType']);
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/forgot-pass', [AuthController::class, 'forgotPass']);
@@ -104,6 +125,29 @@ Route::prefix('web/view')->group(function () {
 Route::middleware('login')->group(function () {
 
     Route::prefix('web')->group(function () {
+        // Get user's wishlist
+        Route::get('/wishlist', [WishlistController::class, 'index']);
+
+        // // Add item to wishlist
+        Route::post('/wishlist', [WishlistController::class, 'store']);
+
+        // // Remove item from wishlist
+        Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']);
+
+        // // Sync entire wishlist
+        Route::put('/wishlist/sync', [WishlistController::class, 'sync']);
+
+        // // Get wishlist count
+        Route::get('/wishlist/count', [WishlistController::class, 'count']);
+
+        // // Check if items are in wishlist
+        Route::post('/wishlist/check', [WishlistController::class, 'check']);
+
+        // // Get wishlist items by type
+        Route::get('/wishlist/type/{type}', [WishlistController::class, 'byType']);
+
+        // // Clear entire wishlist
+        Route::delete('/wishlist', [WishlistController::class, 'clear']);
         Route::prefix('auth')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
             Route::delete('/logout', [AuthController::class, 'logout']);
@@ -113,12 +157,12 @@ Route::middleware('login')->group(function () {
             Route::put('/update', [CustomerController::class, 'update']);
             Route::delete('/delete', [CustomerController::class, 'destroy']);
         });
-        Route::prefix('wishlist')->group(function () {
-            Route::post('/', [LocationController::class, 'addToWishlist']);
-            Route::delete('/', [LocationController::class, 'removeFromWishlist']);
-            Route::get('/', [LocationController::class, 'getWishlist']);
-            Route::get('/{locationId}', [LocationController::class, 'isInWishlist']);
-        });
+        // Route::prefix('wishlist')->group(function () {
+        //     Route::post('/', [LocationController::class, 'addToWishlist']);
+        //     Route::delete('/', [LocationController::class, 'removeFromWishlist']);
+        //     Route::get('/', [LocationController::class, 'getWishlist']);
+        //     Route::get('/{locationId}', [LocationController::class, 'isInWishlist']);
+        // });
         Route::prefix('cart')->group(function () {
             Route::post('/', [CartController::class, 'addToCart']);
             Route::get('/', [CartController::class, 'getCart']);

@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,15 +10,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wishlists', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('user_wishlists', function (Blueprint $table) {
+            $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('location_id')->constrained()->onDelete('cascade');
-            $table->string('location_name')->nullable();
-            $table->text('location_image')->nullable();
-            $table->text('location_description')->nullable();
+            $table->string('item_id');
+            $table->enum('item_type', ['location', 'product'])->default('location');
+            $table->json('item_data')->nullable();
             $table->timestamps();
-            $table->unique(['user_id', 'location_id'], 'unique_user_location');
+            $table->unique(['user_id', 'item_id', 'item_type'], 'unique_user_item');
+
+            $table->index(['user_id', 'created_at']);
+            $table->index('item_type');
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('wishlists');
+        Schema::dropIfExists('user_wishlists');
     }
 };
