@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Web;
 
+use ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use App\Models\LocationImage;
+use App\Models\TravelGuide;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class LocationDetailController extends Controller
 {
@@ -64,5 +67,23 @@ class LocationDetailController extends Controller
         $location->increment('total_view');
         // $location->stars->increment('total_view');
         return res_success("Get detail location", $location);
+    }
+       public function locationGuide(Request $request)
+    {
+        try {
+            $travelGuides = TravelGuide::active()
+                ->with('location')
+                ->get();
+
+            return ApiResponse::JsonResult($travelGuides, "Success");
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching travel guides: ' . $e->getMessage());
+
+            return ApiResponse::JsonResult([
+                'success' => false,
+                'message' => 'Failed to fetch travel guides'
+            ], 500);
+        }
     }
 }

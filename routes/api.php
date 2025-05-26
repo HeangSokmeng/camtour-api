@@ -68,6 +68,9 @@ Route::prefix('web/view')->group(function () {
         Route::post('/', [CustomerController::class, 'store']);
     });
     Route::prefix('location')->group(function () {
+         Route::prefix('guide')->group(function () {
+            Route::get('', [LocationDetailController::class, 'locationGuide']);
+        });
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
@@ -76,6 +79,8 @@ Route::prefix('web/view')->group(function () {
         Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
         Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);
         Route::get('/villages/{communeId}', [LocationController::class, 'getVillages']);
+
+
     });
     Route::prefix('adventure')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
@@ -214,9 +219,7 @@ Route::middleware('login')->group(function () {
             Route::prefix('guide')->group(function () {
                 Route::post('/', [LocationGuideController::class, 'store']);
                 Route::get('/get', [LocationGuideController::class, 'index']);
-                Route::post('/{id}', [LocationGuideController::class, 'update']);
-                Route::delete('/{id}', [LocationGuideController::class, 'destroy']);
-                Route::delete('/image/{id}', [LocationGuideController::class, 'destroyImage']);
+                Route::put('/{id}', [LocationGuideController::class, 'update']);
             });
         });
 
