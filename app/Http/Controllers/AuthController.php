@@ -27,7 +27,11 @@ class AuthController extends Controller
         // check user credential
         $email = $req->input('email');
         $user = User::where('email', $email)->with('roles')->first();
-        if($user->is_lock == 'lock'){
+        $user = User::where('email', $email)->with('roles')->first();
+
+        if (!$user) return res_fail('Incorrect email or password');
+
+        if ($user->is_lock == 'lock') {
             return res_fail('You do not have permission to access this resource.', [], 1, 403);
         }
         if (!$user) return res_fail('Incorrect email or password');

@@ -42,7 +42,7 @@ class UserIndexResource extends JsonResource
     protected function getImageUrl()
     {
         if ($this->image) {
-            return asset('storage/' . $this->image);
+            return asset('storage/users/' . $this->image);
         }
         return asset('storage/no_photo.jpg');
     }

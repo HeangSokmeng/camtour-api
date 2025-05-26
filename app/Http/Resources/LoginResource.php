@@ -15,7 +15,7 @@ class LoginResource extends JsonResource
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'gender' => intval($this->gender),
-            'image' => asset('storage/' . $this->image),
+            'image' => asset('storage/users/' . $this->image),
             'phone' => $this->phone,
             'email' => $this->email,
             'is_email_verified' => !($this->email_verified_at == null),

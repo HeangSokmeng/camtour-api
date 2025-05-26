@@ -43,26 +43,6 @@ use Illuminate\Support\Facades\Route;
 // PUBLIC ROUTES - No Authentication Required
 // ===============================
 Route::prefix('web')->group(function () {
-    // Get user's wishlist
-        // Route::get('/wishlist', [WishlistController::class, 'index']);
-
-        // // Add item to wishlist
-        // Route::post('/wishlist', [WishlistController::class, 'store']);
-
-        // // Remove item from wishlist
-        // Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']);
-
-        // // Sync entire wishlist
-        // Route::put('/wishlist/sync', [WishlistController::class, 'sync']);
-
-        // // Get wishlist count
-        // Route::get('/wishlist/count', [WishlistController::class, 'count']);
-
-        // // Check if items are in wishlist
-        // Route::post('/wishlist/check', [WishlistController::class, 'check']);
-
-        // // Get wishlist items by type
-        // Route::get('/wishlist/type/{type}', [WishlistController::class, 'byType']);
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::post('/forgot-pass', [AuthController::class, 'forgotPass']);
@@ -125,29 +105,16 @@ Route::prefix('web/view')->group(function () {
 Route::middleware('login')->group(function () {
 
     Route::prefix('web')->group(function () {
-        // Get user's wishlist
-        Route::get('/wishlist', [WishlistController::class, 'index']);
-
-        // // Add item to wishlist
-        Route::post('/wishlist', [WishlistController::class, 'store']);
-
-        // // Remove item from wishlist
-        Route::delete('/wishlist/{itemId}', [WishlistController::class, 'destroy']);
-
-        // // Sync entire wishlist
-        Route::put('/wishlist/sync', [WishlistController::class, 'sync']);
-
-        // // Get wishlist count
-        Route::get('/wishlist/count', [WishlistController::class, 'count']);
-
-        // // Check if items are in wishlist
-        Route::post('/wishlist/check', [WishlistController::class, 'check']);
-
-        // // Get wishlist items by type
-        Route::get('/wishlist/type/{type}', [WishlistController::class, 'byType']);
-
-        // // Clear entire wishlist
-        Route::delete('/wishlist', [WishlistController::class, 'clear']);
+        Route::prefix('wishlist')->group(function () {
+            Route::get('', [WishlistController::class, 'index']);
+            Route::post('', [WishlistController::class, 'store']);
+            Route::delete('/{itemId}', [WishlistController::class, 'destroy']);
+            Route::put('/sync', [WishlistController::class, 'sync']);
+            Route::get('/count', [WishlistController::class, 'count']);
+            Route::post('/check', [WishlistController::class, 'check']);
+            Route::get('/type/{type}', [WishlistController::class, 'byType']);
+            Route::delete('', [WishlistController::class, 'clear']);
+        });
         Route::prefix('auth')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
             Route::delete('/logout', [AuthController::class, 'logout']);
@@ -157,12 +124,6 @@ Route::middleware('login')->group(function () {
             Route::put('/update', [CustomerController::class, 'update']);
             Route::delete('/delete', [CustomerController::class, 'destroy']);
         });
-        // Route::prefix('wishlist')->group(function () {
-        //     Route::post('/', [LocationController::class, 'addToWishlist']);
-        //     Route::delete('/', [LocationController::class, 'removeFromWishlist']);
-        //     Route::get('/', [LocationController::class, 'getWishlist']);
-        //     Route::get('/{locationId}', [LocationController::class, 'isInWishlist']);
-        // });
         Route::prefix('cart')->group(function () {
             Route::post('/', [CartController::class, 'addToCart']);
             Route::get('/', [CartController::class, 'getCart']);
@@ -215,26 +176,20 @@ Route::middleware('login')->group(function () {
     // PROFILE ROUTES - All Authenticated Users
     // ===============================
     Route::prefix('profile')->group(function () {
+        Route::post('/update/{id}', [UserController::class, 'update']);
         Route::put('/pass', [ProfileController::class, 'updatePass']);
         Route::put('/info', [ProfileController::class, 'updateInfo']);
         Route::put('/image', [ProfileController::class, 'resetImage']);
     });
 
 
+
     // ===============================
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
-
-        // Route::prefix('customer')->group(function () {
-        //     Route::post('/', [CustomerController::class, 'store']);
-        //     Route::get('/', [CustomerController::class, 'index']);
-        //     Route::put('/{id}', [CustomerController::class, 'update']);
-        //     Route::delete('/{id}', [AuthController::class, 'destroy']);
-        // });
         // Location Management Routes
         Route::prefix('locations')->group(function () {
-
             Route::get('/provinces', [LocationController::class, 'getProvinces']);
             Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
             Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);

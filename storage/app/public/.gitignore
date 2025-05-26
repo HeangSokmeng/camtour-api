@@ -1,6 +1,7 @@
 *
 !products/
 !avatars/
+!users/
 !categories/
 !locations/
 !.gitignore

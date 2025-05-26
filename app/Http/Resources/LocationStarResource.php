@@ -16,7 +16,7 @@ class LocationStarResource extends JsonResource
                 'first_name' => $this->rater->first_name,
                 'last_name' => $this->rater->last_name,
                 'gender' => intval($this->rater->gender),
-                'image' => asset('storage/avatars/' . $this->rater->image),
+                'image' => asset('storage/users/' . $this->rater->image),
             ],
             'star' => floatval($this->star),
             'comment' => htmlspecialchars_decode($this->comment)

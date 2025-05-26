@@ -119,17 +119,18 @@ class UserController extends Controller
             'roles.*' => 'integer|exists:roles,id',
             'image' => 'nullable|file|mimetypes:image/png,image/jpeg|max:2048',
             'phone' => 'nullable|string|max:250',
-            'email' => 'required|email|max:250|unique:users,email,' . $id,
+            'email' => 'nullable|email|max:250|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed',
             'is_lock' => 'nullable'
         ]);
-
         $user = User::findOrFail($id);
 
         // Handle image update
         if ($req->hasFile('image')) {
-            $user->image = $req->file('image')->store('users', ['disk' => 'public']);
+            $path = $req->file('image')->store('users', ['disk' => 'public']);
+            $user->image = basename($path); // Only store the filename
         }
+
 
         // Update other fields
         $user->fill($req->only([
@@ -165,7 +166,7 @@ class UserController extends Controller
 
         $user->load('roles');
 
-        return res_success('Update user successful', new UserDetailResource($user));
+        return res_success('Update user successful');
     }
 
 

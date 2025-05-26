@@ -138,10 +138,14 @@ class CustomerController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'is_lock' => 'nullable'
         ]);
-        Log::info($req);
+        // if ($req->hasFile('image')) {
+        //     if ($user->image && $user->image !== User::DEFAULT_IMAGE)  Storage::disk('public')->delete($user->image);
+        //     $user->image = $req->file('image')->store('users', ['disk' => 'public']);
+        // }
+
         if ($req->hasFile('image')) {
-            if ($user->image && $user->image !== User::DEFAULT_IMAGE)  Storage::disk('public')->delete($user->image);
-            $user->image = $req->file('image')->store('users', ['disk' => 'public']);
+            $path = $req->file('image')->store('users', ['disk' => 'public']);
+            $user->image = basename($path); // Only store the filename
         }
         $user->fill($req->only([
             'first_name',

@@ -67,9 +67,9 @@ class ProfileController extends Controller
         }
         if ($req->hasFile('image')) {
             $image = $req->file('image');
-            $image->store('avatars', ['disk' => 'public']);
+            $image->store('users', ['disk' => 'public']);
             if ($user->image != User::DEFAULT_IMAGE) {
-                Storage::disk('public')->delete('avatars/' . $user->image);
+                Storage::disk('public')->delete('users/' . $user->image);
             }
             $user->image = $image->hashName();
         }
@@ -83,7 +83,7 @@ class ProfileController extends Controller
         $loginUser = $req->user('sanctum');
         $user = User::where('id', $loginUser->id)->with('roles')->first();
         if ($user->image != User::DEFAULT_IMAGE) {
-            Storage::disk('public')->delete('avatars/' . $user->image);
+            Storage::disk('public')->delete('users/' . $user->image);
         }
         $user->image = User::DEFAULT_IMAGE;
         $user->save();
