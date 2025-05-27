@@ -15,13 +15,14 @@ class CategoryController extends Controller
         // validate
         $req->validate([
             'name' => 'required|string|max:250',
+            'name_km' => 'required|string|max:250',
             'description' => 'nullable|string|max:65530',
             'image' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
         ]);
 
         // store new category
         $image = Category::DEFAULT_IMAGE;
-        $category = new Category($req->only(['name', 'description']));
+        $category = new Category($req->only(['name', 'description', 'name_km']));
         if ($req->hasFile('image')) {
             $file = $req->file('image');
             $image = $file->store('categories', ['disk' => 'public']);
@@ -66,6 +67,7 @@ class CategoryController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0',
             'name' => 'nullable|string|max:250',
+            'name_km' => 'nullable|string|max:250',
             'description' => 'nullable|string|max:65530',
             'image' => 'nullable|image|mimetypes:image/jpeg,image/png|max:2048',
         ]);
@@ -77,6 +79,8 @@ class CategoryController extends Controller
         // update category
         if ($req->filled('name')) {
             $category->name = $req->input('name');
+        }if ($req->filled('name_km')) {
+            $category->name_km = $req->input('name_km');
         }
         if ($req->has('description')) {
             $category->description = $req->input('description');

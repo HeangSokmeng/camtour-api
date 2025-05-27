@@ -53,7 +53,6 @@ class WishlistController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        Log::info("Heyoo");
         try {
             $validator = Validator::make($request->all(), [
                 'item_id' => 'required|string',
@@ -122,6 +121,7 @@ class WishlistController extends Controller
      */
     public function destroy(Request $request, string $itemId): JsonResponse
     {
+        Log::info("Test");
         try {
             $user = UserService::getAuthUser($request);
             $itemType = $request->query('item_type', 'location');

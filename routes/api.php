@@ -111,14 +111,14 @@ Route::middleware('login')->group(function () {
 
     Route::prefix('web')->group(function () {
         Route::prefix('wishlist')->group(function () {
-            Route::get('', [WishlistController::class, 'index']);
             Route::post('', [WishlistController::class, 'store']);
+            Route::get('', [WishlistController::class, 'index']);
+            Route::delete('/clear', [WishlistController::class, 'clear']);
             Route::delete('/{itemId}', [WishlistController::class, 'destroy']);
             Route::put('/sync', [WishlistController::class, 'sync']);
             Route::get('/count', [WishlistController::class, 'count']);
-            Route::post('/check', [WishlistController::class, 'check']);
             Route::get('/type/{type}', [WishlistController::class, 'byType']);
-            Route::delete('', [WishlistController::class, 'clear']);
+            Route::post('/check', [WishlistController::class, 'check']);
         });
         Route::prefix('auth')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
