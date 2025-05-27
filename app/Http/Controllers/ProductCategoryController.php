@@ -12,9 +12,10 @@ class ProductCategoryController extends Controller
     public function store(Request $req)
     {
         $req->validate([
-            "name" => "required|string|max:250|unique:product_categories,name,NULL,id,is_deleted,0"
+            "name" => "required|string|max:250|unique:product_categories,name,NULL,id,is_deleted,0",
+            "name_km" => "nullable|string|max:250"
         ]);
-        $category = new ProductCategory($req->only(["name"]));
+        $category = new ProductCategory($req->only(["name", "name_km"]));
         $user = UserService::getAuthUser($req);
         $category->create_uid = $user->id;
         $category->update_uid = $user->id;
@@ -32,7 +33,9 @@ class ProductCategoryController extends Controller
         if ($req->filled('search')) {
             $s = $req->input('search');
             $categories = $categories->where(function ($q) use ($s) {
-                $q->where('name', 'like', "%$s%");
+                $q->where('name', 'ilike', "%$s%");
+                $q->orWhere('name_km', 'ilike', "%$s%");
+
             });
         }
         $categories = $categories->orderBy("name")->get();
@@ -72,7 +75,8 @@ class ProductCategoryController extends Controller
         $req->merge(["id" => $id]);
         $req->validate([
             "id" => "required|integer|min:1|exists:product_categories,id,is_deleted,0",
-            "name" => "required|string|max:250|unique:product_categories,name,$id,id,is_deleted,0"
+            "name" => "required|string|max:250|unique:product_categories,name,$id,id,is_deleted,0",
+            "name_km" => "nullable|string|max:250"
         ]);
         $category = ProductCategory::where("id", $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Product category not found.', [], 1, 404);

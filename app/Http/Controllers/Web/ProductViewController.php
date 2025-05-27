@@ -19,11 +19,12 @@ class ProductViewController extends Controller
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1',
             'brand_id' => 'nullable|integer|exists:brands,id',
-            'category_id' => 'nullable|integer|exists:product_categories,id',
+            'category_id' => 'nullable|integer|exists:categories,id',
+            'category_pro_id' => 'nullable|integer|exists:product_categories,id',
         ]);
         $products = Product::with([
-            'brand:id,name',
-            'pcategory:id,name',
+            'brand:id,name,name_km',
+            'pcategory:id,name,name_km',
             'tags',
             'stars' => function ($query) {
                 $query->select('id', 'product_id', 'star', 'comment', 'rater_id')
@@ -37,8 +38,8 @@ class ProductViewController extends Controller
         if ($req->filled('search')) {
             $s = $req->input('search');
             $products->where(function ($q) use ($s) {
-                $q->where('name', 'like', "%$s%")
-                    ->orWhere('name_km', 'like', "%$s%");
+                $q->where('name', 'ilike', "%$s%")
+                    ->orWhere('name_km', 'ilike', "%$s%");
             });
         }
         // filter by brand
@@ -47,7 +48,10 @@ class ProductViewController extends Controller
         }
         // filter by category
         if ($req->filled('category_id')) {
-            $products->where('product_category_id', $req->input('category_id'));
+            $products->where('category_id', $req->input('category_id'));
+        }
+        if ($req->filled('category_pro_id')) {
+            $products->where('product_category_id', $req->input('category_pro_id'));
         }
         // paginate
         $products = $products->orderByDesc('id')->get();
@@ -64,6 +68,7 @@ class ProductViewController extends Controller
         });
         return ApiResponse::Pagination($products, $req);
     }
+
     public function find(Request $req, $id)
     {
         // validation
