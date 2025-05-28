@@ -27,7 +27,6 @@ class AdventureViewController extends Controller
             'search' => 'nullable|string|max:255',
             'lang' => 'nullable|string|in:en,km',
         ]);
-
         $page = $req->filled('page') ? intval($req->input('page')) : 1;
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
         $search = $req->input('search');
