@@ -31,8 +31,6 @@ class AdventureViewController extends Controller
         $page = $req->filled('page') ? intval($req->input('page')) : 1;
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
         $search = $req->input('search');
-        $lang = $req->input('lang', 'en');
-
         $locationsQuery = Location::where('is_deleted', 0)
             ->with([
                 'stars:id,star,location_id',
