@@ -33,4 +33,8 @@ class District extends Model
     {
         return self::where('province_id', $provinceId)->orderByDesc('id')->selectRaw('id,name,local_name,province_id')->get();
     }
+        public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 }

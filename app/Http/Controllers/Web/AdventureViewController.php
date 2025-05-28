@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Location;
-use App\Models\Product;
+use App\Models\Province;
+use App\Models\District;
+use App\Models\Commune;
+use App\Models\Village;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class AdventureViewController extends Controller
@@ -15,25 +19,32 @@ class AdventureViewController extends Controller
             'page' => 'nullable|integer|min:1',
             'per_page' => 'nullable|integer|min:1|max:50',
             'province_id' => 'nullable|integer|exists:provinces,id',
+            'district_id' => 'nullable|integer|exists:districts,id',
+            'commune_id' => 'nullable|integer|exists:communes,id',
+            'village_id' => 'nullable|integer|exists:villages,id',
+            'category_id' => 'nullable|integer|exists:categories,id',
             'star' => 'nullable|numeric|min:0|max:5',
+            'search' => 'nullable|string|max:255',
+            'lang' => 'nullable|string|in:en,km',
         ]);
 
         $page = $req->filled('page') ? intval($req->input('page')) : 1;
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
+        $search = $req->input('search');
+        $lang = $req->input('lang', 'en');
 
         $locationsQuery = Location::where('is_deleted', 0)
-            ->with(
+            ->with([
                 'stars:id,star,location_id',
                 'province:id,name,local_name',
                 'district:id,name,local_name',
                 'commune:id,name,local_name',
                 'village:id,name,local_name',
-                'category:id,name',
-            )
+                'category:id,name,name_km',
+            ])
             ->where('status', 1)
             ->orderBy('id', 'desc')
-            ->take(100)
-            ->select(
+            ->select([
                 'id',
                 'name',
                 'name_local',
@@ -47,20 +58,52 @@ class AdventureViewController extends Controller
                 'commune_id',
                 'village_id',
                 'category_id'
-            );
+            ]);
 
-        // Filter by province
+        // Apply search filter
+        if ($search) {
+            $locationsQuery->where(function ($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('name_local', 'like', "%{$search}%")
+                      ->orWhere('short_description', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply location hierarchy filters
         if ($req->filled('province_id')) {
             $locationsQuery->where('province_id', $req->input('province_id'));
         }
 
-        // Fetch locations and apply star filter after loading stars
-        $locations = $locationsQuery->get();
+        if ($req->filled('district_id')) {
+            $locationsQuery->where('district_id', $req->input('district_id'));
+        }
+
+        if ($req->filled('commune_id')) {
+            $locationsQuery->where('commune_id', $req->input('commune_id'));
+        }
+
+        if ($req->filled('village_id')) {
+            $locationsQuery->where('village_id', $req->input('village_id'));
+        }
+
+        if ($req->filled('category_id')) {
+            $locationsQuery->where('category_id', $req->input('category_id'));
+        }
+
+        // Fetch locations first (limit to reasonable number for performance)
+        $locations = $locationsQuery->take(1000)->get();
 
         // Calculate average star and prepare the data
         foreach ($locations as $location) {
-            $location->rate_star = round($location->stars->avg('star'), 2) ?? 0;
-            $location->is_thumbnail = asset("storage/{$location->thumbnail}");
+            $location->rate_star = $location->stars->count() > 0
+                ? round($location->stars->avg('star'), 2)
+                : 0;
+            $location->is_thumbnail = $location->thumbnail
+                ? asset("storage/{$location->thumbnail}")
+                : null;
+
+            // Remove unnecessary fields
             unset(
                 $location->stars,
                 $location->thumbnail,
@@ -68,10 +111,11 @@ class AdventureViewController extends Controller
                 $location->commune_id,
                 $location->district_id,
                 $location->village_id,
+                $location->category_id
             );
         }
 
-        // Filter by star (after calculating average star)
+        // Filter by star rating (after calculating average star)
         if ($req->filled('star')) {
             $minStar = floatval($req->input('star'));
             $locations = $locations->filter(function ($location) use ($minStar) {
@@ -79,26 +123,57 @@ class AdventureViewController extends Controller
             })->values();
         }
 
+        // Sort locations by total_view descending for top_view_location
+        $topViewLocation = $locations->sortByDesc('total_view')->take(20)->values();
+
+        // Apply pagination
         $totalLocations = $locations->count();
         $offset = ($page - 1) * $perPage;
         $paginatedLocations = $locations->slice($offset, $perPage)->values();
-
-        $topViewLocation = $locations->sortByDesc('total_view')->values();
-        $paginatedTopViewLocations = $topViewLocation->slice($offset, $perPage)->values();
 
         $pagination = [
             'total' => $totalLocations,
             'per_page' => $perPage,
             'current_page' => $page,
             'last_page' => ceil($totalLocations / $perPage),
-            'from' => $offset + 1,
+            'from' => $totalLocations > 0 ? $offset + 1 : 0,
             'to' => min($offset + $perPage, $totalLocations),
         ];
 
-        return res_success("Get success home page", [
-            'top_view_location' => $paginatedTopViewLocations,
+        return res_success("Get success adventure page", [
+            'top_view_location' => $topViewLocation,
             'locations' => $paginatedLocations,
             'pagination' => $pagination,
+        ]);
+    }
+
+
+    public function getLocationStats(Request $request)
+    {
+        $totalLocations = Location::where('is_deleted', 0)
+            ->where('status', 1)
+            ->count();
+
+        $locationsByProvince = Location::where('is_deleted', 0)
+            ->where('status', 1)
+            ->with('province:id,name,local_name')
+            ->select('province_id')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('province_id')
+            ->get();
+
+        $locationsByCategory = Location::where('is_deleted', 0)
+            ->where('status', 1)
+            ->with('category:id,name,local_name')
+            ->select('category_id')
+            ->selectRaw('COUNT(*) as count')
+            ->groupBy('category_id')
+            ->get();
+
+        return res_success("Location statistics retrieved successfully", [
+            'total_locations' => $totalLocations,
+            'by_province' => $locationsByProvince,
+            'by_category' => $locationsByCategory,
         ]);
     }
 }

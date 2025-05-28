@@ -68,20 +68,23 @@ Route::prefix('web/view')->group(function () {
         Route::post('/', [CustomerController::class, 'store']);
     });
     Route::prefix('location')->group(function () {
-         Route::prefix('guide')->group(function () {
+        Route::get('/provinces', [LocationController::class, 'getProvinces']);
+        Route::prefix('guide')->group(function () {
             Route::get('', [LocationDetailController::class, 'locationGuide']);
         });
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
 
-        Route::get('/provinces', [LocationController::class, 'getProvinces']);
         Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
         Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);
         Route::get('/villages/{communeId}', [LocationController::class, 'getVillages']);
 
-
+        Route::get('/stats', [AdventureViewController::class, 'getLocationStats']);
     });
+
+
+    // Optional: Get location statistics
     Route::prefix('adventure')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [AdventureViewController::class, 'getAdventure']);

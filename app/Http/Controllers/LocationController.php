@@ -417,7 +417,9 @@ class LocationController extends Controller
 
     public function getProvinces()
     {
-        $provinces = Province::getAllProvinces();
+        Log::info("Test");
+        $provinces = Province::all();
+        Log::info($provinces);
         return res_success('Provinces retrieved successfully.', $provinces);
     }
 

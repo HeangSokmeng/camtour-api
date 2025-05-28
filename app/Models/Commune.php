@@ -39,4 +39,8 @@ class Commune extends Model
     {
         return self::where('district_id', $districtId)->orderByDesc('id')->selectRaw('id,name,local_name,district_id')->get();
     }
+        public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
 }

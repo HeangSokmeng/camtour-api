@@ -23,8 +23,12 @@ class Province extends Model
     }
 
     // Get all provinces
-    public static function getAllProvinces()
+    // public static function getAllProvinces()
+    // {
+    //     return self::orderByDesc('id')->selectRaw('id,name,local_name')->get();
+    // }
+        public function location()
     {
-        return self::orderByDesc('id')->selectRaw('id,name,local_name')->get();
+        return $this->belongsTo(Location::class);
     }
 }
