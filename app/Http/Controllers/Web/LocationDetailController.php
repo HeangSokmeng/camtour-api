@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web;
 use ApiResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
-use App\Models\LocationImage;
 use App\Models\TravelGuide;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +25,7 @@ class LocationDetailController extends Controller
                 'category:id,name',
                 'stars' => function ($query) {
                     $query->select('id', 'location_id', 'star', 'comment', 'rater_id')
-                    ->where('status',1)
+                        ->where('status', 1)
                         ->orderBy('id', 'desc');
                 },
                 'category.products:id,category_id,name,name_km,description,thumbnail',
@@ -68,18 +67,16 @@ class LocationDetailController extends Controller
         // $location->stars->increment('total_view');
         return res_success("Get detail location", $location);
     }
-       public function locationGuide(Request $request)
+
+    public function locationGuide(Request $request)
     {
         try {
             $travelGuides = TravelGuide::active()
                 ->with('location')
                 ->get();
-
             return ApiResponse::JsonResult($travelGuides, "Success");
-
         } catch (\Exception $e) {
             Log::error('Error fetching travel guides: ' . $e->getMessage());
-
             return ApiResponse::JsonResult([
                 'success' => false,
                 'message' => 'Failed to fetch travel guides'

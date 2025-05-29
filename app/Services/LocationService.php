@@ -2,11 +2,6 @@
 
 namespace App\Services;
 
-use ApiResponse;
-use App\Models\Commune;
-use App\Models\District;
-use App\Models\Province;
-use App\Models\Village;
 use Illuminate\Http\Request;
 
 /**

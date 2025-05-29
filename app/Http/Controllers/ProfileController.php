@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Profile\UpdateInfoRequest;
 use App\Http\Resources\LoginResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -20,7 +19,6 @@ class ProfileController extends Controller
             'new_password' => 'required|string|max:250|confirmed',
             'new_password_confirmation' => 'required|string|max:250'
         ]);
-
         // check current password
         $loginUser = $req->user('sanctum');
         $user = User::where('id', $loginUser->id)->with('roles')->first();

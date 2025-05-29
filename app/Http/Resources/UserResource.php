@@ -18,7 +18,6 @@ class UserResource extends JsonResource
             'role_id' => $this->role_id,
             'image' => asset("storage/{$this->users}"),
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y'),
-
         ];
     }
 }

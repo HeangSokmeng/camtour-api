@@ -19,13 +19,11 @@ class ProductStarController extends Controller
         ]);
         $req->merge(['comment' => htmlspecialchars($req->input('comment'))]);
         $loginUser = $req->user('sanctum');
-
         // store rating
         $star = new ProductStar($req->only(['star', 'comment']));
         $star->rater_id = $loginUser->id;
         $star->product_id = $id;
         $star->save();
-
         // response back
         return res_success('Store location review successful.');
     }
@@ -36,7 +34,6 @@ class ProductStarController extends Controller
         $req->merge(['id' => $reviewId]);
         $req->validate(['id' => 'required|integer|min:1|exists:product_stars,id']);
         $loginUser = $req->user('sanctum');
-
         // check if owner of review
         $star = ProductStar::where('id', $reviewId)->first();
         if ($loginUser->role_id != Role::SYSTEM_ADMIN) {
@@ -44,7 +41,6 @@ class ProductStarController extends Controller
                 return res_fail('You are not owner of this review.');
             }
         }
-
         // delete review & response
         $star->delete();
         return res_success('Store location review successful.');
@@ -60,13 +56,11 @@ class ProductStarController extends Controller
             'comment' => 'nullable|string|max:250'
         ]);
         $loginUser = $req->user('sanctum');
-
         // check if user is owner of this review
         $star = ProductStar::where('id', $reviewId)->first();
         if ($star->rater_id != $loginUser->id) {
             return res_fail('You are not owner of this review.');
         }
-
         // update review
         if ($req->filled('star')) {
             $star->star = $req->input('star');
@@ -75,7 +69,6 @@ class ProductStarController extends Controller
             $star->comment = htmlspecialchars($req->input('comment'));
         }
         $star->save();
-
         // response back
         return res_success('Update review successful');
     }

@@ -27,22 +27,18 @@ class ProductController extends Controller
             'product_category_id' => 'nullable|integer|min:1|exists:product_categories,id,is_deleted,0',
         ]);
         $req->merge(['description' => htmlspecialchars($req->input('description'))]);
-
         // store thumbnail
         $thumbnail = Product::DEFAULT_THUMBNAIL;
         if ($req->hasFile('thumbnail')) {
             $thumbnail = $req->file('thumbnail')->store('products', ['disk' => 'public']);
         }
-
         // store product & reponse back
         $product = new Product($req->only(['name', 'name_km', 'code', 'description', 'price', 'status', 'category_id', 'product_category_id', 'brand_id']));
         $product->thumbnail = $thumbnail;
-
         // Set user info
         $user = UserService::getAuthUser($req);
         $product->create_uid = $user->id;
         $product->update_uid = $user->id;
-
         $product->save();
         return res_success('Store new product successful', new ProductDetailResource($product));
     }
@@ -81,7 +77,6 @@ class ProductController extends Controller
         }
         // paginate
         $products = $products->orderByDesc('id')->paginate($perPage);
-
         return res_paginate($products, "Get all product success", ProductIndexResource::collection($products));
     }
 
@@ -90,7 +85,6 @@ class ProductController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:products,id,is_deleted,0']);
-
         // get product
         $product = Product::where('id', $id)
             ->where('is_deleted', 0)
@@ -116,7 +110,6 @@ class ProductController extends Controller
             Storage::disk('public')->delete($product->thumbnail);
             $product->thumbnail = Product::DEFAULT_THUMBNAIL;
         }
-
         // soft delete product & response
         $user = UserService::getAuthUser($req);
         $product->update([
@@ -124,7 +117,6 @@ class ProductController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete product successful.');
     }
 
@@ -149,13 +141,10 @@ class ProductController extends Controller
         // find product
         $product = Product::where('id', $id)->where('is_deleted', 0)->first();
         if (!$product) return res_fail('Product not found.', [], 1, 404);
-
         // Set user info
         $user = UserService::getAuthUser($req);
         $product->update_uid = $user->id;
-
         $req->merge(['description' => htmlspecialchars($req->input('description'))]);
-
         // update product fields
         if ($req->filled('name')) {
             $product->name = $req->input('name');
@@ -184,7 +173,6 @@ class ProductController extends Controller
         if ($req->filled('product_category_id')) {
             $product->product_category_id = $req->input('product_category_id');
         }
-
         // update thumbnail if needed
         if ($req->hasFile('thumbnail')) {
             $thumbnail = $req->file('thumbnail')->store('products', ['disk' => 'public']);
@@ -193,7 +181,6 @@ class ProductController extends Controller
             }
             $product->thumbnail = $thumbnail;
         }
-
         // save product & response
         $product->save();
         return res_success("Update product info success.", new ProductDetailResource($product));

@@ -16,7 +16,6 @@ class TagController extends Controller
         $req->validate([
             'name' => 'required|string|max:250|unique:tags,name,NULL,id,is_deleted,0',
         ]);
-
         // store tag & response
         $tag = new Tag($req->only(['name']));
         $user = UserService::getAuthUser($req);
@@ -47,9 +46,9 @@ class TagController extends Controller
         $tags = new Tag();
         $tags = $tags->where('is_deleted', 0);
         if (strlen($search) > 0) {
-            $tags = $tags->where(function($q) use ($search) {
+            $tags = $tags->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                  ->orWhere('name', 'like', "%$search%");
+                    ->orWhere('name', 'like', "%$search%");
             });
         }
         $tags = $tags->orderBy($sortCol, $sortDir)->paginate($perPage);
@@ -64,14 +63,11 @@ class TagController extends Controller
             'id' => 'required|integer|min:1|exists:tags,id,is_deleted,0',
             'name' => "nullable|string|max:250|unique:tags,name,$id,id,is_deleted,0"
         ]);
-
         // update tag data
         $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tag) return res_fail('Tag not found.', [], 1, 404);
-
         $user = UserService::getAuthUser($req);
         $tag->update_uid = $user->id;
-
         if ($req->filled('name')) {
             $tag->name = $req->input('name');
         }
@@ -82,13 +78,11 @@ class TagController extends Controller
     public function destroy(Request $req, $id)
     {
         // validation
-        $req->merge(['id'=> $id]);
+        $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:tags,id,is_deleted,0']);
-
         // find tag
         $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tag) return res_fail('Tag not found.', [], 1, 404);
-
         // soft delete
         $user = UserService::getAuthUser($req);
         $tag->update([
@@ -96,7 +90,6 @@ class TagController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete tag successful.');
     }
 
@@ -105,11 +98,9 @@ class TagController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:tags,id,is_deleted,0']);
-
         // get one tag
         $tag = Tag::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tag) return res_fail('Tag not found.', [], 1, 404);
-
         return res_success('Get one tag successful.', new TagResource($tag));
     }
 }

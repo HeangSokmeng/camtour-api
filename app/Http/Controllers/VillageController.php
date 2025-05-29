@@ -121,11 +121,9 @@ class VillageController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:villages,id,is_deleted,0']);
-
         // find village
         $village = Village::where('id', $id)->where('is_deleted', 0)->first();
         if (!$village) return res_fail('Village not found.', [], 1, 404);
-
         // soft delete
         $user = UserService::getAuthUser($req);
         $village->update([
@@ -133,7 +131,6 @@ class VillageController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete village successful.');
     }
 
@@ -142,11 +139,9 @@ class VillageController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:villages,id,is_deleted,0']);
-
         // get one village
         $village = Village::where('id', $id)->where('is_deleted', 0)->with(['province', 'district', 'commune'])->first();
         if (!$village) return res_fail('Village not found.', [], 1, 404);
-
         return res_success('Get one village success.', new VillageResource($village));
     }
 }

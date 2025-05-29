@@ -10,14 +10,13 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
 {
     public function store(Request $req)
     {
-         $req->validate([
+        $req->validate([
             'first_name' => 'required|string|max:250',
             'last_name' => 'required|string|max:250',
             'gender' => 'nullable|integer|in:1,2',
@@ -70,7 +69,7 @@ class CustomerController extends Controller
             'gender' => 'nullable|integer|in:1,2',
         ]);
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 15;
-        $users = User::with(['roles'])->where('is_deleted',0)->where('role_id', 4);
+        $users = User::with(['roles'])->where('is_deleted', 0)->where('role_id', 4);
         if ($req->filled('search')) {
             $s = $req->input('search');
             $users->where(function ($q) use ($s) {
@@ -95,8 +94,8 @@ class CustomerController extends Controller
     public function theirInfo(Request $req)
     {
         $user = UserService::getAuthUser($req);
-        $users = User::with(['roles'])->where('is_deleted',0)->where('role_id', 4)->where('id', $user->id)->get();
-        if(!$user) return ApiResponse::Unauthorized();
+        $users = User::with(['roles'])->where('is_deleted', 0)->where('role_id', 4)->where('id', $user->id)->get();
+        if (!$user) return ApiResponse::Unauthorized();
         if ($req->filled('role_id')) {
             $users->whereHas('roles', function ($q) use ($req) {
                 $q->where('roles.id', $req->input('role_id'));

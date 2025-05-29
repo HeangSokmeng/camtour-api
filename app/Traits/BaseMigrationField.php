@@ -8,12 +8,8 @@ trait BaseMigrationField{
         $table->timestamp("updated_at")->useCurrent()->useCurrentOnUpdate();
         $table->unsignedBigInteger('create_uid')->nullable();
         $table->unsignedBigInteger('update_uid')->nullable();
-
-
         $table->foreign('create_uid')->references('id')->on('users');
         $table->foreign('update_uid')->references('id')->on('users');
-
-
         if($useDelete){
             $table->boolean('is_deleted')->default(0);
             $table->unsignedBigInteger('deleted_uid')->nullable();

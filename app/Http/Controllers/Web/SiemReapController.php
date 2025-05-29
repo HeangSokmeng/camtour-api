@@ -19,10 +19,8 @@ class SiemReapController extends Controller
             'star' => 'nullable|numeric|min:0|max:5',
             'min_total_view' => 'nullable|integer|min:0',
         ]);
-
         $page = $req->filled('page') ? intval($req->input('page')) : 1;
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
-
         $locationsQuery = Location::where('is_deleted', 0)
             ->where('status', 1)
             ->whereHas('category', function ($query) {
@@ -54,7 +52,6 @@ class SiemReapController extends Controller
                 'village_id',
                 'category_id'
             );
-
         if ($req->filled('district_id')) {
             $locationsQuery->where('district_id', $req->input('district_id'));
         }
@@ -69,12 +66,9 @@ class SiemReapController extends Controller
         }
         $locations = $locationsQuery->get();
         $productRows = [];
-
         foreach ($locations as $location) {
             $location->rate_star = round($location->stars->avg('star'), 2) ?? 0;
             $location->is_thumbnail = asset("storage/{$location->thumbnail}");
-
-            // Extract related products
             if ($location->category && $location->category->products) {
                 foreach ($location->category->products as $product) {
                     $product->thumbnail_url = asset("storage/{$product->thumbnail}");
@@ -91,7 +85,6 @@ class SiemReapController extends Controller
                     }
                 }
             }
-
             unset(
                 $location->stars,
                 $location->thumbnail,
@@ -99,10 +92,9 @@ class SiemReapController extends Controller
                 $location->commune_id,
                 $location->district_id,
                 $location->village_id,
-                $location->category->products // optional, if you want to clean up
+                $location->category->products
             );
         }
-
         if ($req->filled('star')) {
             $minStar = floatval($req->input('star'));
             $locations = $locations->filter(function ($location) use ($minStar) {

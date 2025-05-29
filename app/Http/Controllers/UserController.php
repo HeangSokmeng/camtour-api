@@ -9,8 +9,6 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -124,14 +122,11 @@ class UserController extends Controller
             'is_lock' => 'nullable'
         ]);
         $user = User::findOrFail($id);
-
         // Handle image update
         if ($req->hasFile('image')) {
             $path = $req->file('image')->store('users', ['disk' => 'public']);
             $user->image = basename($path); // Only store the filename
         }
-
-
         // Update other fields
         $user->fill($req->only([
             'first_name',
@@ -142,19 +137,15 @@ class UserController extends Controller
             'email',
             'is_lock'
         ]));
-
         // Handle password if provided
         if ($req->filled('password')) {
             $user->password = Hash::make($req->password);
         }
-
         // Set default role_id if not set
         if (!$user->role_id) {
             $user->role_id = 3;
         }
-
         $user->save();
-
         // Handle roles relationship
         if ($req->has('roles')) {
             $user->roles()->sync($req->roles);
@@ -163,9 +154,7 @@ class UserController extends Controller
         } else {
             $user->roles()->sync([3]);
         }
-
         $user->load('roles');
-
         return res_success('Update user successful');
     }
 

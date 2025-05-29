@@ -20,13 +20,11 @@ class ProductSizeController extends Controller
             'sort_dir' => 'nullable|string|in:asc,desc',
             'search' => 'nullable|string|max:50'
         ]);
-
         // Set up default values
         $perPage = $req->input('per_page', 50);
         $sortCol = $req->input('sort_col', 'size');
         $sortDir = $req->input('sort_dir', 'asc');
         $search = $req->input('search', '');
-
         // Build query
         $query = ProductSize::query()->where('is_deleted', 0)->with('product:id,name');
         if (!empty($search)) {
@@ -46,7 +44,6 @@ class ProductSizeController extends Controller
             'product_id' => 'required|integer|min:1|exists:products,id,is_deleted,0',
             'size' => 'required|string|max:250',
         ]);
-
         // store new product size
         $productSize = new ProductSize($req->only(["product_id", "size"]));
         $user = UserService::getAuthUser($req);
@@ -65,21 +62,17 @@ class ProductSizeController extends Controller
             'product_id' => 'nullable|integer|min:1|exists:products,id,is_deleted,0',
             'size' => 'nullable|string|max:250',
         ]);
-
         // update product size
         $productSize = ProductSize::where('id', $id)->where('is_deleted', 0)->first();
         if (!$productSize) return res_fail('Product size not found.', [], 1, 404);
-
         $user = UserService::getAuthUser($req);
         $productSize->update_uid = $user->id;
-
         if ($req->filled('product_id')) {
             $productSize->product_id = $req->input('product_id');
         }
         if ($req->filled('size')) {
             $productSize->size = $req->input('size');
         }
-
         $productSize->save();
         return res_success("Update product size success.", new ProductSizeResource($productSize));
     }
@@ -91,11 +84,9 @@ class ProductSizeController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:product_sizes,id,is_deleted,0',
         ]);
-
         // find product size
         $productSize = ProductSize::where('id', $id)->where('is_deleted', 0)->first();
         if (!$productSize) return res_fail('Product size not found.', [], 1, 404);
-
         // soft delete
         $user = UserService::getAuthUser($req);
         $productSize->update([
@@ -103,7 +94,6 @@ class ProductSizeController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete product size success.');
     }
 
@@ -112,11 +102,9 @@ class ProductSizeController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:product_sizes,id,is_deleted,0']);
-
         // get product size
         $productSize = ProductSize::where('id', $id)->where('is_deleted', 0)->with('product:id,name')->first();
         if (!$productSize) return res_fail('Product size not found.', [], 1, 404);
-
         return res_success('Get product size successful.', new ProductSizeResource($productSize));
     }
 }

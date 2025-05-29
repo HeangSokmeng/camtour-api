@@ -44,8 +44,6 @@ class CategoryController extends Controller
         $req->validate([
             'search' => 'nullable|string|max:50'
         ]);
-
-        // add search option
         $categories = new Category();
         if ($req->filled('search')) {
             $s = $req->input('search');
@@ -54,8 +52,6 @@ class CategoryController extends Controller
                    ->orWhere('name', 'like', "%$s%");
             });
         }
-
-        // get categories & response
         $categories = $categories->where('is_deleted', 0)->orderBy('name', 'asc')->get();
         return res_success('Get all categories successful.', CategoryResource::collection($categories));
     }
@@ -93,11 +89,8 @@ class CategoryController extends Controller
             }
             $category->image = $imageName;
         }
-
-        // Set user info
         $user = UserService::getAuthUser($req);
         $category->update_uid = $user->id;
-
         $category->save();
         return res_success('Update category successful.', new CategoryResource($category));
     }
@@ -109,11 +102,9 @@ class CategoryController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
         ]);
-
         // get one category
         $category = Category::where('id', $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Category not found.', [], 1, 404);
-
         return res_success('Get one category successful.', new CategoryResource($category));
     }
 
@@ -124,17 +115,14 @@ class CategoryController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
         ]);
-
         // find category
         $category = Category::where('id', $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Category not found.', [], 1, 404);
-
         // Before soft delete, handle image if needed
         if ($category->image != Category::DEFAULT_IMAGE) {
             Storage::disk('public')->delete($category->image);
             $category->image = Category::DEFAULT_IMAGE;
         }
-
         // Soft delete
         $user = UserService::getAuthUser($req);
         $category->update([
@@ -142,7 +130,6 @@ class CategoryController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete category successful.');
     }
 
@@ -153,7 +140,6 @@ class CategoryController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:categories,id,is_deleted,0'
         ]);
-
         // find category
         $category = Category::where('id', $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Category not found.', [], 1, 404);

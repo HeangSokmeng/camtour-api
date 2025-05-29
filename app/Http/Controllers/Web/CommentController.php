@@ -18,9 +18,7 @@ class CommentController extends Controller
             "star" => "nullable|numeric|min:1|max:5",
             "status" => "sometimes|boolean"
         ]);
-
         $user = UserService::getAuthUser($req);
-
         $locationStar = new LocationStar([
             'rater_id' => $user->id,
             'location_id' => $req->location_id,
@@ -30,9 +28,7 @@ class CommentController extends Controller
             'create_uid' => $user->id,
             'update_uid' => $user->id,
         ]);
-
         $locationStar->save();
-
         return res_success('Rating submitted successfully.');
     }
 
@@ -40,23 +36,19 @@ class CommentController extends Controller
     {
         $locationStar = LocationStar::where('is_deleted', 0)->find($id);
         if (!$locationStar) return ApiResponse::NotFound('Rating not found');
-
         $req->validate([
             "location_id" => "sometimes|integer|min:1|exists:locations,id",
             "comment" => "nullable|string|max:5000",
             "star" => "sometimes|numeric|min:1|max:5",
             "status" => "sometimes|boolean"
         ]);
-
         if ($req->has('location_id')) $locationStar->location_id = $req->location_id;
         if ($req->has('comment')) $locationStar->comment = $req->comment;
         if ($req->has('star')) $locationStar->star = $req->star;
         if ($req->has('status')) $locationStar->status = $req->status;
-
         $user = UserService::getAuthUser($req);
         $locationStar->update_uid = $user->id;
         $locationStar->save();
-
         return res_success('Rating updated successfully.');
     }
 
@@ -98,10 +90,8 @@ class CommentController extends Controller
     {
         $rating = LocationStar::where('is_deleted', 0)->find($id);
         if (!$rating) return ApiResponse::NotFound('Rating not found');
-
         $rating->status = !$rating->status;
         $rating->save();
-
         $message = $rating->status ? 'Rating has been activated.' : 'Rating has been deactivated.';
         return res_success($message);
     }
@@ -110,13 +100,11 @@ class CommentController extends Controller
     {
         $rating = LocationStar::where('is_deleted', 0)->find($id);
         if (!$rating) return ApiResponse::NotFound('Rating not found');
-
         $user = UserService::getAuthUser($req);
         $rating->is_deleted = 1;
         $rating->deleted_uid = $user->id;
         $rating->delete_notes = $req->delete_notes ?? null;
         $rating->save();
-
         return res_success('Rating deleted successfully.');
     }
     public function lockComment(Request $req, $id)

@@ -30,9 +30,7 @@ class UserService
                 ]);
             }
         }
-
         Log::warning("Unauthenticated request to getAuthUser");
-
         return DataResponse::Unauthorized();
     }
 

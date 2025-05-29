@@ -15,16 +15,11 @@ class MapCoordinateService
      */
     public function extractCoordinatesFromUrl($url)
     {
-        \Log::info('Extracting coordinates from URL: ' . $url);
-
-        // Pattern for the standard Google Maps URL with q parameter
         if (preg_match('/[?&]q=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
             $coordinates = [
                 'lat' => (float)$matches[1],
                 'lot' => (float)$matches[2]
             ];
-
-            \Log::info('Extracted coordinates (q parameter): ', $coordinates);
             return $coordinates;
         }
 
@@ -34,12 +29,8 @@ class MapCoordinateService
                 'lat' => (float)$matches[1],
                 'lot' => (float)$matches[2]
             ];
-
-            \Log::info('Extracted coordinates (3d/4d parameters): ', $coordinates);
             return $coordinates;
         }
-
-        \Log::info('No coordinates found in URL');
         return null;
     }
     /**

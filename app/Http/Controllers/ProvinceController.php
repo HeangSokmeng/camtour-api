@@ -19,13 +19,11 @@ class ProvinceController extends Controller
             'sort_dir' => 'nullable|string|in:asc,desc',
             'search' => 'nullable|string'
         ]);
-
         // setup default data
         $perPage = $req->filled('per_page') ? $req->input('per_page') : 50;
         $sortCol = $req->filled('sort_col') ? $req->input('sort_col') : 'name';
         $sortDir = $req->filled('sort_dir') ? $req->input('sort_dir') : 'asc';
         $search = $req->filled('search') ? $req->input('search') : '';
-
         // build query & get data
         $provinces = new Province();
         $provinces = $provinces->where('is_deleted', 0);
@@ -47,7 +45,6 @@ class ProvinceController extends Controller
             'name' => 'required|string|max:250|unique:provinces,name,NULL,id,is_deleted,0',
             'local_name' => 'required|string|max:250|unique:provinces,local_name,NULL,id,is_deleted,0',
         ]);
-
         // store new province
         $province = new Province($req->only(['name', 'local_name']));
         $user = UserService::getAuthUser($req);
@@ -91,11 +88,9 @@ class ProvinceController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:provinces,id,is_deleted,0',
         ]);
-
         // find province
         $province = Province::where('id', $id)->where('is_deleted', 0)->first();
         if (!$province) return res_fail('Province not found.', [], 1, 404);
-
         // soft delete
         $user = UserService::getAuthUser($req);
         $province->update([
@@ -103,7 +98,6 @@ class ProvinceController extends Controller
             'deleted_uid' => $user->id,
             'deleted_datetime' => now()
         ]);
-
         return res_success('Delete province successful.');
     }
 
@@ -112,11 +106,9 @@ class ProvinceController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:provinces,id,is_deleted,0']);
-
         // get one province
         $province = Province::where('id', $id)->where('is_deleted', 0)->first();
         if (!$province) return res_fail('Province not found.', [], 1, 404);
-
         return res_success('Get one province successful.', new ProvinceResource($province));
     }
 }

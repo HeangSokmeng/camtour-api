@@ -2,12 +2,7 @@
 
 namespace App\Http\Resources\Product;
 
-use App\Http\Resources\BrandResource;
-use App\Http\Resources\CategoryResource;
-use App\Http\Resources\ProductCategoryResource;
-use App\Http\Resources\ProductImageResource;
-use App\Http\Resources\ProductVariantResource;
-use App\Http\Resources\TagResource;
+
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 

@@ -210,8 +210,6 @@ class LocationController extends Controller
         ]);
         $location = Location::where('id', $id)->where('is_deleted', 0)->first();
         if (!$location) return res_fail('Location not found.', [], 1, 404);
-        Log::info($req);
-        // Set user info
         $user = UserService::getAuthUser($req);
         $location->update_uid = $user->id;
 
@@ -269,12 +267,10 @@ class LocationController extends Controller
         if ($req->filled('max_money')) {
             $location->max_money = $req->input('max_money');
         }
-
         // update category
         if ($req->filled('category_id')) {
             $location->category_id = $req->input('category_id');
         }
-
         // update address
         if ($req->filled('province_id')) {
             $location->province_id = $req->input('province_id');
@@ -288,7 +284,6 @@ class LocationController extends Controller
         if ($req->filled('village_id')) {
             $location->village_id = $req->input('village_id');
         }
-
         // save location & check tags
         $location->published_at = $req->has('published_at')
             ? $req->input('published_at')
@@ -305,17 +300,14 @@ class LocationController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:locations,id,is_deleted,0'
         ]);
-
         // find location
         $location = Location::where('id', $id)->where('is_deleted', 0)->with('photos')->first();
         if (!$location) return res_fail('Location not found.', [], 1, 404);
-
         // Before soft delete, handle any needed cleanup
         if ($location->thumbnail != Location::DEFAULT_THUMBNAIL) {
             Storage::disk('public')->delete($location->thumbnail);
             $location->thumbnail = Location::DEFAULT_THUMBNAIL;
         }
-
         // Soft delete
         $user = UserService::getAuthUser($req);
         $location->update([
@@ -331,7 +323,6 @@ class LocationController extends Controller
         $req->validate([
             'location_id' => 'required|integer|exists:locations,id,is_deleted,0'
         ]);
-
         $user = UserService::getAuthUser($req);
         $locationId = $req->location_id;
         $location = Location::where('is_deleted', 0)->find($locationId);
@@ -375,7 +366,6 @@ class LocationController extends Controller
             'location.district:id,name',
             'location.commune:id,name',
             'location.village:id,name',
-
         )
             ->where('user_id', $user->id)
             ->selectRaw('id,location_id,user_id')
@@ -417,9 +407,7 @@ class LocationController extends Controller
 
     public function getProvinces()
     {
-        Log::info("Test");
         $provinces = Province::all();
-        Log::info($provinces);
         return res_success('Provinces retrieved successfully.', $provinces);
     }
 

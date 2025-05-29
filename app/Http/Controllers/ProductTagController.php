@@ -16,7 +16,6 @@ class ProductTagController extends Controller
             "tag_ids" => "required|array",
             "tag_ids.*" => "integer|min:1|exists:tags,id"
         ]);
-
         // update product tag
         $product = Product::where("id", $req->input("product_id"))->first(["id"]);
         $product->tags()->sync($req->input("tag_ids"));

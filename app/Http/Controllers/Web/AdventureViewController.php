@@ -4,11 +4,6 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Location;
-use App\Models\Province;
-use App\Models\District;
-use App\Models\Commune;
-use App\Models\Village;
-use App\Models\Category;
 use Illuminate\Http\Request;
 
 class AdventureViewController extends Controller
@@ -61,37 +56,27 @@ class AdventureViewController extends Controller
         if ($search) {
             $locationsQuery->where(function ($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('name_local', 'like', "%{$search}%")
-                      ->orWhere('short_description', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('name_local', 'like', "%{$search}%")
+                    ->orWhere('short_description', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
-
-        // Apply location hierarchy filters
         if ($req->filled('province_id')) {
             $locationsQuery->where('province_id', $req->input('province_id'));
         }
-
         if ($req->filled('district_id')) {
             $locationsQuery->where('district_id', $req->input('district_id'));
         }
-
         if ($req->filled('commune_id')) {
             $locationsQuery->where('commune_id', $req->input('commune_id'));
         }
-
         if ($req->filled('village_id')) {
             $locationsQuery->where('village_id', $req->input('village_id'));
         }
-
         if ($req->filled('category_id')) {
             $locationsQuery->where('category_id', $req->input('category_id'));
         }
-
-        // Fetch locations first (limit to reasonable number for performance)
         $locations = $locationsQuery->take(1000)->get();
-
-        // Calculate average star and prepare the data
         foreach ($locations as $location) {
             $location->rate_star = $location->stars->count() > 0
                 ? round($location->stars->avg('star'), 2)
@@ -99,8 +84,6 @@ class AdventureViewController extends Controller
             $location->is_thumbnail = $location->thumbnail
                 ? asset("storage/{$location->thumbnail}")
                 : null;
-
-            // Remove unnecessary fields
             unset(
                 $location->stars,
                 $location->thumbnail,
@@ -111,23 +94,16 @@ class AdventureViewController extends Controller
                 $location->category_id
             );
         }
-
-        // Filter by star rating (after calculating average star)
         if ($req->filled('star')) {
             $minStar = floatval($req->input('star'));
             $locations = $locations->filter(function ($location) use ($minStar) {
                 return $location->rate_star >= $minStar;
             })->values();
         }
-
-        // Sort locations by total_view descending for top_view_location
         $topViewLocation = $locations->sortByDesc('total_view')->take(20)->values();
-
-        // Apply pagination
         $totalLocations = $locations->count();
         $offset = ($page - 1) * $perPage;
         $paginatedLocations = $locations->slice($offset, $perPage)->values();
-
         $pagination = [
             'total' => $totalLocations,
             'per_page' => $perPage,
@@ -136,7 +112,6 @@ class AdventureViewController extends Controller
             'from' => $totalLocations > 0 ? $offset + 1 : 0,
             'to' => min($offset + $perPage, $totalLocations),
         ];
-
         return res_success("Get success adventure page", [
             'top_view_location' => $topViewLocation,
             'locations' => $paginatedLocations,
@@ -166,7 +141,6 @@ class AdventureViewController extends Controller
             ->selectRaw('COUNT(*) as count')
             ->groupBy('category_id')
             ->get();
-
         return res_success("Location statistics retrieved successfully", [
             'total_locations' => $totalLocations,
             'by_province' => $locationsByProvince,

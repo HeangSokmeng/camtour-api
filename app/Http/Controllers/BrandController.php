@@ -16,7 +16,6 @@ class BrandController
             'name' => 'required|string|max:50',
             'name_km' => 'nullable|string|max:50'
         ]);
-
     }
 
     public function store(Request $req)
@@ -69,7 +68,7 @@ class BrandController
             });
         }
         // get brands & response
-        $brands = $brands->where('is_deleted',0)->orderByDesc('id')->get();
+        $brands = $brands->where('is_deleted', 0)->orderByDesc('id')->get();
         return res_success('Get all brands successful.', BrandResource::collection($brands));
     }
 
@@ -82,7 +81,7 @@ class BrandController
             'id' => 'required|integer|min:1|exists:brands,id,is_deleted,0'
         ]);
         // get one branch
-        $brand = Brand::where('id', $id)->where('is_deleted',0)->first();
+        $brand = Brand::where('id', $id)->where('is_deleted', 0)->first();
         return res_success('Get one brand successful', new BrandResource($brand));
     }
 
@@ -90,13 +89,13 @@ class BrandController
     {
         $user = UserService::getAuthUser($req);
         $id = $req->id;
-        $Brand = Brand::where('is_deleted',0)->find($id);
-        if(!$Brand) return ApiResponse::NotFound('Brand not found');
+        $Brand = Brand::where('is_deleted', 0)->find($id);
+        if (!$Brand) return ApiResponse::NotFound('Brand not found');
         $Brand->update([
             'is_deleted' => 1,
             'deleted_uid' => $user->id,
-            'deleted_datetime'=> now()
+            'deleted_datetime' => now()
         ]);
-        return ApiResponse::JsonResult(null,'Deleted');
+        return ApiResponse::JsonResult(null, 'Deleted');
     }
 }

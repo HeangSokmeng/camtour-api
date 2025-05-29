@@ -18,12 +18,12 @@ class ProductVariantController extends Controller
             "qty" => "required|integer|min:0",
             "price" => "required|numeric|min:0"
         ]);
-
         // store new product
         $productVariant = new ProductVariant($req->only(['product_id', "product_color_id", "product_size_id", "qty", "price"]));
         $productVariant->save();
         return res_success("Store new product variant.");
     }
+
     public function index(Request $req)
     {
         // validation
@@ -58,19 +58,15 @@ class ProductVariantController extends Controller
                         $q->where('name', 'like', "%$search%");
                     });
             })
-            // Filter by product_id
             ->when($req->filled('product_id'), function ($query) use ($req) {
                 $query->where('product_id', $req->input('product_id'));
             })
-            // Filter by brand_id
             ->when($req->filled('brand_id'), function ($query) use ($req) {
                 $query->where('brand_id', $req->input('brand_id'));
             })
-            // Filter by color_id
             ->when($req->filled('color_id'), function ($query) use ($req) {
                 $query->where('product_color_id', $req->input('color_id'));
             })
-            // Apply sorting
             ->when($sortCol === 'id', function ($query) use ($sortDir) {
                 $query->orderBy('id', $sortDir);
             })
