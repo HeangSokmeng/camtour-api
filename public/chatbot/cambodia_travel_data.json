@@ -1,0 +1,447 @@
+[
+    {
+        "id": 1,
+        "location": "Phnom Penh",
+        "category": "attractions",
+        "question": "What are the top attractions to visit in Phnom Penh?",
+        "answer": "The top attractions in Phnom Penh include the Royal Palace and Silver Pagoda, the National Museum of Cambodia, the Tuol Sleng Genocide Museum, Choeung Ek Killing Fields, the Central Market (Phsar Thmei), the Russian Market (Phsar Toul Tom Poung), and the Riverside area with its vibrant nightlife and food scene. For a more local experience, consider visiting Wat Phnom or taking a sunset cruise on the Mekong River."
+    },
+    {
+        "id": 2,
+        "location": "Phnom Penh",
+        "category": "food",
+        "question": "Where can I find the best local food in Phnom Penh?",
+        "answer": "For authentic Cambodian cuisine in Phnom Penh, try Romdeng or Malis for upscale Khmer dining, the Russian Market food stalls for local street food, or Phsar Kabko for an authentic local market experience. Don't miss trying Fish Amok (coconut curry fish), Beef Lok Lak, and Nom Banh Chok (Khmer noodles). For a unique experience, visit the Night Market (Phsar Reatrey) along the riverside for various food stalls and local ambiance."
+    },
+    {
+        "id": 3,
+        "location": "Phnom Penh",
+        "category": "transportation",
+        "question": "How do I get around Phnom Penh?",
+        "answer": "Getting around Phnom Penh is easy with several options: tuk-tuks are the most popular for short to medium distances (negotiate the price before riding, typically $2-5 per trip); motorcycle taxis (moto-dops) are cheaper but less comfortable; PassApp or Grab apps offer fixed pricing for both tuk-tuks and cars; city buses are available on main routes for just 1500 riel ($0.35) per trip; and renting a bicycle or scooter is an option for the more adventurous travelers. For day trips outside the city, consider hiring a private car with a driver."
+    },
+    {
+        "id": 4,
+        "location": "Phnom Penh",
+        "category": "accommodation",
+        "question": "What are the best areas to stay in Phnom Penh?",
+        "answer": "The best areas to stay in Phnom Penh include: Riverside (Sisowath Quay) for nightlife and restaurants with beautiful river views; BKK1 (Boeung Keng Kang 1) for upscale accommodations and embassies; Daun Penh for proximity to major attractions like the Royal Palace and National Museum; and Russian Market Area for more affordable options with a local feel. For luxury stays, consider Rosewood or Raffles Hotel Le Royal. Mid-range options include Plantation Urban Resort and Pavilion. Budget travelers might enjoy Mad Monkey Hostel or Envoy Hostel."
+    },
+    {
+        "id": 5,
+        "location": "Phnom Penh",
+        "category": "safety",
+        "question": "Is Phnom Penh safe for tourists?",
+        "answer": "Phnom Penh is generally safe for tourists, but like any city, take basic precautions. Petty theft and bag snatching can occur, especially in crowded areas, so keep valuables secure and be aware of your surroundings. Avoid walking alone late at night, particularly in poorly lit areas. Traffic can be chaotic, so cross streets carefully. Use reputable tuk-tuk drivers or ride-hailing apps instead of hailing transportation on the street late at night. It's advisable to drink bottled water and be cautious with street food if you have a sensitive stomach."
+    },
+    {
+        "id": 6,
+        "location": "Siem Reap",
+        "category": "attractions",
+        "question": "What are the must-see temples in Siem Reap?",
+        "answer": "The must-see temples in Siem Reap include: Angkor Wat, the largest religious monument in the world and Cambodia's national symbol; Bayon Temple with its famous face towers; Ta Prohm, known as the 'Tomb Raider Temple' with trees growing through the ruins; Banteay Srei, with its intricate pink sandstone carvings; Preah Khan, a less crowded but impressive complex; and Angkor Thom, the last great capital of the Khmer Empire. Consider getting a 3-day pass to explore at a relaxed pace and visit at sunrise or late afternoon to avoid the crowds and heat."
+    },
+    {
+        "id": 7,
+        "location": "Siem Reap",
+        "category": "transportation",
+        "question": "How do I get from Phnom Penh to Siem Reap?",
+        "answer": "To get from Phnom Penh to Siem Reap, you have several options: 1) Bus: The most economical option (around $10-15) taking 6-7 hours with companies like Giant Ibis or Mekong Express offering comfortable services with WiFi and refreshments. 2) Boat: A scenic but seasonal option (only during high water levels) taking about 5-6 hours along the Tonle Sap. 3) Flight: The fastest option (about 45 minutes) with Cambodia Angkor Air, priced around $70-120 one way. 4) Private taxi: More expensive (around $70-100) but offers door-to-door service in about 5 hours with the flexibility to stop along the way."
+    },
+    {
+        "id": 8,
+        "location": "Siem Reap",
+        "category": "food",
+        "question": "Where can I try authentic Khmer food in Siem Reap?",
+        "answer": "For authentic Khmer cuisine in Siem Reap, try Cuisine Wat Damnak for fine dining Cambodian food, Mahob Khmer for traditional recipes in a beautiful setting, or Chanrey Tree for riverside dining with classic dishes. Street food fans should visit Road 60 in the evening for local delicacies like grilled meats, insects, and fruit shakes. For a unique experience, book a cooking class at Lily's Secret Garden or Le Tigre de Papier to learn how to prepare Khmer classics like Fish Amok, Green Mango Salad, and Lok Lak. Don't miss trying Siem Reap sausages, a local specialty."
+    },
+    {
+        "id": 9,
+        "location": "Siem Reap",
+        "category": "accommodation",
+        "question": "What are the best hotels near Angkor Wat?",
+        "answer": "The best hotels near Angkor Wat range from luxury to budget options. For luxury, consider Sofitel Angkor Phokeethra Golf & Spa Resort or Park Hyatt Siem Reap. For mid-range, try Tara Angkor Hotel or Lynnaya Urban River Resort. Budget travelers might enjoy Mango Rain Boutique Hotel or Apsara Centrepole Hotel. Most hotels are in Siem Reap town, a 15-20 minute drive from Angkor Wat, as staying within the Angkor Archaeological Park isn't permitted. The popular areas are around Old Market/Pub Street for nightlife and dining, or the leafy French Quarter for a quieter stay."
+    },
+    {
+        "id": 10,
+        "location": "Siem Reap",
+        "category": "attractions",
+        "question": "What is the best time to visit Angkor Wat?",
+        "answer": "The best time to visit Angkor Wat depends on your priorities. For the classic sunrise shot, arrive by 5:00 AM (bring a flashlight). To avoid crowds, visit during the early afternoon when most tour groups break for lunch, or late afternoon when they've returned to town. The best seasons are November to February when temperatures are cooler and rain is minimal. Avoid April (the hottest month) and peak rainy season (August-October). For photography, early morning gives soft light and reflections in the pools. Buy your temple pass the evening before to save time on your visit day."
+    },
+    {
+        "id": 11,
+        "location": "Battambang",
+        "category": "attractions",
+        "question": "What are the top things to do in Battambang?",
+        "answer": "Battambang offers unique attractions away from the tourist crowds. Take a ride on the famous Bamboo Train (Norry), visit Phnom Sampeau with its tragic killing caves and spectacular bat exodus at sunset, explore the well-preserved colonial architecture in the city center, and visit Phare Ponleu Selpak, the circus school providing free education to local children (with evening performances). Don't miss the rural villages where you can see traditional crafts like rice paper making, and take a countryside tour to see authentic rural Cambodian life. The Battambang Museum and ancient temples like Wat Banan and Wat Ek Phnom are also worth visiting."
+    },
+    {
+        "id": 12,
+        "location": "Battambang",
+        "category": "transportation",
+        "question": "How do I get to Battambang from Siem Reap?",
+        "answer": "To get from Siem Reap to Battambang (about 170km): 1) Bus: The most common option taking 3-4 hours and costing around $6-10 with companies like Capitol Tours or Mekong Express. 2) Shared taxi: Faster (about 3 hours) but more cramped, costing around $10-15 per person. 3) Private taxi: Most comfortable option costing $40-50 for the entire car. 4) Boat: A scenic but seasonal option (November-June) taking 7-8 hours along the Sangker River with beautiful views of floating villages, though more expensive at $20-25. The roads are now in good condition, making land travel comfortable year-round."
+    },
+    {
+        "id": 13,
+        "location": "Battambang",
+        "category": "food",
+        "question": "Where are the best places to eat in Battambang?",
+        "answer": "Battambang has excellent dining options: Jaan Bai is a social enterprise restaurant serving creative Cambodian-Thai fusion; Pomme d'Amour offers French cuisine with Cambodian influences; Lan Chov Khorko Mitrea is perfect for authentic local dishes at local prices; Coconut Lyly serves vegetarian Khmer food; and the Night Market is great for street food adventures. Don't miss trying Battambang's specialties like fish amok (steamed curry in banana leaf), prahok ktis (fermented fish dip), and num banh chok (rice noodles with fresh herbs and fish curry). For coffee lovers, Kinyei Cafe serves excellent coffee from local beans."
+    },
+    {
+        "id": 14,
+        "location": "Battambang",
+        "category": "accommodation",
+        "question": "What are recommended hotels in Battambang?",
+        "answer": "Recommended accommodations in Battambang include: For luxury, try Bambu Hotel with its colonial charm and pool or Maisons Wat Kor, a beautiful traditional wooden house. Mid-range options include Au Cabaret Vert, an eco-friendly resort with a pool, and Battambang Resort surrounded by rice fields with a beautiful infinity pool. Budget travelers might enjoy The Place, a stylish guesthouse in the center, or Seng Hout Hotel offering good value rooms with a rooftop pool. Most accommodations are concentrated near the Sangker River, offering easy access to restaurants and sights. Book ahead during high season (November-February)."
+    },
+    {
+        "id": 15,
+        "location": "Battambang",
+        "category": "attractions",
+        "question": "Is the Bamboo Train worth visiting?",
+        "answer": "The Bamboo Train (Norry) in Battambang is worth visiting as a unique Cambodian experience. This improvised rail vehicle consists of a bamboo platform on wheels powered by a small engine, reaching speeds of 40km/h along warped, misaligned tracks. The original train has been relocated from its historic route, but the new 4km track still offers thrills and beautiful countryside views. A round trip takes about 30 minutes and costs around $5 per person (negotiate before boarding). While it's been adapted for tourism, it remains an authentic peek into Cambodia's ingenious transportation solutions and a fun adventure. Best visited in the morning or late afternoon to avoid the midday heat."
+    },
+    {
+        "id": 16,
+        "location": "General",
+        "category": "visa",
+        "question": "How do I get a visa for Cambodia?",
+        "answer": "Getting a visa for Cambodia is straightforward: 1) E-visa: Apply online at evisa.gov.kh for $36, valid for a 30-day stay at major entry points. Processing takes 3 business days. 2) Visa on arrival: Available at international airports and major land borders for $30 (tourist) or $35 (business), requiring a passport valid for 6 months, one photo, and USD cash. 3) Visa exemption: ASEAN countries have various exemption periods. 4) Extension: Tourist visas can be extended once for 30 days; business visas can be extended for 1, 3, 6, or 12 months through a travel agent or the Immigration Department in Phnom Penh. Always check the latest requirements before traveling."
+    },
+    {
+        "id": 17,
+        "location": "General",
+        "category": "weather",
+        "question": "What is the best time to visit Cambodia?",
+        "answer": "The best time to visit Cambodia is during the dry season from November to April, with the most pleasant weather from December to February when temperatures are cooler (25-30°C) with low humidity. November and March offer good weather with fewer tourists. May to October brings the monsoon season with afternoon downpours and higher humidity, but also lush landscapes, fewer crowds, and lower prices. The heaviest rainfall occurs in September and October, occasionally affecting transportation on rural roads. April is the hottest month (30-40°C), while water levels in the Tonle Sap Lake are highest from August to October, ideal for floating village visits and boat trips."
+    },
+    {
+        "id": 18,
+        "location": "General",
+        "category": "cultural",
+        "question": "What cultural customs should I respect in Cambodia?",
+        "answer": "When visiting Cambodia, respect these cultural customs: Dress modestly, especially at temples (shoulders and knees covered); remove shoes and hats when entering temples or homes; use your right hand for passing objects; never touch someone's head, the highest and most sacred body part; greet with a sampeah (prayer-like gesture) rather than handshakes or hugs; avoid public displays of affection; ask permission before photographing locals; be respectful when discussing Cambodia's tragic history; don't point feet toward people or Buddha images; and never raise your voice in disagreements as maintaining composure is highly valued. When visiting homes, bring a small gift, and be prepared to sit on the floor for meals."
+    },
+    {
+        "id": 19,
+        "location": "General",
+        "category": "language",
+        "question": "What are some useful Khmer phrases for travelers?",
+        "answer": "Useful Khmer phrases for travelers: 'Suo sdey' (Hello/Hi), 'Arkoun' (Thank you), 'Som toh' (Excuse me/Sorry), 'Baat/Jaa' (Yes - men/women), 'Ot teh' (No), 'Sok sabay?' (How are you?), 'Sok sabay' (I'm fine), 'Tlay ponman?' (How much?), 'Nie tlay na!' (That's too expensive!), 'Som meul' (Can I see?), 'Ot yul teh' (I don't understand), 'Som niyay yut yut' (Please speak slowly), 'Jum reap lea' (Goodbye), 'Bong' (Brother/Sister - for addressing people), 'Banhchob' (Full/I've had enough food), and 'Angkor Wat nov tae na?' (Where is Angkor Wat?). Cambodians greatly appreciate even simple attempts to speak Khmer."
+    },
+    {
+        "id": 20,
+        "location": "General",
+        "category": "money",
+        "question": "What currency is used in Cambodia? Should I bring cash?",
+        "answer": "Cambodia primarily uses two currencies: the US Dollar (USD) and the Cambodian Riel (KHR), with 4,000 Riel ≈ $1. USD is widely accepted throughout the country, while Riel is usually used for amounts less than $1 as change. Bring clean, crisp USD bills without tears or marks, as damaged notes may be rejected. ATMs are widely available in major cities and tourist areas, dispensing primarily USD with some also offering Riel. Credit cards are accepted in upscale establishments in cities, but cash is essential for markets, tuk-tuks, and rural areas. For best rates, withdraw from ATMs rather than exchanging at hotels, and keep some small USD bills ($1-$5) for daily transactions."
+    },
+    {
+        "id": 31,
+        "location": "Siem Reap",
+        "category": "tours",
+        "question": "Are there any cooking classes in Siem Reap?",
+        "answer": "Siem Reap offers excellent cooking classes where you can learn authentic Khmer cuisine: 1) Lily's Secret Garden Cooking Class ($23-30): Market tour, 3-4 dishes, and recipe booklet in a beautiful garden setting. 2) Champey Cooking Class ($25): Half-day class with market tour and 4 traditional dishes. 3) Le Tigre de Papier ($24): Popular option on Pub Street with market tour and 3 dishes. 4) Cambodian Rural Cooking Class ($25-40): Unique experience in a village outside town with garden-to-table ingredients. 5) Chef Pola at Embassy Restaurant ($45-60): High-end class focused on modern Cambodian cuisine. 6) Green Bamboo Cooking School ($29): Intimate class with maximum 6 people. Most classes include hotel pickup, market tours, all ingredients, and recipe cards to take home. Morning classes usually start around 8:30 AM and afternoon classes around 3:30 PM, lasting 3-4 hours.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cooking-class.jpg",
+                "caption": "Learning to make Fish Amok in a Siem Reap cooking class"
+            }
+        ]
+    },
+    {
+        "id": 32,
+        "location": "Phnom Penh",
+        "category": "nightlife",
+        "question": "What's the nightlife like in Phnom Penh?",
+        "answer": "Phnom Penh's nightlife is diverse and vibrant: 1) Riverside (Sisowath Quay) offers numerous rooftop bars with Mekong views like Foreign Correspondents' Club and Le Moon. 2) Street 308 (Bassac Lane) in BKK1 features stylish cocktail bars and speakeasies like Elbow Room and Sora Sky Bar. 3) Street 51 (Pasteur) is home to bustling nightclubs and late-night spots like Pontoon and Heart of Darkness. 4) Russian Market area has hipster bars and microbreweries like Alchemy and Embargo. 5) For cultural experiences, try traditional Khmer dance shows at the National Museum or contemporary performances at Java Creative Cafe. 6) Many upscale hotels offer elegant lounges with live music. Most bars stay open until midnight, while clubs continue until 3-4 AM. Happy hours typically run from 5-7 PM with half-price drinks. While generally safe, it's advisable to take reliable transportation back to your accommodation late at night.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/phnom-penh-rooftop-bar.jpg",
+                "caption": "Rooftop bar overlooking the Mekong River"
+            }
+        ]
+    },
+    {
+        "id": 33,
+        "location": "Siem Reap",
+        "category": "nightlife",
+        "question": "What's the nightlife like in Siem Reap?",
+        "answer": "Siem Reap's nightlife centers around several areas: 1) Pub Street is the lively heart of nightlife with bars like Angkor What? and The Red Piano offering cocktails and music until late. 2) The Alley and surrounding streets feature more relaxed bars and gastropubs like Miss Wong and The Library. 3) Sok San Road has become an alternative to Pub Street with slightly lower prices and fewer crowds. 4) Night markets operate until around 11 PM, great for evening shopping and street food. 5) For cultural experiences, catch an Apsara dance show at restaurants like Koulen or the magnificent Phare Cambodian Circus. 6) Rooftop bars like Terrace of Elephants offer stunning views. Happy hours generally run from 4-7 PM with $1-2 drinks. The main nightlife area is very walkable, but tuk-tuks are readily available for safe return to hotels. The scene is energetic but relatively safe and tourist-friendly.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/pub-street.jpg",
+                "caption": "Colorful lights on Pub Street, Siem Reap"
+            }
+        ]
+    },
+    {
+        "id": 34,
+        "location": "Siem Reap",
+        "category": "tours",
+        "question": "What is the Phare Cambodian Circus in Siem Reap?",
+        "answer": "The Phare Cambodian Circus is a unique cultural highlight in Siem Reap, showcasing much more than traditional circus acts. It features professional performers from Phare Ponleu Selpak, an NGO school in Battambang that provides arts education to disadvantaged youth. Performances combine theater, music, dance, acrobatics, juggling, contortion, and aerial arts to tell Cambodian stories addressing social issues and Khmer culture. Shows run nightly at 8 PM (with an additional 5 PM show during high season) in a big top tent near the Angkor National Museum. Tickets range from $18-38 depending on seating category, with higher tiers including welcome drinks. Performances last about 1 hour and are suitable for all ages and languages as they focus on physical storytelling rather than dialogue. Advance booking is recommended in high season.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/phare-circus.jpg",
+                "caption": "Acrobats performing at Phare Cambodian Circus"
+            }
+        ],
+        "links": [
+            {
+                "title": "Phare Circus Official Website",
+                "url": "https://pharecircus.org/"
+            }
+        ]
+    },
+    {
+        "id": 35,
+        "location": "Siem Reap",
+        "category": "tours",
+        "question": "What tours are available to Tonle Sap Lake from Siem Reap?",
+        "answer": "Several tour options are available to explore Tonle Sap Lake from Siem Reap: 1) Kompong Phluk Floating Village Tour (half-day, $18-35): Visit stilt houses rising up to 10 meters above the water, includes boat ride through flooded forest. 2) Kompong Khleang Village Tour (full-day, $25-45): Less touristy and larger village with both stilted houses and floating homes. 3) Chong Khneas Tour (3 hours, $15-25): The closest but most commercialized village with souvenir shops and crocodile farms. 4) Mechrey Floating Village (half-day, $20-40): Smaller community with authentic floating school and houses. 5) Sunset Dinner Cruise ($30-60): Evening boat ride with drinks and dinner. 6) Bird Watching Tours at Prek Toal Reserve (full-day, $50-120): For nature enthusiasts to see rare water birds. The best time to visit is during the wet season (August-February) when water levels are high. Tours typically include transportation from Siem Reap, boat ride, English-speaking guide, and sometimes lunch.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/tonle-sap-stilt-houses.jpg",
+                "caption": "Stilt houses at Kompong Phluk village"
+            }
+        ]
+    },
+    {
+        "id": 36,
+        "location": "Phnom Penh",
+        "category": "tours",
+        "question": "What should I know about visiting the Killing Fields and S-21 in Phnom Penh?",
+        "answer": "When visiting the Killing Fields (Choeung Ek) and S-21 (Tuol Sleng Genocide Museum): 1) These are somber historical sites documenting Cambodia's tragic Khmer Rouge period, so dress and behave respectfully. 2) The audio guides ($3-4) at both sites are highly recommended for context and personal stories. 3) A combined visit takes about 4-5 hours total. Visit S-21 first, then the Killing Fields for chronological understanding. 4) Entrance fees are $5 for S-21 and $3 for the Killing Fields. 5) Guided tours ($15-30) provide deeper historical context; consider hiring a guide who has personal or family experience with this period. 6) Some exhibits are graphic and may be distressing; parents should consider carefully before bringing children. 7) Photography is permitted in most areas but should be done respectfully. 8) Tuk-tuk transport to both sites costs $15-20 for the day. 9) Early morning visits avoid midday heat and crowds. 10) Bringing flowers or incense for the memorial stupa is appreciated.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/tuol-sleng-museum.jpg",
+                "caption": "Tuol Sleng Genocide Museum (S-21)"
+            }
+        ]
+    },
+    {
+        "id": 37,
+        "location": "Phnom Penh",
+        "category": "shopping",
+        "question": "Where are the best places to shop in Phnom Penh?",
+        "answer": "Phnom Penh offers diverse shopping experiences: 1) Central Market (Phsar Thmei): Distinctive art-deco dome building with jewelry, electronics, clothing, and souvenirs in a more organized setting. 2) Russian Market (Phsar Toul Tom Poung): Bustling, maze-like market for silk scarves, wooden crafts, silver, spices, and knockoff brand clothing. 3) Tuol Tompong Market (Phsar Tuol Tompong): More local market with less tourist merchandise and great food stalls. 4) Street 240: Upscale boutiques selling ethical fashion, home decor, and designer goods. 5) Aeon Mall: Modern shopping mall with international brands, cinema, and food court for an air-conditioned break. 6) Artisans Angkor: High-quality Cambodian crafts supporting traditional skills with transparent pricing. 7) Night Market (Phsar Reatrey): Evening riverside market with clothing, accessories, and street food. The best deals require bargaining (start at 40-50% of the initial price), but fixed-price boutiques offer ethically-made products supporting NGOs.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/central-market.jpg",
+                "caption": "The distinctive dome of Central Market (Phsar Thmei)"
+            }
+        ]
+    },
+    {
+        "id": 38,
+        "location": "Siem Reap",
+        "category": "shopping",
+        "question": "Where are the best places to shop in Siem Reap?",
+        "answer": "Top shopping destinations in Siem Reap include: 1) Angkor Night Market: The original night market with over 200 stalls selling souvenirs, clothing, and artwork in a lively atmosphere. 2) Old Market (Phsar Chas): Central day market with everything from fresh produce to souvenirs, textiles, and spices. 3) Made in Cambodia Market: Focused exclusively on authentic Cambodian-made products, supporting local artisans. 4) Artisans Angkor: High-quality traditional crafts workshop where you can see artisans at work. 5) Kandal Village: Trendy area with boutique shops selling ethical fashion, home decor, and artisanal products. 6) Psar Leu: Large local market with minimal tourist merchandise and authentic shopping experience. 7) Charles Chocolate Shop: Locally-made gourmet chocolates incorporating Cambodian flavors. For authentic souvenirs, look for Khmer silk scarves (krama), shadow puppets, stone or wood carvings, palm leaf crafts, and silver jewelry. Bargaining is expected at markets (aim for 40-50% of initial prices).",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/angkor-night-market.jpg",
+                "caption": "Colorful displays at Angkor Night Market"
+            }
+        ]
+    },
+    {
+        "id": 39,
+        "location": "Battambang",
+        "category": "tours",
+        "question": "What is the bat cave in Battambang?",
+        "answer": "The Battambang Bat Cave (Phnom Sampeau Bat Cave) is one of the area's most spectacular natural phenomena. Each evening around sunset (5:30-6:30 PM), millions of bats emerge from caves in the limestone mountain of Phnom Sampeau, creating a dark ribbon across the sky that stretches for kilometers. The bats are insectivores that help local farmers by consuming agricultural pests. To see this spectacle, take a tuk-tuk from Battambang (about $10-15 round trip) to Phnom Sampeau, about 12km from town. The mountain also features Buddhist temples, tragic killing caves from the Khmer Rouge era, and panoramic countryside views. Arrive by 4:00 PM to explore the mountain (entrance fee $3) before heading to the bat viewing area. Bring water, sun protection, and mosquito repellent. Food and drink vendors are available near the viewing area. The experience works well combined with a Bamboo Train visit for a half-day tour.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/battambang-bat-cave.jpg",
+                "caption": "Bats emerging from Phnom Sampeau at sunset"
+            }
+        ]
+    },
+    {
+        "id": 40,
+        "location": "General",
+        "category": "transportation",
+        "question": "What's the best way to travel between cities in Cambodia?",
+        "answer": "Options for intercity travel in Cambodia include: 1) Buses: Most economical option ($6-15) with companies like Giant Ibis, Mekong Express, and Cambodia Post VIP offering comfortable, air-conditioned service between major destinations. 2) Minivans: Faster than buses ($8-20) with companies like Giant Ibis and Bayon VIP offering pickup services. 3) Flights: Cambodia Angkor Air and Cambodia Airways connect Phnom Penh, Siem Reap, and Sihanoukville (from $50-120 one-way). 4) Private taxis: Most flexible option ($45-100 between cities) arranged through hotels or apps. 5) Shared taxis: Faster than buses but more cramped ($10-15 per seat). 6) Boats: Scenic routes between Phnom Penh-Siem Reap and Siem Reap-Battambang (seasonal, $15-35). For the most comfortable experience, book Giant Ibis night buses (with flat beds) for overnight journeys, reserve tickets 1-2 days in advance in high season, and be prepared for longer travel times than advertised due to road conditions and stops.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cambodia-bus-travel.jpg",
+                "caption": "Comfortable tourist bus for intercity travel"
+            }
+        ]
+    },
+    {
+        "id": 41,
+        "location": "General",
+        "category": "tours",
+        "question": "What are the ethical elephant sanctuaries in Cambodia?",
+        "answer": "Ethical elephant sanctuaries in Cambodia include: 1) Elephant Valley Project (Mondulkiri): Pioneer in ethical elephant tourism allowing elephants to roam freely while visitors observe them in their natural habitat. Half-day ($50) and full-day ($85) visits available. 2) Mondulkiri Project (Mondulkiri): Community-based ecotourism project offering 1-2 day experiences ($50-120) where you can walk with, observe, and help wash elephants (no riding). 3) Elephant Community Project (Mondulkiri): Support for indigenous Bunong communities who traditionally worked with elephants, offering half-day and full-day visits ($40-80). 4) Kulen Elephant Forest (near Siem Reap): Newer sanctuary providing retirement for former working elephants, with half-day visits ($80) including transportation from Siem Reap. All ethical sanctuaries prohibit elephant riding, feature rescued elephants, limit direct contact, and support conservation efforts. Advance booking is essential, especially in high season.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cambodia-elephant-sanctuary.jpg",
+                "caption": "Elephants roaming freely at an ethical sanctuary"
+            }
+        ],
+        "links": [
+            {
+                "title": "Elephant Valley Project Website",
+                "url": "https://www.elephantvalleyproject.org/"
+            }
+        ]
+    },
+    {
+        "id": 42,
+        "location": "Siem Reap",
+        "category": "practical",
+        "question": "How can I avoid crowds at Angkor Wat?",
+        "answer": "To avoid crowds at Angkor Wat: 1) Visit during shoulder seasons (April-May or September-November) rather than peak period (December-February). 2) Create a reverse itinerary: start with outer temples while crowds gather at Angkor Wat, then visit Angkor Wat after 2 PM when most tour groups have left. 3) Sunrise isn't crowd-free anymore—try entering Angkor Wat right after sunrise when crowds move to breakfast. 4) For truly quiet experiences, visit during midday heat (11 AM-2 PM) when most tourists take lunch breaks. 5) Explore lesser-known temples like Preah Khan, Ta Som, and Banteay Kdei, which receive fewer visitors. 6) Hire a knowledgeable guide who can take you through alternative entrances and hidden passages. 7) Take a three-day pass and space out your visits, enjoying more relaxed exploration. 8) Stay at hotels closer to the Angkor complex to reach temples early. 9) Explore the east side of Bayon and Angkor Thom, which are less visited.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/quiet-angkor-temple.jpg",
+                "caption": "A peaceful moment at Ta Som temple"
+            }
+        ]
+    },
+    {
+        "id": 43,
+        "location": "General",
+        "category": "practical",
+        "question": "Is Cambodia suitable for family travel with children?",
+        "answer": "Cambodia can be family-friendly with proper planning: 1) Best ages for children are 6+ who can appreciate the cultural sites and manage the tropical climate. 2) Health precautions: Visit a travel doctor before departure, use mosquito protection, carry a basic medical kit, drink bottled water, and be careful with street food for sensitive stomachs. 3) Family-friendly activities include exploring Angkor temples (in short sessions), visiting the Cambodia Landmine Museum, taking countryside bicycle tours, enjoying cooking classes, watching the Phare Circus, taking boat trips on Tonle Sap Lake, participating in hands-on craft workshops, and relaxing at hotel pools. 4) Family accommodations are plentiful in tourist areas with many hotels offering family rooms, connecting rooms, or apartment-style options with pools. 5) Distances between major destinations can be long—consider flying between Phnom Penh and Siem Reap with children. 6) Cambodians are very welcoming to children, though be prepared for friendly attention from locals.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/family-angkor-tour.jpg",
+                "caption": "Family exploring Angkor Wat together"
+            }
+        ]
+    },
+    {
+        "id": 44,
+        "location": "General",
+        "category": "health",
+        "question": "What health precautions should I take when traveling to Cambodia?",
+        "answer": "Important health precautions for Cambodia include: 1) Vaccinations: Consult a travel doctor 4-8 weeks before travel; routine vaccines plus Hepatitis A and Typhoid are typically recommended. Some travelers may need Hepatitis B, Japanese Encephalitis, or Rabies depending on specific activities. 2) Malaria: Present mainly in rural areas near borders and forests; prophylaxis may be recommended for extensive countryside travel. 3) Dengue Fever: No vaccine available; prevent mosquito bites using repellent (20-30% DEET), covering up at dawn/dusk, and using bed nets if necessary. 4) Food and water: Drink bottled water (check seals), avoid ice except in higher-end establishments, eat thoroughly cooked foods, and be cautious with street food. 5) Medical facilities: International-standard hospitals in Phnom Penh and Siem Reap; consider travel insurance covering evacuation. 6) First-aid kit: Pack remedies for common travel ailments, any prescription medications, and insect repellent. 7) Heat and sun: Cambodia is hot year-round; stay hydrated, use sun protection, and plan indoor activities during midday.",
+        "links": [
+            {
+                "title": "CDC Cambodia Health Information",
+                "url": "https://wwwnc.cdc.gov/travel/destinations/traveler/none/cambodia"
+            }
+        ]
+    },
+    {
+        "id": 45,
+        "location": "General",
+        "category": "cultural",
+        "question": "What are important cultural do's and don'ts in Cambodia?",
+        "answer": "Important cultural guidelines for Cambodia: DO: 1) Dress modestly, especially at temples and rural areas (shoulders and knees covered). 2) Remove shoes and hats when entering temples or someone's home. 3) Ask permission before photographing people. 4) Use your right hand for giving and receiving items. 5) Return the traditional 'sampeah' greeting (hands pressed together). 6) Speak softly and maintain composure even in frustrating situations. DON'T: 1) Touch anyone's head (considered the most sacred body part). 2) Point with your feet or sit with feet pointing toward Buddha images. 3) Show excessive public affection. 4) Touch Buddhist monks, especially if you're female. 5) Discuss politics or the Khmer Rouge period unless Cambodians bring it up first. 6) Use large denominations for small purchases—carry small bills. Respecting these customs demonstrates appreciation for Cambodian culture. Most Cambodians are forgiving of minor cultural missteps from visitors but appreciate those who make an effort to respect local traditions.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cambodia-sampeah-greeting.jpg",
+                "caption": "Traditional Cambodian sampeah greeting"
+            }
+        ]
+    },
+    {
+        "id": 46,
+        "location": "Siem Reap",
+        "category": "attractions",
+        "question": "What is Kulen Mountain near Siem Reap?",
+        "answer": "Phnom Kulen (Kulen Mountain) is a sacred mountain range about 50km from Siem Reap, significant as the birthplace of the Khmer Empire where King Jayavarman II declared independence from Java in 802 CE. Key attractions include: 1) The River of a Thousand Lingas, featuring intricate carvings of Hindu symbols on the riverbed. 2) A large reclining Buddha statue at the mountain's peak. 3) A scenic waterfall with a natural swimming pool, popular with local families. 4) Ancient temple ruins scattered throughout the area. 5) Preah Ang Thom, a Buddhist monastery with the large Buddha statue. Entrance fee is $20 per person, only payable in cash. Visit as a day trip from Siem Reap (1-1.5 hours each way), hiring a private car ($50-70) or joining a tour ($30-45 per person). The best time to visit is weekdays during dry season (November-April); weekends get very crowded with local visitors. Bring swimwear if you want to enjoy the waterfall.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/kulen-waterfall.jpg",
+                "caption": "Waterfall at Phnom Kulen"
+            }
+        ]
+    },
+    {
+        "id": 47,
+        "location": "Battambang",
+        "category": "cultural",
+        "question": "What is special about Battambang?",
+        "answer": "Battambang offers a more authentic Cambodian experience with several unique features: 1) French colonial architecture that's better preserved than in other Cambodian cities, with beautiful shophouses and villas lining the riverfront. 2) Cambodia's best-preserved collection of early 20th-century Art Deco buildings. 3) The famous Bamboo Train (Norry), a unique rail experience using improvised platforms powered by small engines. 4) Phnom Sampeau's bat caves, where millions of bats emerge in a spectacular ribbon at sunset. 5) Phare Ponleu Selpak, the original arts school and circus that trains disadvantaged youth. 6) Rural countryside dotted with ancient temples like Wat Banan and Wat Ek Phnom. 7) Authentic village industries producing rice paper, bamboo sticky rice, rice wine, and traditional crafts. 8) A growing contemporary art scene with galleries and street art. 9) Fewer tourists compared to Siem Reap and Phnom Penh, allowing for more genuine local interactions. Plan to spend 2-3 days to experience these highlights properly.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/battambang-colonial-buildings.jpg",
+                "caption": "French colonial architecture in Battambang"
+            }
+        ]
+    },
+    {
+        "id": 48,
+        "location": "Phnom Penh",
+        "category": "transportation",
+        "question": "How do I get from Phnom Penh airport to the city center?",
+        "answer": "Options for traveling from Phnom Penh International Airport to the city center (7-10km depending on your destination): 1) Official airport taxis: Most reliable option, costing $12 flat rate to any city destination. Find the booth just outside arrivals. 2) Ride-hailing apps: PassApp and Grab work at the airport and cost $8-12 depending on destination. You'll need a local SIM card or airport WiFi to use them. 3) Tuk-tuks: Available outside arrivals, costing $7-10 to the city. Always negotiate the price before departing. 4) Hotel transfers: Many hotels offer pickup services ($10-15) with the advantage of drivers holding name signs. 5) Car rentals with drivers: Available from airport kiosks for about $30/day if you plan extensive city travel. The journey takes 30-45 minutes depending on traffic, which can be heavy during rush hours (7:30-8:30 AM and 4:30-6:30 PM). There is no official public bus from the airport. The only ATMs at the airport are in the arrivals area, so withdraw cash before exiting if needed.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/phnom-penh-airport-transport.jpg",
+                "caption": "Taxis waiting at Phnom Penh International Airport"
+            }
+        ]
+    },
+    {
+        "id": 49,
+        "location": "Siem Reap",
+        "category": "transportation",
+        "question": "How do I get from Siem Reap airport to hotels?",
+        "answer": "Options for traveling from Siem Reap International Airport to the town center (8-10km): 1) Official airport taxis: Available just outside arrivals, costing a flat rate of $10 to any hotel in town. 2) Tuk-tuks: Found outside the terminal, charging $7-9 to town. Always agree on the price before departing. 3) Hotel transfers: Many hotels offer free or low-cost ($5-10) airport pickup with advance notice. This is the most convenient option. 4) Ride-hailing apps: PassApp and Grab operate in Siem Reap with rides costing $5-8, but you'll need internet access to use them. 5) Shared minivans: Available for large groups or budget travelers at around $5 per person. The journey takes about 20-30 minutes depending on traffic and your hotel location. Most hotels are in the Old Market/Pub Street area or along Charles de Gaulle Boulevard. When returning to the airport, allow at least 30 minutes for the journey plus the recommended 2-hour check-in time for international flights. Tuk-tuks from town to the airport typically cost $5-7.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/siem-reap-tuktuk-transport.jpg",
+                "caption": "Tuk-tuk transportation in Siem Reap"
+            }
+        ]
+    },
+    {
+        "id": 50,
+        "location": "General",
+        "category": "practical",
+        "question": "What should I pack for Cambodia?",
+        "answer": "Essential items for Cambodia include: 1) Lightweight, modest clothing covering shoulders and knees for temple visits (consider a sarong or scarf for women). 2) Comfortable walking shoes for temples plus flip-flops/sandals for everyday use. 3) Sun protection: wide-brimmed hat, sunglasses, and high-SPF sunscreen. 4) Insect repellent with DEET (20-30%). 5) Basic first-aid supplies including diarrhea medication, pain relievers, and antiseptic. 6) Hand sanitizer and tissues/toilet paper for public restrooms. 7) Reusable water bottle with filter if you're environmentally conscious. 8) Power adapter (Cambodia uses Type A, C, and G plugs). 9) Waterproof bag/case for electronics during rainy season. 10) Light rain jacket or poncho (June-October). 11) Swimwear for hotel pools. 12) Flashlight/headlamp for power outages or early temple visits. Don't overpack as laundry services are inexpensive ($1-2/kg) and widely available. ATMs dispense US dollars, which are accepted everywhere, so bring some small bills for initial expenses and keep larger purchases for crisp notes.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cambodia-packing-essentials.jpg",
+                "caption": "Essential items for traveling in Cambodia"
+            }
+        ]
+    },
+    {
+        "id": 51,
+        "location": "Phnom Penh to siem reap",
+        "category": "practical",
+        "question": "How can i go to siem reap from Phnom Penh?",
+        "answer": "Traveling from Phnom Penh to Siem Reap can be done by bus or other service vehicles. You can find bus tickets at Phnom Penh Bus Station (O Russey Market) or through the CAPITOL CAMBODIA app. You can buy bus tickets at Siem Reap Bus Station (Lower Market, Old Market, Samak Market, Deum Kralanh Market, Puok District) or through the CAPITOL CAMBODIA app.",
+        "media": [
+            {
+                "type": "image",
+                "url": "/assets/images/cambodia-packing-essentials.jpg",
+                "caption": "Essential items for traveling in Cambodia"
+            }
+        ]
+    }
+]

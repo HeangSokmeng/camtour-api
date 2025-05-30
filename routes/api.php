@@ -26,6 +26,7 @@ use App\Http\Controllers\ProductVariantController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TravelQuestionController;
 use App\Http\Controllers\Web\AdventureViewController;
 use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\ChatbotController;
@@ -196,6 +197,20 @@ Route::middleware('login')->group(function () {
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
+        Route::prefix('tours')->group(function () {
+            Route::get('/', [TravelQuestionController::class, 'index']);
+            Route::post('/', [TravelQuestionController::class, 'store']);
+            Route::get('/{id}', [TravelQuestionController::class, 'find']);
+            Route::put('/{id}', [TravelQuestionController::class, 'update']);
+            Route::delete('/{id}', [TravelQuestionController::class, 'destroy']);
+
+            // Additional routes
+            Route::get('/category/{category}', [TravelQuestionController::class, 'getByCategory']);
+            Route::get('/location/{location}', [TravelQuestionController::class, 'getByLocation']);
+            Route::get('/export/json', [TravelQuestionController::class, 'export']);
+            Route::get('/export/data', [TravelQuestionController::class, 'export']);
+            Route::get('/export/stats', [TravelQuestionController::class, 'exportStats']);
+        });
         // Location Management Routes
         Route::prefix('locations')->group(function () {
             Route::get('/provinces', [LocationController::class, 'getProvinces']);
