@@ -1,7 +1,6 @@
 <?php
 namespace App\Helpers;
 
-use App\Models\TravelData;
 use App\Models\TravelQuestion;
 use Illuminate\Support\Facades\File;
 

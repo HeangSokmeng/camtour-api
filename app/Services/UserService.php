@@ -26,6 +26,7 @@ class UserService
                     'last_name' => $hasUser->last_name,
                     'email' => $hasUser->email,
                     'phone' => $hasUser->phone,
+                    'role_id' => $hasUser->role_id,
                     'info' => $hasUser,
                 ]);
             }

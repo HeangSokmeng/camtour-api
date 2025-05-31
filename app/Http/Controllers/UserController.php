@@ -67,7 +67,16 @@ class UserController extends Controller
             'gender' => 'nullable|integer|in:1,2',
         ]);
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 15;
-        $users = User::with(['roles'])->where('is_deleted', 0)->whereIn('role_id', [2, 3]);
+        $user = UserService::getAuthUser($req);
+        $users = User::with(['roles'])->where('is_deleted', 0);
+        if ($user->role_id == 2) {
+            $users->where('role_id', 3);
+        }
+        else {
+            // Add a fallback if needed
+            $users->whereIn('role_id', [2, 3]);
+        }
+
         if ($req->filled('search')) {
             $s = $req->input('search');
             $users->where(function ($q) use ($s) {
