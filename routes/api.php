@@ -357,6 +357,6 @@ Route::middleware('login')->group(function () {
             Route::put('/islock/{id}', [UserController::class, 'lockUser']);
             Route::delete('/{id}', [UserController::class, 'destroy']);
         });
-        Route::get('/roles', [RoleController::class, 'index']);
+        Route::get('/roles', [RoleController::class, 'roleWeb']);
     });
 });
