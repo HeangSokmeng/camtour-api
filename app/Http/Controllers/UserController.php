@@ -29,7 +29,8 @@ class UserController extends Controller
         ]);
         $image = User::DEFAULT_IMAGE;
         if ($req->hasFile('image')) {
-            $image = $req->file('image')->store('users', ['disk' => 'public']);
+            $path = $req->file('image')->store('users', ['disk' => 'public']);
+            $image = basename($path);
         }
         $user = new User($req->only([
             'first_name',
