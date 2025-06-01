@@ -94,6 +94,7 @@ class CartController extends Controller
         return res_success('Product added to cart successfully.', new CartResource($cart));
     }
 
+
     public function updateCartItem(Request $req)
     {
         $req->validate([

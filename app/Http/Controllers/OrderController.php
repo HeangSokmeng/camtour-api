@@ -104,6 +104,42 @@ class OrderController extends Controller
             return ApiResponse::Error('Failed to save: ' . $e->getMessage());
         }
     }
+    protected function updateOrderStatus(Request $req, $id)
+    {
+        $user = UserService::getAuthUser($req);
+        $order = Order::where('is_deleted', 0)->with('details')->find($id);
+        if (!$order)  return res_fail('Order not found.', [], 1, 404);
+        if ($order->status === 'pending') {
+            $newStatus = $req->input('status');
+            if (!in_array($newStatus, ['completed', 'cancelled'])) {
+                return res_fail('Invalid status update.', [], 1, 400);
+            }
+            if ($newStatus === 'cancelled') {
+                foreach ($order->details as $detail) {
+                    $this->restoreVariantStock(
+                        $detail->variant_id,
+                        $detail->product_id,
+                        $detail->qty
+                    );
+                }
+            }
+            $order->status = $newStatus;
+            $order->update_uid = $user->id;
+            $order->save();
+            return res_success('Order status updated successfully.');
+        }
+        return res_fail('Only pending orders can be updated.', [], 1, 400);
+    }
+
+    private function restoreVariantStock($variantId, $productId, $quantity)
+    {
+        $variant = ProductVariant::where('product_id', $productId)->find($variantId);
+        if (!$variant) return false;
+        $variant->qty += $quantity;
+        $variant->update_uid = Auth::id() ?? 1;
+        $variant->save();
+        return true;
+    }
 
 
     public function getOrderList(Request $req)
@@ -123,10 +159,10 @@ class OrderController extends Controller
 
             return [
                 'user_id' => $user->id,
-                 'first_name' => $user->first_name,
-            'last_name' => $user->last_name,
-            'email' => $user->email,
-            'phone' => $user->phone,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'phone' => $user->phone,
                 'orders' => $userOrders->map(function ($order) {
                     return [
                         'order_id' => $order->id,
@@ -158,11 +194,66 @@ class OrderController extends Controller
 
         return ApiResponse::JsonResult($grouped, 'Orders grouped by user retrieved successfully');
     }
+    public function getMyOrderList(Request $req)
+    {
+        $user = UserService::getAuthUser($req);
+        $orders = Order::with([
+            'user',
+            'orderDetails.product:id,name,thumbnail',
+            'orderDetails.variant.color:id,name,code',
+            'orderDetails.variant.size:id,size'
+        ])
+            ->where('create_uid', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        // Group by user_id
+        $grouped = $orders->groupBy('create_uid')->map(function ($userOrders) {
+            $user = $userOrders->first()->user;
+
+            return [
+                'user_id' => $user->id,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'orders' => $userOrders->map(function ($order) {
+                    return [
+                        'order_id' => $order->id,
+                        'order_no' => $order->order_no,
+                        'payment_method' => $order->payment_method,
+                        'discount_amount' => $order->discount_amount,
+                        'total_amount' => $order->total_amount,
+                        'currency' => $order->currency,
+                        'notes' => $order->notes,
+                        'status' => $order->status,
+                        'created_at' => $order->created_at,
+                        'items' => $order->orderDetails->map(function ($item) {
+                            return [
+                                'product_id' => $item->product_id,
+                                'product_name' => $item->product->name ?? null,
+                                'image' => asset("storage/{$item->product->thumbnail}"),
+
+                                'qty' => $item->qty,
+                                'price' => $item->price,
+                                'subtotal' => $item->subtotal,
+                                'variant_id' => $item->variant_id,
+                                'color_name' => $item->variant->color->name ?? null,
+                                'color_code' => $item->variant->color->code ?? null,
+                                'size' => $item->variant->size->size ?? null,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        })->values(); // remove user_id keys
+
+        return ApiResponse::JsonResult($grouped, 'Orders grouped by user retrieved successfully');
+    }
 
     public function getOrderDetail(Request $req, $id)
     {
         $user = UserService::getAuthUser($req);
-
         $order = Order::with([
             'orderDetails.product:id,name',
             'orderDetails.variant.color:id,name,code',
@@ -170,11 +261,9 @@ class OrderController extends Controller
         ])
             ->where('id', $id)
             ->first();
-
         if (!$order) {
             return ApiResponse::NotFound('Order not found');
         }
-
         $formatted = [
             'id' => $order->id,
             'first_name' => $order->first_name,
@@ -206,6 +295,8 @@ class OrderController extends Controller
 
         return ApiResponse::JsonResult($formatted, 'Order detail retrieved successfully');
     }
+
+
 
 
 
@@ -296,14 +387,7 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        // Check if user has admin permissions
-        if (!Auth::user()->hasRole('admin')) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 403);
-        }
-
+        $user = UserService::getAuthUser($request);
         $validator = Validator::make($request->all(), [
             'status' => 'required|string|in:pending,processing,completed,cancelled,refunded',
             'payment_status' => 'nullable|string|in:pending,paid,failed,refunded',
@@ -319,7 +403,9 @@ class OrderController extends Controller
         }
 
         $order = Order::findOrFail($id);
-
+        if ($order->status == 'completed') {
+            return ApiResponse::ValidateFail('Order had completed can not update!!');
+        }
         $order->status = $request->status;
 
         if ($request->has('payment_status')) {
@@ -329,14 +415,9 @@ class OrderController extends Controller
         if ($request->has('notes')) {
             $order->notes = $request->notes;
         }
-
+        $order->update_uid = $user->id;
         $order->save();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Order status updated successfully',
-            'order' => $order
-        ]);
+        return ApiResponse::JsonResult('Update Success');
     }
 
     /**

@@ -47,37 +47,70 @@ class TravelQuestionController extends Controller
     }
 
     public function index(Request $req)
-    {
-        // validation
-        $req->validate([
-            'search' => 'nullable|string|max:50',
-            'location' => 'nullable|string|max:100',
-            'category' => 'nullable|string|max:100'
-        ]);
+{
+    // validation
+    $req->validate([
+        'search' => 'nullable|string|max:50',
+        'location' => 'nullable|string|max:100',
+        'category' => 'nullable|string|max:100',
+        'page' => 'nullable|integer|min:1',
+        'per_page' => 'nullable|integer|min:1|max:100'
+    ]);
 
-        $tours = new TravelQuestion();
+    $query = TravelQuestion::query();
 
-        if ($req->filled('search')) {
-            $s = $req->input('search');
-            $tours = $tours->where(function ($q) use ($s) {
-                $q->where('id', $s)
-                    ->orWhere('location', 'like', "%$s%")
-                    ->orWhere('question', 'like', "%$s%")
-                    ->orWhere('answer', 'like', "%$s%");
-            });
-        }
-
-        if ($req->filled('location')) {
-            $tours = $tours->where('location', 'like', '%' . $req->input('location') . '%');
-        }
-
-        if ($req->filled('category')) {
-            $tours = $tours->where('category', $req->input('category'));
-        }
-
-        $tours = $tours->where('is_deleted', 0)->orderBy('location', 'asc')->get();
-        return ApiResponse::Pagination($tours, $req);
+    if ($req->filled('search')) {
+        $s = $req->input('search');
+        $query = $query->where(function ($q) use ($s) {
+            // Only search ID if input is numeric
+            if (is_numeric($s)) {
+                $q->where('id', $s);
+            }
+            $q->orWhere('location', 'ilike', '%' . $s . '%')
+              ->orWhere('question', 'ilike', '%' . $s . '%')
+              ->orWhere('answer', 'ilike', '%' . $s . '%');
+        });
     }
+
+    if ($req->filled('location')) {
+        $query = $query->where('location', 'ilike', '%' . $req->input('location') . '%');
+    }
+
+    if ($req->filled('category')) {
+        $query = $query->where('category', $req->input('category'));
+    }
+
+    // Apply base filters
+    $query = $query->where('is_deleted', 0)->orderBy('location', 'desc');
+
+    // Get pagination parameters
+    $perPage = $req->input('per_page', 10);
+    $page = $req->input('page', 1);
+
+    // Get total count before pagination
+    $total = $query->count();
+
+    // Calculate total pages
+    $totalPages = ceil($total / $perPage);
+
+    // Apply pagination manually
+    $offset = ($page - 1) * $perPage;
+    $tours = $query->skip($offset)->take($perPage)->get();
+
+    // Return the data in the expected format
+    return response()->json([
+        'status' => 'OK',
+        'status_code' => 200,
+        'error' => false,
+        'message' => 'get list',
+        'data' => $tours,
+        'per_page' => (int)$perPage,
+        'total' => $total,
+        'total_page' => $totalPages,
+        'page_no' => (int)$page,
+        'errors' => []
+    ]);
+}
 
     public function update(Request $req, $id)
     {

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
-     /**
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
@@ -17,7 +17,12 @@ class Cart extends Model
         'total_items',
         'total_amount',
         'create_uid',
-        'update_uid'
+        'update_uid',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     /**

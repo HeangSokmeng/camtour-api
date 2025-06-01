@@ -19,6 +19,11 @@ class CartItem extends Model
         'size_id',
         'qty',
         'price',
+        'create_uid',
+        'update_uid',
+        'is_deleted',
+        'deleted_uid',
+        'delete_notes',
     ];
 
     /**

@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationGuideController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductColorController;
@@ -133,20 +134,16 @@ Route::middleware('login')->group(function () {
             Route::put('/update', [CustomerController::class, 'update']);
             Route::delete('/delete', [CustomerController::class, 'destroy']);
         });
-        Route::prefix('cart')->group(function () {
-            Route::post('/', [CartController::class, 'addToCart']);
-            Route::get('/', [CartController::class, 'getCart']);
-            Route::put('/', [CartController::class, 'updateCartItem']);
-            Route::delete('/{id}', [CartController::class, 'removeCartItem']);
-            Route::delete('/cart/clear', [CartController::class, 'clearCart']);
-        });
         Route::prefix('product/order')->group(function () {
             Route::post('/', [OrderController::class, 'createOrder']);
             Route::get('/', [OrderController::class, 'getOrderList']);
+            Route::get('/my-order', [OrderController::class, 'getMyOrderList']);
             Route::get('/{id}', [OrderController::class, 'getOrderDetail']);
-            Route::put('/', [CartController::class, 'updateCartItem']);
-            Route::delete('/{id}', [CartController::class, 'removeCartItem']);
-            Route::delete('/cart/clear', [CartController::class, 'clearCart']);
+            Route::put('/', [OrderController::class, 'updateCartItem']);
+            Route::put('/update/status/{id}', [OrderController::class, 'updateStatus']);
+            // Route::put('/status/{id}', [OrderController::class, 'updateOrderStatus']);
+            Route::delete('/{id}', [OrderController::class, 'removeCartItem']);
+            Route::delete('/cart/clear', [OrderController::class, 'clearCart']);
         });
 
         Route::prefix('comment')->group(function () {
@@ -197,6 +194,21 @@ Route::middleware('login')->group(function () {
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
+        Route::prefix('dashboard')->group(function () {
+            // Main dashboard endpoints
+            Route::get('/stats', [DashboardController::class, 'getStats']);
+            Route::get('/data', [DashboardController::class, 'getAllDashboardData']);
+            Route::get('/activity', [DashboardController::class, 'getRecentActivity']);
+
+            // Location analytics
+            Route::get('/locations/top', [DashboardController::class, 'getTopLocations']);
+            Route::get('/locations/by-category', [DashboardController::class, 'getLocationsByCategory']);
+            Route::get('/locations/by-province', [DashboardController::class, 'getLocationsByProvince']);
+
+            // Product analytics
+            Route::get('/products/top', [DashboardController::class, 'getTopProducts']);
+            Route::get('/products/by-brand', [DashboardController::class, 'getProductsByBrand']);
+        });
         Route::prefix('tours')->group(function () {
             Route::get('/', [TravelQuestionController::class, 'index']);
             Route::post('/', [TravelQuestionController::class, 'store']);
