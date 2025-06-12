@@ -14,7 +14,6 @@ use App\Http\Resources\Cart\CartResource;
 
 class CartController extends Controller
 {
-
     protected $variantAvailabilityService;
     public function __construct(ProductVariantAvailabilityService $variantAvailabilityService)
     {

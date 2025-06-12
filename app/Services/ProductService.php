@@ -4,10 +4,8 @@ namespace App\Services;
 
 use ApiResponse;
 use App\Models\ProductImage;
-use DataResponse;
 use Helper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 /**
  * Class ProductService.

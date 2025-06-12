@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Location extends Model
 {
@@ -76,5 +77,14 @@ class Location extends Model
     public function travelGuides()
     {
         return $this->hasMany(TravelGuide::class);
+    }
+     public function travelActivities(): HasMany
+    {
+        return $this->hasMany(TravelActivity::class);
+    }
+
+    public function activeTravelActivities(): HasMany
+    {
+        return $this->hasMany(TravelActivity::class)->where('is_active', true);
     }
 }

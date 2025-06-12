@@ -19,7 +19,6 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:65530',
             'image' => 'nullable|image|mimetypes:image/png,image/jpeg|max:2048',
         ]);
-
         // store new category
         $image = Category::DEFAULT_IMAGE;
         $category = new Category($req->only(['name', 'description', 'name_km']));
@@ -28,12 +27,10 @@ class CategoryController extends Controller
             $image = $file->store('categories', ['disk' => 'public']);
         }
         $category->image = $image;
-
         // Set user info
         $user = UserService::getAuthUser($req);
         $category->create_uid = $user->id;
         $category->update_uid = $user->id;
-
         $category->save();
         return res_success('Store new category successful.', new CategoryResource($category));
     }
@@ -67,11 +64,9 @@ class CategoryController extends Controller
             'description' => 'nullable|string|max:65530',
             'image' => 'nullable|image|mimetypes:image/jpeg,image/png|max:2048',
         ]);
-
         // find category
         $category = Category::where('id', $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Category not found.', [], 1, 404);
-
         // update category
         if ($req->filled('name')) {
             $category->name = $req->input('name');
@@ -143,14 +138,12 @@ class CategoryController extends Controller
         // find category
         $category = Category::where('id', $id)->where('is_deleted', 0)->first();
         if (!$category) return res_fail('Category not found.', [], 1, 404);
-
         // delete image
         if ($category->image != Category::DEFAULT_IMAGE) {
             Storage::disk('public')->delete($category->image);
         }
         $category->image = Category::DEFAULT_IMAGE;
         $category->save();
-
         return res_success('Reset image category successful.', new CategoryResource($category));
     }
 }

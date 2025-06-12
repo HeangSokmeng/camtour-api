@@ -93,11 +93,9 @@ class ProductColorController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:product_colors,id,is_deleted,0',
         ]);
-
         // delete product color
         $productColor = ProductColor::where('id', $id)->where('is_deleted', 0)->first();
         if (!$productColor) return res_fail('Product color not found.', [], 1, 404);
-
         $user = UserService::getAuthUser($req);
         $productColor->update([
             'is_deleted' => 1,
@@ -113,11 +111,9 @@ class ProductColorController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:product_colors,id,is_deleted,0']);
-
         // get product color
         $productColor = ProductColor::where('id', $id)->where('is_deleted', 0)->with('product:id,name')->first();
         if (!$productColor) return res_fail('Product color not found.', [], 1, 404);
-
         return res_success('Get product color successful.', new ProductColorResource($productColor));
     }
 }

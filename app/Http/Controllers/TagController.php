@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\Tag\IndexResource;
 use App\Http\Resources\TagResource;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -35,13 +34,11 @@ class TagController extends Controller
             'sort_dir' => 'nullable|string|in:asc,desc',
             'search' => 'nullable|string|max:50'
         ]);
-
         // setup default data
         $perPage = $req->filled('per_page') ? $req->input('per_page') : 50;
         $sortCol = $req->filled('sort_col') ? $req->input('sort_col') : 'name';
         $sortDir = $req->filled('sort_dir') ? $req->input('sort_dir') : 'asc';
         $search = $req->filled('search') ? $req->input('search') : '';
-
         // build query & get tag
         $tags = new Tag();
         $tags = $tags->where('is_deleted', 0);

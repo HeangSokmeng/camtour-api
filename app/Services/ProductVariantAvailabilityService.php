@@ -35,13 +35,10 @@ class ProductVariantAvailabilityService
                 'requested_qty' => $requestedqty
             ];
         }
-
-        // Get the variant if a variant_id is provided
         if ($variantId) {
             $variant = ProductVariant::where('id', $variantId)
                 ->where('product_id', $productId)
                 ->first();
-
             if (!$variant) {
                 return [
                     'available' => false,
@@ -50,21 +47,17 @@ class ProductVariantAvailabilityService
                     'requested_qty' => $requestedqty
                 ];
             }
-
             $availableqty = $variant->qty;
         }
         // If no variant_id but color and/or size, find the appropriate variant
         else if ($colorId || $sizeId) {
             $query = ProductVariant::where('product_id', $productId);
-
             if ($colorId) {
                 $query->where('product_color_id', $colorId);
             }
-
             if ($sizeId) {
                 $query->where('product_size_id', $sizeId);
             }
-
             $variant = $query->first();
 
             if (!$variant) {
@@ -75,14 +68,12 @@ class ProductVariantAvailabilityService
                     'requested_qty' => $requestedqty
                 ];
             }
-
             $availableqty = $variant->qty;
         }
         // If no variant details provided, use the base product's default variant or sum all variants
         else {
             // Get default variant or sum all variants' quantities
             $variants = ProductVariant::where('product_id', $productId)->get();
-
             if ($variants->isEmpty()) {
                 return [
                     'available' => false,
@@ -91,12 +82,10 @@ class ProductVariantAvailabilityService
                     'requested_qty' => $requestedqty
                 ];
             }
-
             // Find the default variant or just use the first one
             $defaultVariant = $variants->where('is_default', true)->first() ?? $variants->first();
             $availableqty = $defaultVariant->qty;
         }
-
         // If we're updating an existing cart item, we need to exclude its current qty
         if ($existingCartItemId) {
             $cartItem = CartItem::find($existingCartItemId);
@@ -113,7 +102,6 @@ class ProductVariantAvailabilityService
                         'variant_id' => $variantId ?? ($variant->id ?? null)
                     ];
                 }
-
                 // Otherwise, check if the additional qty is available
                 $requestedqty = $effectiveRequestedqty;
             }
@@ -152,15 +140,12 @@ class ProductVariantAvailabilityService
         $variant = ProductVariant::where('id', $variantId)
             ->where('qty', '>=', $qty)
             ->first();
-
         if (!$variant) {
             return false;
         }
-
         // Decrement the variant qty
         $variant->qty -= $qty;
         $variant->save();
-
         return true;
     }
 
@@ -174,15 +159,10 @@ class ProductVariantAvailabilityService
     public function releaseqty(int $variantId, int $qty)
     {
         $variant = ProductVariant::find($variantId);
-
-        if (!$variant) {
-            return false;
-        }
-
+        if (!$variant)  return false;
         // Increment the variant qty
         $variant->qty += $qty;
         $variant->save();
-
         return true;
     }
 }

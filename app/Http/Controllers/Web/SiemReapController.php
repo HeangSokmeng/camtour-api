@@ -23,8 +23,9 @@ class SiemReapController extends Controller
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
         $locationsQuery = Location::where('is_deleted', 0)
             ->where('status', 1)
-            ->whereHas('category', function ($query) {
-                $query->where('name', 'Siem Reap');
+            ->where(function($query) {
+                $query->where('province_id', 8)
+                      ->orWhere('category_id', 4);
             })
             ->with([
                 'stars:id,star,location_id',
@@ -42,9 +43,7 @@ class SiemReapController extends Controller
                 'name',
                 'name_local',
                 'thumbnail',
-                'url_location',
                 'short_description',
-                'description',
                 'total_view',
                 'province_id',
                 'district_id',
@@ -106,22 +105,6 @@ class SiemReapController extends Controller
         $paginatedLocations = $locations->slice($offset, $perPage)->values();
         $topViewLocation = $locations->sortByDesc('total_view')->values();
         $paginatedTopViewLocations = $topViewLocation->slice($offset, $perPage)->values();
-        // $productRows = [];
-        // foreach ($location->category->products as $product) {
-        //     $product->thumbnail_url = asset("storage/{$product->thumbnail}");
-        //     foreach ($product->variants as $variant) {
-        //         $productRows[] = [
-        //             'product_id' => $product->id,
-        //             'product_name' => $product->name,
-        //             'is_thumbnail' => $product->thumbnail_url,
-        //             'color' => $variant->color->name ?? null,
-        //             'size' => $variant->size->size ?? null,
-        //             'qty' => $variant->qty,
-        //             'price' => $variant->price,
-        //         ];
-        //     }
-        //     unset($product->thumbnail, $location->category->products);
-        // }
         $pagination = [
             'total' => $totalLocations,
             'per_page' => $perPage,

@@ -28,89 +28,76 @@ class TravelQuestionController extends Controller
             'links.*.title' => 'required_with:links|string|max:255',
             'links.*.url' => 'required_with:links|string|url'
         ]);
-
         // store new tour
         $tour = new TravelQuestion($req->only(['location', 'category', 'question', 'answer']));
-
         // Handle media and links as JSON
         $tour->media = $req->input('media', []);
         $tour->links = $req->input('links', []);
-
         // Set user info
         $user = UserService::getAuthUser($req);
         $tour->create_uid = $user->id;
         $tour->update_uid = $user->id;
-
         $tour->save();
         JsonExporter::exportToJson();
         return ApiResponse::JsonResult($tour, 'Store new tour successful.');
     }
 
     public function index(Request $req)
-{
-    // validation
-    $req->validate([
-        'search' => 'nullable|string|max:50',
-        'location' => 'nullable|string|max:100',
-        'category' => 'nullable|string|max:100',
-        'page' => 'nullable|integer|min:1',
-        'per_page' => 'nullable|integer|min:1|max:100'
-    ]);
+    {
+        // validation
+        $req->validate([
+            'search' => 'nullable|string|max:50',
+            'location' => 'nullable|string|max:100',
+            'category' => 'nullable|string|max:100',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:100'
+        ]);
 
-    $query = TravelQuestion::query();
-
-    if ($req->filled('search')) {
-        $s = $req->input('search');
-        $query = $query->where(function ($q) use ($s) {
-            // Only search ID if input is numeric
-            if (is_numeric($s)) {
-                $q->where('id', $s);
-            }
-            $q->orWhere('location', 'ilike', '%' . $s . '%')
-              ->orWhere('question', 'ilike', '%' . $s . '%')
-              ->orWhere('answer', 'ilike', '%' . $s . '%');
-        });
+        $query = TravelQuestion::query();
+        if ($req->filled('search')) {
+            $s = $req->input('search');
+            $query = $query->where(function ($q) use ($s) {
+                // Only search ID if input is numeric
+                if (is_numeric($s)) {
+                    $q->where('id', $s);
+                }
+                $q->orWhere('location', 'ilike', '%' . $s . '%')
+                    ->orWhere('question', 'ilike', '%' . $s . '%')
+                    ->orWhere('answer', 'ilike', '%' . $s . '%');
+            });
+        }
+        if ($req->filled('location')) {
+            $query = $query->where('location', 'ilike', '%' . $req->input('location') . '%');
+        }
+        if ($req->filled('category')) {
+            $query = $query->where('category', $req->input('category'));
+        }
+        // Apply base filters
+        $query = $query->where('is_deleted', 0)->orderBy('location', 'desc');
+        // Get pagination parameters
+        $perPage = $req->input('per_page', 10);
+        $page = $req->input('page', 1);
+        // Get total count before pagination
+        $total = $query->count();
+        // Calculate total pages
+        $totalPages = ceil($total / $perPage);
+        // Apply pagination manually
+        $offset = ($page - 1) * $perPage;
+        $tours = $query->skip($offset)->take($perPage)->get();
+        // Return the data in the expected format
+        return response()->json([
+            'status' => 'OK',
+            'status_code' => 200,
+            'error' => false,
+            'message' => 'get list',
+            'data' => $tours,
+            'per_page' => (int)$perPage,
+            'total' => $total,
+            'total_page' => $totalPages,
+            'page_no' => (int)$page,
+            'errors' => []
+        ]);
     }
-
-    if ($req->filled('location')) {
-        $query = $query->where('location', 'ilike', '%' . $req->input('location') . '%');
-    }
-
-    if ($req->filled('category')) {
-        $query = $query->where('category', $req->input('category'));
-    }
-
-    // Apply base filters
-    $query = $query->where('is_deleted', 0)->orderBy('location', 'desc');
-
-    // Get pagination parameters
-    $perPage = $req->input('per_page', 10);
-    $page = $req->input('page', 1);
-
-    // Get total count before pagination
-    $total = $query->count();
-
-    // Calculate total pages
-    $totalPages = ceil($total / $perPage);
-
-    // Apply pagination manually
-    $offset = ($page - 1) * $perPage;
-    $tours = $query->skip($offset)->take($perPage)->get();
-
-    // Return the data in the expected format
-    return response()->json([
-        'status' => 'OK',
-        'status_code' => 200,
-        'error' => false,
-        'message' => 'get list',
-        'data' => $tours,
-        'per_page' => (int)$perPage,
-        'total' => $total,
-        'total_page' => $totalPages,
-        'page_no' => (int)$page,
-        'errors' => []
-    ]);
-}
 
     public function update(Request $req, $id)
     {
@@ -130,11 +117,9 @@ class TravelQuestionController extends Controller
             'links.*.title' => 'required_with:links|string|max:255',
             'links.*.url' => 'required_with:links|string|url'
         ]);
-
         // find tour
         $tour = TravelQuestion::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tour) return res_fail('TravelQuestion not found.', [], 1, 404);
-
         // update tour
         if ($req->filled('location')) {
             $tour->location = $req->input('location');
@@ -154,7 +139,6 @@ class TravelQuestionController extends Controller
         if ($req->has('links')) {
             $tour->links = $req->input('links', []);
         }
-
         $user = UserService::getAuthUser($req);
         $tour->update_uid = $user->id;
         $tour->save();
@@ -168,7 +152,6 @@ class TravelQuestionController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:travel_questions,id,is_deleted,0'
         ]);
-
         // get one tour
         $tour = TravelQuestion::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tour) return res_fail('TravelQuestion not found.', [], 1, 404);
@@ -182,11 +165,9 @@ class TravelQuestionController extends Controller
         $req->validate([
             'id' => 'required|integer|min:1|exists:travel_questions,id,is_deleted,0'
         ]);
-
         // find tour
         $tour = TravelQuestion::where('id', $id)->where('is_deleted', 0)->first();
         if (!$tour) return res_fail('TravelQuestion not found.', [], 1, 404);
-
         // Soft delete
         $user = UserService::getAuthUser($req);
         $tour->update([
@@ -204,12 +185,10 @@ class TravelQuestionController extends Controller
         $req->validate([
             'category' => 'required|string|max:100'
         ]);
-
         $tours = TravelQuestion::where('category', $category)
             ->where('is_deleted', 0)
             ->orderBy('location', 'asc')
             ->get();
-
         return res_success('Get tours by category successful.', $tours);
     }
 
@@ -220,120 +199,17 @@ class TravelQuestionController extends Controller
         $req->validate([
             'location' => 'required|string|max:100'
         ]);
-
         $tours = TravelQuestion::where('location', 'like', '%' . $location . '%')
             ->where('is_deleted', 0)
             ->orderBy('category', 'asc')
             ->get();
-
         return res_success('Get tours by location successful.', $tours);
     }
 
-    // public function exportJson(Request $req)
-    // {
-    //     // Validation for export parameters
-    //     Log::info("Json");
-    //     $req->validate([
-    //         'search' => 'nullable|string|max:50',
-    //         'location' => 'nullable|string|max:100',
-    //         'category' => 'nullable|string|max:100',
-    //         'date_from' => 'nullable|date',
-    //         'date_to' => 'nullable|date|after_or_equal:date_from',
-    //         'format' => 'nullable|string|in:pretty,compact'
-    //     ]);
-
-    //     try {
-    //         $tours = new TravelQuestion();
-
-    //         // Apply search filters
-    //         if ($req->filled('search')) {
-    //             $s = $req->input('search');
-    //             $tours = $tours->where(function ($q) use ($s) {
-    //                 $q->where('id', $s)
-    //                     ->orWhere('location', 'like', "%$s%")
-    //                     ->orWhere('question', 'like', "%$s%")
-    //                     ->orWhere('answer', 'like', "%$s%");
-    //             });
-    //         }
-
-    //         if ($req->filled('location')) {
-    //             $tours = $tours->where('location', 'like', '%' . $req->input('location') . '%');
-    //         }
-
-    //         if ($req->filled('category')) {
-    //             $tours = $tours->where('category', $req->input('category'));
-    //         }
-
-    //         // Date range filter
-    //         if ($req->filled('date_from')) {
-    //             $tours = $tours->whereDate('created_at', '>=', $req->input('date_from'));
-    //         }
-
-    //         if ($req->filled('date_to')) {
-    //             $tours = $tours->whereDate('created_at', '<=', $req->input('date_to'));
-    //         }
-
-    //         // Get the data
-    //         $toursData = $tours->where('is_deleted', 0)
-    //             ->orderBy('location', 'asc')
-    //             ->get()
-    //             ->map(function ($tour) {
-    //                 return [
-    //                     'id' => $tour->id,
-    //                     'location' => $tour->location,
-    //                     'category' => $tour->category,
-    //                     'question' => $tour->question,
-    //                     'answer' => $tour->answer,
-    //                     'media' => $tour->media ?? [],
-    //                     'links' => $tour->links ?? [],
-    //                     'created_at' => $tour->created_at->toISOString(),
-    //                     'updated_at' => $tour->updated_at->toISOString()
-    //                 ];
-    //             });
-
-    //         // Prepare export data
-    //         $exportData = [
-    //             'export_info' => [
-    //                 'exported_at' => Carbon::now()->toISOString(),
-    //                 'total_records' => $toursData->count(),
-    //                 'filters_applied' => array_filter([
-    //                     'search' => $req->input('search'),
-    //                     'location' => $req->input('location'),
-    //                     'category' => $req->input('category'),
-    //                     'date_from' => $req->input('date_from'),
-    //                     'date_to' => $req->input('date_to')
-    //                 ])
-    //             ],
-    //             'tours' => $toursData
-    //         ];
-
-    //         // Generate filename
-    //         $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
-    //         $filename = "tours_export_{$timestamp}.json";
-
-    //         // Determine JSON formatting
-    //         $format = $req->input('format', 'pretty');
-    //         $jsonOptions = $format === 'pretty' ? JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE : JSON_UNESCAPED_UNICODE;
-
-    //         // Create JSON content
-    //         $jsonContent = json_encode($exportData, $jsonOptions);
-
-    //         // Return as download
-    //         return response($jsonContent)
-    //             ->header('Content-Type', 'application/json')
-    //             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
-    //             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
-    //             ->header('Pragma', 'no-cache')
-    //             ->header('Expires', '0');
-    //     } catch (\Exception $e) {
-    //         return res_fail('Export failed: ' . $e->getMessage(), [], 1, 500);
-    //     }
-    // }
     public function export()
     {
         $data = TravelQuestion::orderByDesc('id')->get()->toArray();
         $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
         $dir = public_path('chatbot');
         if (!file_exists($dir)) {
             mkdir($dir, 0777, true);
@@ -354,10 +230,8 @@ class TravelQuestionController extends Controller
             'date_from' => 'nullable|date',
             'date_to' => 'nullable|date|after_or_equal:date_from'
         ]);
-
         try {
             $tours = new TravelQuestion();
-
             if ($req->filled('search')) {
                 $s = $req->input('search');
                 $tours = $tours->where(function ($q) use ($s) {
@@ -367,23 +241,18 @@ class TravelQuestionController extends Controller
                         ->orWhere('answer', 'like', "%$s%");
                 });
             }
-
             if ($req->filled('location')) {
                 $tours = $tours->where('location', 'like', '%' . $req->input('location') . '%');
             }
-
             if ($req->filled('category')) {
                 $tours = $tours->where('category', $req->input('category'));
             }
-
             if ($req->filled('date_from')) {
                 $tours = $tours->whereDate('created_at', '>=', $req->input('date_from'));
             }
-
             if ($req->filled('date_to')) {
                 $tours = $tours->whereDate('created_at', '<=', $req->input('date_to'));
             }
-
             $toursData = $tours->where('is_deleted', 0)
                 ->orderBy('location', 'asc')
                 ->get()
@@ -400,7 +269,6 @@ class TravelQuestionController extends Controller
                         'updated_at' => $tour->updated_at->toISOString()
                     ];
                 });
-
             $exportData = [
                 'export_info' => [
                     'exported_at' => now()->toISOString(),
@@ -415,30 +283,20 @@ class TravelQuestionController extends Controller
                 ],
                 'tours' => $toursData
             ];
-
             $filename = 'cambodia_travel_export_' . now()->format('Ymd_His') . '.json';
             $filepath = storage_path('app/public/chatbot');
-
             // Create directory if it doesn't exist
             if (!file_exists($filepath)) {
                 mkdir($filepath, 0777, true);
             }
-
             $fullPath = $filepath . '/' . $filename;
-
             file_put_contents($fullPath, json_encode($exportData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-
-
             return response()->download($fullPath);
         } catch (\Exception $e) {
             return res_fail('Export failed: ' . $e->getMessage(), [], 1, 500);
         }
     }
 
-
-    /**
-     * Get export statistics
-     */
     public function exportStats(Request $req)
     {
         try {
@@ -461,7 +319,6 @@ class TravelQuestionController extends Controller
                 'latest_tour' => TravelQuestion::where('is_deleted', 0)->latest()->first(['id', 'location', 'created_at']),
                 'oldest_tour' => TravelQuestion::where('is_deleted', 0)->oldest()->first(['id', 'location', 'created_at'])
             ];
-
             return res_success('Export statistics retrieved successfully.', $stats);
         } catch (\Exception $e) {
             return res_fail('Failed to get export statistics: ' . $e->getMessage(), [], 1, 500);

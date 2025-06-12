@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\RoleResource;
 use App\Models\Role;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -21,6 +20,7 @@ class RoleController extends Controller
         $roles = Role::get();
         return res_success("Get all users success", $roles);
     }
+
     public function roleWeb(Request $req)
     {
         $user = UserService::getAuthUser($req);

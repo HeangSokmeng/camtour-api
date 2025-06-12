@@ -22,7 +22,6 @@ class MapCoordinateService
             ];
             return $coordinates;
         }
-
         // Pattern for complex Google Maps URL with 3d and 4d parameters
         if (preg_match('/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/', $url, $matches)) {
             $coordinates = [
@@ -45,7 +44,6 @@ class MapCoordinateService
                 'lot' => (float) $matches[2]  // Using 'lot' to match your model field
             ];
         }
-
         // Pattern for ll=lat,lng or sll=lat,lng
         if (preg_match('/[?&](ll|sll)=(-?\d+\.\d+),(-?\d+\.\d+)/', $url, $matches)) {
             return [
@@ -69,19 +67,15 @@ class MapCoordinateService
                 'header' => "User-Agent: Mozilla/5.0 (compatible; LocationApp/1.0)\r\n"
             ]
         ];
-
         $context = stream_context_create($options);
-
         // Make HEAD request
         $headers = @get_headers($url, 1, $context);
-
         if ($headers && isset($headers['Location'])) {
             // Return the location from the redirect
             return is_array($headers['Location'])
                 ? end($headers['Location'])
                 : $headers['Location'];
         }
-
         return null;
     }
 
@@ -106,17 +100,13 @@ class MapCoordinateService
     {
         // Replace with your actual API key
         $apiKey = config('services.google_maps.key', '');
-
         if (empty($apiKey)) {
             return null;
         }
-
         $address = urlencode($address);
         $url = "https://maps.googleapis.com/maps/api/geocode/json?address={$address}&key={$apiKey}";
-
         $response = file_get_contents($url);
         $data = json_decode($response, true);
-
         if ($data['status'] === 'OK' && !empty($data['results'][0]['geometry']['location'])) {
             $location = $data['results'][0]['geometry']['location'];
             return [
@@ -124,7 +114,6 @@ class MapCoordinateService
                 'lot' => $location['lng']
             ];
         }
-
         return null;
     }
 }

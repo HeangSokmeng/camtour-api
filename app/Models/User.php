@@ -16,6 +16,8 @@ class User extends Authenticatable
     public const GENDER_UNKNOWN = null;
     public const DEFAULT_IMAGE = 'no_photo.jpg';
 
+
+
     // setup prop
     protected $fillable = [
         'first_name',

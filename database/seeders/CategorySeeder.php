@@ -13,17 +13,32 @@ class CategorySeeder extends Seeder
         // setup default
         $dataCategories = [
             [
-                'name' => 'រមណីយដ្ឋានធម្មជាតិ',
+                'name_km' => 'រមណីយដ្ឋាន ធម្មជាតិ',
+                'name' => 'Natural resort',
                 'create_uid' => 1,
                 'update_uid' => 1
             ],
             [
-                'name' => 'រមណីយដ្ឋានប្រវត្តិសាស្រ្ត',
+                'name_km' => 'រមណីយដ្ឋាន ប្រវត្តិសាស្រ្ត',
+                'name' => 'Historical resort',
                 'create_uid' => 1,
                 'update_uid' => 1
             ],
             [
-                'name' => 'រមណីយដ្ឋានវប្បធម៌',
+                'name_km' => 'រមណីយដ្ឋាន​ វប្បធម៌',
+                'name' => 'Cultural resort',
+                'create_uid' => 1,
+                'update_uid' => 1
+            ],
+            [
+                'name_km' => 'សៀមរាប',
+                'name' => 'Siem Reap',
+                'create_uid' => 1,
+                'update_uid' => 1
+            ],
+            [
+                'name_km' => 'រមណីយដ្ឋាន កែច្នៃ',
+                'name' => 'Resort processing',
                 'create_uid' => 1,
                 'update_uid' => 1
             ],

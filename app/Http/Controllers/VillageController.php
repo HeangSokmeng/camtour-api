@@ -89,11 +89,9 @@ class VillageController extends Controller
             'district_id' => 'nullable|integer|min:1|exists:districts,id,is_deleted,0',
             'commune_id' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0',
         ]);
-
         // update data
         $village = Village::where('id', $id)->where('is_deleted', 0)->first();
         if (!$village) return res_fail('Village not found.', [], 1, 404);
-
         $user = UserService::getAuthUser($req);
         $village->update_uid = $user->id;
 

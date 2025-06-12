@@ -6,6 +6,7 @@ use ApiResponse;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -32,6 +33,7 @@ class OrderController extends Controller
             'total_amount' => 'nullable|numeric|min:0',
             'currency' => 'nullable|string|max:10',
             'notes' => 'nullable|string',
+            'payment_status' => 'nullable|string',
             'status' => 'nullable|string|max:50',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -45,10 +47,8 @@ class OrderController extends Controller
     {
         $validate = $this->orderValidation($req);
         if ($validate->fails()) return ApiResponse::ValidateFail($validate->errors()->first());
-
         $user = UserService::getAuthUser($req);
         $inputs = $validate->validated();
-
         $inputs['first_name'] = $inputs['first_name'] ?? $user->first_name;
         $inputs['last_name'] = $inputs['last_name']  ?? $user->last_name;
         $inputs['email'] = $inputs['email']  ?? $user->email;
@@ -56,7 +56,7 @@ class OrderController extends Controller
         $inputs['order_no'] = $this->generateOrderNumber();
         $inputs['create_uid'] = $user->id;
         $inputs['update_uid'] = $user->id;
-
+        $inputs['payment_status'] = 'completed';
         // Calculate total and discount
         $total = 0;
         foreach ($inputs['items'] as &$item) {
@@ -64,17 +64,13 @@ class OrderController extends Controller
             $item['subtotal'] = $subtotal;
             $total += $subtotal;
         }
-
         $discount = $inputs['discount_amount'] ?? 0;
         $totalAfterDiscount = $total - $discount;
         $inputs['total_amount'] = $totalAfterDiscount;
-
         try {
             DB::beginTransaction();
-
             // Create the order
             $order = Order::create($inputs);
-
             foreach ($inputs['items'] as $item) {
                 $orderItem = new OrderDetail();
                 $orderItem->order_id = $order->id;
@@ -82,7 +78,6 @@ class OrderController extends Controller
                 $orderItem->qty = $item['qty'];
                 $orderItem->price = $item['price'];
                 $orderItem->subtotal = $item['subtotal'];
-
                 if (!empty($item['variant_id'])) {
                     $orderItem->variant_id = $item['variant_id'];
                     $checkStock = $this->updateVariantStock($item['variant_id'], $item['product_id'], $item['qty']);
@@ -91,12 +86,10 @@ class OrderController extends Controller
                         return ApiResponse::ValidateFail('Variant stock is not enough.');
                     }
                 }
-
                 $orderItem->create_uid = $user->id;
                 $orderItem->update_uid = $user->id;
                 $orderItem->save();
             }
-
             DB::commit();
             return ApiResponse::JsonResult(null, 'Created');
         } catch (\Exception $e) {
@@ -152,11 +145,9 @@ class OrderController extends Controller
         ])
             ->orderByDesc('created_at')
             ->get();
-
         // Group by user_id
         $grouped = $orders->groupBy('create_uid')->map(function ($userOrders) {
             $user = $userOrders->first()->user;
-
             return [
                 'user_id' => $user->id,
                 'first_name' => $user->first_name,
@@ -191,7 +182,6 @@ class OrderController extends Controller
                 }),
             ];
         })->values(); // remove user_id keys
-
         return ApiResponse::JsonResult($grouped, 'Orders grouped by user retrieved successfully');
     }
     public function getMyOrderList(Request $req)
@@ -206,11 +196,9 @@ class OrderController extends Controller
             ->where('create_uid', $user->id)
             ->orderByDesc('created_at')
             ->get();
-
         // Group by user_id
         $grouped = $orders->groupBy('create_uid')->map(function ($userOrders) {
             $user = $userOrders->first()->user;
-
             return [
                 'user_id' => $user->id,
                 'first_name' => $user->first_name,
@@ -233,7 +221,6 @@ class OrderController extends Controller
                                 'product_id' => $item->product_id,
                                 'product_name' => $item->product->name ?? null,
                                 'image' => asset("storage/{$item->product->thumbnail}"),
-
                                 'qty' => $item->qty,
                                 'price' => $item->price,
                                 'subtotal' => $item->subtotal,
@@ -247,7 +234,6 @@ class OrderController extends Controller
                 }),
             ];
         })->values(); // remove user_id keys
-
         return ApiResponse::JsonResult($grouped, 'Orders grouped by user retrieved successfully');
     }
 
@@ -292,26 +278,19 @@ class OrderController extends Controller
                 ];
             }),
         ];
-
         return ApiResponse::JsonResult($formatted, 'Order detail retrieved successfully');
     }
-
-
-
 
 
     private function updateVariantStock($variantId, $productId, $quantity)
     {
         $variant = ProductVariant::where('product_id', $productId)->find($variantId);
         if (!$variant) return false;
-
         $stockQty = $variant->qty ?? 0;
         if ($quantity > $stockQty) return false;
-
         $variant->qty = max(0, $stockQty - $quantity);
         $variant->update_uid = Auth::id() ?? 1;
         $variant->save();
-
         return true;
     }
 
@@ -323,7 +302,6 @@ class OrderController extends Controller
         do {
             $orderNumber = 'ORD-' . strtoupper(substr(uniqid(), -6)) . '-' . date('Ymd');
         } while (Order::where('order_no', $orderNumber)->exists());
-
         return $orderNumber;
     }
 
@@ -333,19 +311,16 @@ class OrderController extends Controller
     public function getUserOrders()
     {
         $user = Auth::user();
-
         if (!$user) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized'
             ], 401);
         }
-
         $orders = Order::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
             ->with('items')
             ->get();
-
         return response()->json([
             'success' => true,
             'orders' => $orders
@@ -360,14 +335,12 @@ class OrderController extends Controller
         $order = Order::where('order_no', $orderNo)
             ->with('items')
             ->first();
-
         if (!$order) {
             return response()->json([
                 'success' => false,
                 'message' => 'Order not found'
             ], 404);
         }
-
         // Check if the user is authorized to view this order
         if (Auth::check() && Auth::id() !== $order->user_id) {
             return response()->json([
@@ -375,7 +348,6 @@ class OrderController extends Controller
                 'message' => 'Unauthorized'
             ], 403);
         }
-
         return response()->json([
             'success' => true,
             'order' => $order
@@ -393,7 +365,6 @@ class OrderController extends Controller
             'payment_status' => 'nullable|string|in:pending,paid,failed,refunded',
             'notes' => 'nullable|string',
         ]);
-
         if ($validator->fails()) {
             return response()->json([
                 'success' => false,
@@ -401,17 +372,14 @@ class OrderController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
         $order = Order::findOrFail($id);
         if ($order->status == 'completed') {
             return ApiResponse::ValidateFail('Order had completed can not update!!');
         }
         $order->status = $request->status;
-
         if ($request->has('payment_status')) {
             $order->payment_status = $request->payment_status;
         }
-
         if ($request->has('notes')) {
             $order->notes = $request->notes;
         }
@@ -429,14 +397,14 @@ class OrderController extends Controller
         foreach ($items as $item) {
             if (isset($item['variant']) && isset($item['variant']['variantId'])) {
                 // If variant exists, update variant stock
-                $variant = \App\Models\ProductVariant::find($item['variant']['variantId']);
+                $variant = ProductVariant::find($item['variant']['variantId']);
                 if ($variant) {
                     $variant->stock = $variant->stock - $item['quantity'];
                     $variant->save();
                 }
             } else {
                 // Otherwise update product stock
-                $product = \App\Models\Product::find($item['id']);
+                $product = Product::find($item['id']);
                 if ($product) {
                     $product->stock = $product->stock - $item['quantity'];
                     $product->save();

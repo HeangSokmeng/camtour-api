@@ -18,6 +18,7 @@ class LocationDetailController extends Controller
             ->with([
                 'photos:id,location_id,photo',
                 'tags:id,name',
+                'activeTravelActivities:id,location_id,title,image,description,duration_hours,difficulty_level,price_per_person,currency,is_active',
                 'province:id,name,local_name',
                 'district:id,name,local_name',
                 'commune:id,name,local_name',
@@ -40,6 +41,10 @@ class LocationDetailController extends Controller
         foreach ($location->photos as $photo) {
             $photo->photo_url = asset("storage/{$photo->photo}");
             unset($photo->photo);
+        }
+        foreach ($location->activeTravelActivities as $ata) {
+            $ata->image = asset('storage/travel_activities/' . $ata->image);
+            // unset($ata->photo);
         }
         $productRows = [];
         foreach ($location->category->products as $product) {

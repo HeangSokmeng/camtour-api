@@ -54,7 +54,7 @@ class HomePageViewController extends Controller
         }
         $latestLocations = $locationQuery
             ->orderBy('id', 'desc')
-            ->limit(20)
+            ->limit(8)
             ->select('id', 'name', 'name_local', 'thumbnail', 'url_location', 'short_description', 'description', 'total_view', 'category_id', 'province_id', 'district_id', 'commune_id', 'village_id')
             ->get();
         foreach ($latestLocations as $location) {

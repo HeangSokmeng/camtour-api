@@ -13,7 +13,7 @@ class ChatbotController extends Controller
     protected $pythonServiceUrl;
     public function __construct()
     {
-        $this->pythonServiceUrl = env('PYTHON_NLP_SERVICE_URL', 'http://34.59.66.17:80');
+        $this->pythonServiceUrl = env('PYTHON_NLP_SERVICE_URL');
     }
     public function process(Request $request)
     {

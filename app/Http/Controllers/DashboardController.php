@@ -14,15 +14,11 @@ use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
-    /**
-     * Get dashboard summary statistics
-     */
     public function getStats(Request $request)
     {
         try {
             $timeRange = $request->input('time_range', '30d');
             $dateFrom = $this->getDateFromRange($timeRange);
-
             $stats = [
                 'total_locations' => $this->getTotalLocations(),
                 'total_products' => $this->getTotalProducts(),
@@ -35,17 +31,12 @@ class DashboardController extends Controller
                 'featured_locations' => $this->getFeaturedLocations(),
                 'featured_products' => $this->getFeaturedProducts()
             ];
-
             return $this->successResponse('Dashboard stats retrieved successfully', $stats, $timeRange);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch dashboard stats', $e->getMessage());
         }
     }
 
-    /**
-     * Get top performing locations
-     */
     public function getTopLocations(Request $request)
     {
         try {
@@ -67,12 +58,10 @@ class DashboardController extends Controller
                 ->orderBy('total_view', 'desc')
                 ->limit($limit)
                 ->get()
-                ->map(function($location) {
+                ->map(function ($location) {
                     return $this->formatLocationData($location);
                 });
-
             return $this->successResponse('Top locations retrieved successfully', $locations);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch top locations', $e->getMessage());
         }
@@ -85,7 +74,6 @@ class DashboardController extends Controller
     {
         try {
             $limit = $request->input('limit', 10);
-
             $products = Product::with(['brand', 'category', 'pcategory', 'stars'])
                 ->where('is_deleted', 0)
                 ->select([
@@ -103,12 +91,10 @@ class DashboardController extends Controller
                 ->orderBy('total_views', 'desc')
                 ->limit($limit)
                 ->get()
-                ->map(function($product) {
+                ->map(function ($product) {
                     return $this->formatProductData($product);
                 });
-
             return $this->successResponse('Top products retrieved successfully', $products);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch top products', $e->getMessage());
         }
@@ -121,16 +107,14 @@ class DashboardController extends Controller
     {
         try {
             $categories = Category::where('is_deleted', 0)
-                ->withCount(['locations' => function($query) {
+                ->withCount(['locations' => function ($query) {
                     $query->where('is_deleted', 0);
                 }])
                 ->get();
-
-            $categoryData = $categories->map(function($category) {
+            $categoryData = $categories->map(function ($category) {
                 $locations = Location::where('category_id', $category->id)
                     ->where('is_deleted', 0)
                     ->get();
-
                 return [
                     'category' => $category->name,
                     'location_count' => $category->locations_count ?? 0,
@@ -138,12 +122,11 @@ class DashboardController extends Controller
                     'avg_min_price' => round($locations->avg('min_money') ?? 0, 2),
                     'avg_max_price' => round($locations->avg('max_money') ?? 0, 2)
                 ];
-            })->filter(function($item) {
+            })->filter(function ($item) {
                 return $item['location_count'] > 0;
             })->sortByDesc('location_count')->values();
 
             return $this->successResponse('Category data retrieved successfully', $categoryData);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch category data', $e->getMessage());
         }
@@ -155,28 +138,25 @@ class DashboardController extends Controller
     public function getLocationsByProvince(Request $request)
     {
         try {
-            $provinces = Province::withCount(['locations' => function($query) {
+            $provinces = Province::withCount(['locations' => function ($query) {
                 $query->where('is_deleted', 0);
             }])
-            ->get();
-
-            $provinceData = $provinces->map(function($province) {
+                ->get();
+            $provinceData = $provinces->map(function ($province) {
                 $totalViews = Location::where('province_id', $province->id)
                     ->where('is_deleted', 0)
                     ->sum('total_view');
-
                 return [
                     'province' => $province->name,
                     'province_en' => $province->name_en ?? $province->name,
                     'location_count' => $province->locations_count ?? 0,
                     'total_views' => $totalViews
                 ];
-            })->filter(function($item) {
+            })->filter(function ($item) {
                 return $item['location_count'] > 0;
             })->sortByDesc('location_count')->values();
 
             return $this->successResponse('Province data retrieved successfully', $provinceData);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch province data', $e->getMessage());
         }
@@ -189,18 +169,16 @@ class DashboardController extends Controller
     {
         try {
             $brands = Brand::where('is_deleted', 0)
-                ->withCount(['products' => function($query) {
+                ->withCount(['products' => function ($query) {
                     $query->where('is_deleted', 0);
                 }])
                 ->having('products_count', '>', 0)
                 ->orderBy('products_count', 'desc')
                 ->get();
-
-            $brandData = $brands->map(function($brand) {
+            $brandData = $brands->map(function ($brand) {
                 $products = Product::where('brand_id', $brand->id)
                     ->where('is_deleted', 0)
                     ->get();
-
                 return [
                     'brand' => $brand->name,
                     'product_count' => $brand->products_count,
@@ -208,9 +186,7 @@ class DashboardController extends Controller
                     'avg_price' => round($products->avg('price') ?? 0, 2)
                 ];
             });
-
             return $this->successResponse('Brand data retrieved successfully', $brandData);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch brand data', $e->getMessage());
         }
@@ -223,7 +199,6 @@ class DashboardController extends Controller
     {
         try {
             $timeRange = $request->input('time_range', '30d');
-
             $data = [
                 'stats' => $this->getStats($request)->getData()->data,
                 'top_locations' => $this->getTopLocations($request)->getData()->data,
@@ -232,9 +207,7 @@ class DashboardController extends Controller
                 'province_data' => $this->getLocationsByProvince($request)->getData()->data,
                 'brand_data' => $this->getProductsByBrand($request)->getData()->data
             ];
-
             return $this->successResponse('Dashboard data retrieved successfully', $data, $timeRange);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch dashboard data', $e->getMessage());
         }
@@ -249,14 +222,11 @@ class DashboardController extends Controller
             $limit = $request->input('limit', 20);
             $days = $request->input('days', 7);
             $dateFrom = Carbon::now()->subDays($days);
-
             $data = [
                 'recent_locations' => $this->getRecentLocations($dateFrom, $limit),
                 'recent_products' => $this->getRecentProducts($dateFrom, $limit)
             ];
-
             return $this->successResponse('Recent activity retrieved successfully', $data);
-
         } catch (\Exception $e) {
             return $this->errorResponse('Failed to fetch recent activity', $e->getMessage());
         }
@@ -281,7 +251,7 @@ class DashboardController extends Controller
     private function getTotalViews()
     {
         return Location::where('is_deleted', 0)->sum('total_view') +
-               Product::where('is_deleted', 0)->sum('total_views');
+            Product::where('is_deleted', 0)->sum('total_views');
     }
 
     private function getTotalCategories()
@@ -361,7 +331,7 @@ class DashboardController extends Controller
     // Helper method to get date from time range
     private function getDateFromRange($timeRange)
     {
-        return match($timeRange) {
+        return match ($timeRange) {
             '7d' => Carbon::now()->subDays(7),
             '30d' => Carbon::now()->subDays(30),
             '90d' => Carbon::now()->subDays(90),
@@ -377,21 +347,17 @@ class DashboardController extends Controller
             ->whereHas('stars')
             ->with('stars')
             ->get();
-
         if ($locations->isEmpty()) {
             return 0;
         }
-
         $totalRating = 0;
         $totalRatings = 0;
-
         foreach ($locations as $location) {
             foreach ($location->stars as $star) {
                 $totalRating += $star->stars;
                 $totalRatings++;
             }
         }
-
         return $totalRatings > 0 ? round($totalRating / $totalRatings, 2) : 0;
     }
 
@@ -401,21 +367,17 @@ class DashboardController extends Controller
             ->whereHas('stars')
             ->with('stars')
             ->get();
-
         if ($products->isEmpty()) {
             return 0;
         }
-
         $totalRating = 0;
         $totalRatings = 0;
-
         foreach ($products as $product) {
             foreach ($product->stars as $star) {
                 $totalRating += $star->stars;
                 $totalRatings++;
             }
         }
-
         return $totalRatings > 0 ? round($totalRating / $totalRatings, 2) : 0;
     }
 
@@ -429,11 +391,9 @@ class DashboardController extends Controller
             'message' => $message,
             'data' => $data
         ];
-
         if ($timeRange) {
             $response['time_range'] = $timeRange;
         }
-
         return response()->json($response);
     }
 

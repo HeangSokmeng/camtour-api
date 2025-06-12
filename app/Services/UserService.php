@@ -5,12 +5,11 @@ namespace App\Services;
 use App\Models\User;
 use DataResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 class UserService
 {
-    public static function getAuthUser(Request $request,$action = '')
+    public static function getAuthUser(Request $request, $action = '')
     {
         $user = $request->user('sanctum');
         if ($user) {
@@ -34,5 +33,4 @@ class UserService
         Log::warning("Unauthenticated request to getAuthUser");
         return DataResponse::Unauthorized();
     }
-
 }

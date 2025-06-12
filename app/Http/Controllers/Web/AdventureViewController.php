@@ -125,7 +125,6 @@ class AdventureViewController extends Controller
         $totalLocations = Location::where('is_deleted', 0)
             ->where('status', 1)
             ->count();
-
         $locationsByProvince = Location::where('is_deleted', 0)
             ->where('status', 1)
             ->with('province:id,name,local_name')
@@ -133,7 +132,6 @@ class AdventureViewController extends Controller
             ->selectRaw('COUNT(*) as count')
             ->groupBy('province_id')
             ->get();
-
         $locationsByCategory = Location::where('is_deleted', 0)
             ->where('status', 1)
             ->with('category:id,name,local_name')

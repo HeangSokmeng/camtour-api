@@ -26,7 +26,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'first_name' => 'Chhayya',
-                'last_name' => 'Teang',
+                'last_name' => 'Neom',
                 'gender' => User::GENDER_MALE,
                 'image' => User::DEFAULT_IMAGE,
                 'phone' => '0967251109',
@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'first_name' => 'Raksa',
-                'last_name' => 'Teang',
+                'last_name' => 'Loun',
                 'gender' => User::GENDER_MALE,
                 'image' => User::DEFAULT_IMAGE,
                 'phone' => '0967251109',
@@ -50,7 +50,7 @@ class UserSeeder extends Seeder
             ],
             [
                 'first_name' => 'Rachana',
-                'last_name' => 'Teang',
+                'last_name' => 'Vuth',
                 'gender' => User::GENDER_MALE,
                 'image' => User::DEFAULT_IMAGE,
                 'phone' => '0967251109',

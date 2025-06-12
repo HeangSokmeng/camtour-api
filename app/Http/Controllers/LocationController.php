@@ -40,10 +40,9 @@ class LocationController extends Controller
      */
     public function store(Request $req)
     {
-        if ($req->filled('url_location') && (!$req->filled('lat') || !$req->filled('lot'))) {
+        if ($req->filled('url_location')) {
             $mapService = new MapCoordinateService();
             $coordinates = $mapService->extractFromUrlPattern($req->input('url_location'));
-            // Log::info($coordinates['lat']);
             if ($coordinates) {
                 $req->merge([
                     'lat' => $coordinates['lat'],
@@ -121,12 +120,10 @@ class LocationController extends Controller
             'commune' => 'nullable|integer|min:1|exists:communes,id,is_deleted,0',
             'village' => 'nullable|integer|min:1|exists:villages,id'
         ]);
-
         // setup default data
         $perPage = $req->filled('per_page') ? intval($req->input('per_page')) : 10;
         $sortCol = $req->filled('sort_col') ? $req->input('sort_col') : 'id';
         $sortDir = $req->filled('sort_dir') ? $req->input('sort_dir') : 'desc';
-
         // add search
         $locations = new Location();
         $locations = $locations->where('is_deleted', 0);
@@ -139,7 +136,6 @@ class LocationController extends Controller
                     ->orWhere('description', 'like', "%$s%");
             });
         }
-
         if ($req->filled('category')) {
             $category = intval($req->input('category'));
             $locations = $locations->where('category_id', $category);
@@ -160,7 +156,6 @@ class LocationController extends Controller
             $village = intval($req->input('village'));
             $locations = $locations->where('village_id', $village);
         }
-
         $locations = $locations->with(['tags', 'category', 'province'])->withAvg('stars', 'star')->orderBy($sortCol, $sortDir)->paginate($perPage);
         return res_paginate($locations, 'Get locations successful.', LocationIndexResource::collection($locations));
     }
@@ -170,7 +165,6 @@ class LocationController extends Controller
         // validation
         $req->merge(['id' => $id]);
         $req->validate(['id' => 'required|integer|min:1|exists:locations,id,is_deleted,0']);
-
         // get location by id
         $location = Location::where('id', $id)
             ->where('is_deleted', 0)
@@ -180,7 +174,6 @@ class LocationController extends Controller
         if (!$location) {
             return res_fail('Location is not publish yet or not found', [], 1, 404);
         }
-
         // response back
         return res_success('Get one location success', new LocationDetailResource($location));
     }
@@ -212,7 +205,6 @@ class LocationController extends Controller
         if (!$location) return res_fail('Location not found.', [], 1, 404);
         $user = UserService::getAuthUser($req);
         $location->update_uid = $user->id;
-
         // update name
         if ($req->filled('name')) {
             $location->name = $req->input('name');
@@ -220,7 +212,6 @@ class LocationController extends Controller
         if ($req->filled('name_local')) {
             $location->name_local = $req->input('name_local');
         }
-
         // update thumbnail
         if ($req->hasFile('thumbnail')) {
             $thumbnailPath = $req->file('thumbnail')->store('locations/thumbnails', ['disk' => 'public']);
@@ -229,7 +220,6 @@ class LocationController extends Controller
             }
             $location->thumbnail = $thumbnailPath;
         }
-
         // update url
         if ($req->filled('url_location')) {
             $location->url_location = $req->input('url_location');
@@ -245,7 +235,6 @@ class LocationController extends Controller
                 }
             }
         }
-
         // update description
         if ($req->filled('short_description')) {
             $location->short_description = $req->input('short_description');
@@ -253,14 +242,6 @@ class LocationController extends Controller
         if ($req->filled('description')) {
             $location->description = htmlspecialchars($req->input('description'));
         }
-
-        // update lat log
-        // if ($req->filled('lat')) {
-        //     $location->lat = $req->input('lat');
-        // }
-        // if ($req->filled('lot')) {
-        //     $location->lot = $req->input('lot');
-        // }
         if ($req->filled('min_money')) {
             $location->min_money = $req->input('min_money');
         }
@@ -337,7 +318,6 @@ class LocationController extends Controller
         );
         return res_success('Location added to wishlist successfully.');
     }
-
 
     public function removeFromWishlist(Request $req)
     {

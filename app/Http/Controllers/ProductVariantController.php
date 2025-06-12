@@ -47,7 +47,6 @@ class ProductVariantController extends Controller
             // Search functionality
             ->when($req->filled('search'), function ($query) use ($req) {
                 $search = $req->input('search');
-
                 $query->whereHas('product', function ($q) use ($search) {
                     $q->where('name', 'like', "%$search%")
                         ->orWhereHas('brand', function ($q2) use ($search) {
@@ -135,7 +134,6 @@ class ProductVariantController extends Controller
             "qty" => "required|integer|min:0",
             "price" => "required|numeric|min:0"
         ]);
-
         // update product variant
         ProductVariant::where('id', $id)->update($req->only(['product_id', 'product_color_id', 'product_size_id', 'qty', 'price']));
         return res_success("Update product variant success.");
@@ -148,7 +146,6 @@ class ProductVariantController extends Controller
         $req->validate([
             "id" => "required|integer|min:1|exists:product_variants,id"
         ]);
-
         // delete variant
         ProductVariant::where("id", $id)->delete();
         return res_success("Destroy product variant success.");

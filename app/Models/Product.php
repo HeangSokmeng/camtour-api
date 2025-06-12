@@ -30,7 +30,7 @@ class Product extends Model
         'delete_notes',
     ];
 
-     public function stars()
+    public function stars()
     {
         return $this->hasMany(ProductStar::class, 'product_id', 'id');
     }
@@ -66,5 +66,15 @@ class Product extends Model
     public function variants()
     {
         return $this->hasMany(ProductVariant::class, 'product_id', 'id');
+    }
+    protected static function booted()
+    {
+        static::creating(function ($product) {
+            if (empty($product->code)) {
+                $latestProduct = self::latest('id')->first();
+                $nextId = $latestProduct ? $latestProduct->id + 1 : 1;
+                $product->code = 'PRD' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+            }
+        });
     }
 }

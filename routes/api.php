@@ -2,10 +2,9 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ColorController;
 use App\Http\Controllers\CommuneController;
 use App\Http\Controllers\DistrictController;
-use App\Http\Controllers\GeneralSettingController;
+use App\Http\Controllers\LocalTransportationController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LocationImageController;
 use App\Http\Controllers\LocationStarController;
@@ -19,17 +18,24 @@ use App\Http\Controllers\ProvinceController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\HotelController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LocationGuideController;
+use App\Http\Controllers\MealController;
+use App\Http\Controllers\NearbyController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductColorController;
 use App\Http\Controllers\ProductStarController;
 use App\Http\Controllers\ProductVariantController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\VillageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TravelActivityController;
 use App\Http\Controllers\TravelQuestionController;
+use App\Http\Controllers\TravelRecommendationController;
 use App\Http\Controllers\Web\AdventureViewController;
-use App\Http\Controllers\Web\CartController;
 use App\Http\Controllers\Web\ChatbotController;
 use App\Http\Controllers\Web\CommentController;
 use App\Http\Controllers\Web\CustomerController;
@@ -38,7 +44,6 @@ use App\Http\Controllers\Web\LocationDetailController;
 use App\Http\Controllers\Web\ProductViewController;
 use App\Http\Controllers\Web\SiemReapController;
 use App\Http\Controllers\WishlistController;
-use App\Models\TravelGuide;
 use Illuminate\Support\Facades\Route;
 
 // ===============================
@@ -66,6 +71,98 @@ Route::prefix('auth')->group(function () {
 // ===============================
 
 Route::prefix('web/view')->group(function () {
+    Route::get('travel-questions', [TravelRecommendationController::class, 'getQuestions']);
+    Route::post('travel-start', [TravelRecommendationController::class, 'start']);
+    Route::post('travel-answer', [TravelRecommendationController::class, 'submitAnswer']);
+    Route::get('travel-recommendation/{sessionId}', [TravelRecommendationController::class, 'getRecommendation']);
+    Route::prefix('travel-activities')->group(function () {
+        Route::get('/', [TravelActivityController::class, 'index']);
+        Route::post('/', [TravelActivityController::class, 'store']);
+        Route::get('/{travelActivity}', [TravelActivityController::class, 'show']);
+        Route::put('/{travelActivity}', [TravelActivityController::class, 'update']);
+        Route::delete('/{travelActivity}', [TravelActivityController::class, 'destroy']);
+        Route::get('/location/{locationId}', [TravelActivityController::class, 'getByLocation']);
+    });
+
+
+    Route::prefix('nearby')->group(function () {
+        Route::get('destinations/{destinationId}', [NearbyController::class, 'getNearbyDestinations']);
+        Route::get('attractions/{destinationName}', [NearbyController::class, 'getNearbyAttractions']);
+        Route::post('recommendations', [NearbyController::class, 'getCustomNearbyRecommendations']);
+        Route::get('within-radius', [NearbyController::class, 'getDestinationsWithinRadius']);
+    });
+    Route::prefix('travel')->group(function () {
+        Route::post('start', [TravelRecommendationController::class, 'start']);
+        Route::get('questions', [TravelRecommendationController::class, 'getQuestions']);
+        Route::get('questions/{type}', [TravelRecommendationController::class, 'getQuestionByType']);
+        Route::post('answer', [TravelRecommendationController::class, 'submitAnswer']);
+        Route::get('recommendation/{sessionId}', [TravelRecommendationController::class, 'getRecommendation']);
+        Route::get('transportation-costs', [TravelRecommendationController::class, 'getTransportationCosts']);
+    });
+
+    // Questions Management Routes
+    Route::prefix('questions')->group(function () {
+        Route::get('/', [QuestionController::class, 'index']);
+        Route::post('/', [QuestionController::class, 'store']);
+        Route::get('/{id}', [QuestionController::class, 'show']);
+        Route::put('/{id}', [QuestionController::class, 'update']);
+        Route::delete('/{id}', [QuestionController::class, 'destroy']);
+
+        // Question Options
+        Route::post('/{questionId}/options', [QuestionController::class, 'addOption']);
+        Route::put('/options/{optionId}', [QuestionController::class, 'updateOption']);
+        Route::delete('/options/{optionId}', [QuestionController::class, 'deleteOption']);
+    });
+
+    // Destinations Routes
+    Route::prefix('destinations')->group(function () {
+        Route::get('/', [TravelRecommendationController::class, 'getDestinations']);
+        Route::post('/', [DestinationController::class, 'store']);
+        Route::get('/{id}', [DestinationController::class, 'show']);
+        Route::put('/{id}', [DestinationController::class, 'update']);
+        Route::delete('/{id}', [DestinationController::class, 'destroy']);
+    });
+
+    // Hotels Routes
+    Route::prefix('hotels')->group(function () {
+        Route::get('/', [TravelRecommendationController::class, 'getHotels']);
+        Route::post('/', [HotelController::class, 'store']);
+        Route::get('/{id}', [HotelController::class, 'show']);
+        Route::put('/{id}', [HotelController::class, 'update']);
+        Route::delete('/{id}', [HotelController::class, 'destroy']);
+    });
+
+    Route::prefix('local-transport')->group(function () {
+        Route::get('/types', [LocalTransportationController::class, 'getTypes']);
+        Route::get('/type/{type}', [LocalTransportationController::class, 'getByType']);
+        Route::get('/statistics', [LocalTransportationController::class, 'getStatistics']);
+        Route::post('/recommendations', [LocalTransportationController::class, 'getRecommendations']);
+        Route::post('/compare', [LocalTransportationController::class, 'compare']);
+        Route::post('/search', [LocalTransportationController::class, 'search']);
+        // Basic CRUD Operations (/{id} route MUST be last)
+        Route::get('/', [LocalTransportationController::class, 'index']);
+        Route::post('/', [LocalTransportationController::class, 'store']);
+        Route::get('/{id}', [LocalTransportationController::class, 'show']);
+        Route::put('/{id}', [LocalTransportationController::class, 'update']);
+        Route::delete('/{id}', [LocalTransportationController::class, 'destroy']);
+    });
+
+    Route::prefix('meals')->group(function () {
+        Route::get('/', [MealController::class, 'index']);
+        Route::post('/', [MealController::class, 'store']);
+        Route::get('/{id}', [MealController::class, 'show']);
+        Route::put('/{id}', [MealController::class, 'update']);
+        Route::delete('/{id}', [MealController::class, 'destroy']);
+        Route::get('/categories', [MealController::class, 'getMealCategories']);
+        Route::get('/category/{category}', [MealController::class, 'getMealsByCategory']);
+        Route::get('/cuisine/{cuisine}', [MealController::class, 'getMealsByCuisine']);
+        Route::get('/popular', [MealController::class, 'getPopularMeals']);
+        Route::post('/recommendations', [MealController::class, 'getMealRecommendations']);
+        Route::post('/search', [MealController::class, 'search']);
+        Route::post('/dietary', [MealController::class, 'getDietaryRecommendations']);
+        Route::post('/calculate-costs', [MealController::class, 'calculateMealCosts']);
+        Route::get('/statistics', [MealController::class, 'getStatistics']);
+    });
     Route::prefix('customer')->group(function () {
         Route::post('/', [CustomerController::class, 'store']);
     });
@@ -77,11 +174,9 @@ Route::prefix('web/view')->group(function () {
         Route::get('/detail/{id}', [LocationDetailController::class, 'getOneLocationView']);
         Route::get('/', [HomePageViewController::class, 'getLocationAndProduct']);
         Route::get('/{id}', [HomePageViewController::class, 'find']);
-
         Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
         Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);
         Route::get('/villages/{communeId}', [LocationController::class, 'getVillages']);
-
         Route::get('/stats', [AdventureViewController::class, 'getLocationStats']);
     });
 
@@ -109,11 +204,10 @@ Route::prefix('web/view')->group(function () {
     Route::get('/chatbot/status', [ChatbotController::class, 'status']);
 });
 
-// ===============================
+// ==================================
 // ALL OTHER ROUTES - LOGIN REQUIRED
-// ===============================
+// ==================================
 Route::middleware('login')->group(function () {
-
     Route::prefix('web')->group(function () {
         Route::prefix('wishlist')->group(function () {
             Route::post('', [WishlistController::class, 'store']);
@@ -145,7 +239,6 @@ Route::middleware('login')->group(function () {
             Route::delete('/{id}', [OrderController::class, 'removeCartItem']);
             Route::delete('/cart/clear', [OrderController::class, 'clearCart']);
         });
-
         Route::prefix('comment')->group(function () {
             Route::post('/', [CommentController::class, 'store']);
             Route::get('/', [CommentController::class, 'getAll']);
@@ -194,18 +287,95 @@ Route::middleware('login')->group(function () {
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
+        Route::prefix('travel-activities')->group(function () {
+            Route::get('/', [TravelActivityController::class, 'index']);
+            Route::post('/', [TravelActivityController::class, 'store']);
+            Route::get('/{travelActivity}', [TravelActivityController::class, 'show']);
+            Route::put('/{travelActivity}', [TravelActivityController::class, 'update']);
+            Route::delete('/{travelActivity}', [TravelActivityController::class, 'destroy']);
+            Route::get('/location/{locationId}', [TravelActivityController::class, 'getByLocation']);
+        });
+        Route::prefix('nearby')->group(function () {
+            Route::get('destinations/{destinationId}', [NearbyController::class, 'getNearbyDestinations']);
+            Route::get('attractions/{destinationName}', [NearbyController::class, 'getNearbyAttractions']);
+            Route::post('recommendations', [NearbyController::class, 'getCustomNearbyRecommendations']);
+            Route::get('within-radius', [NearbyController::class, 'getDestinationsWithinRadius']);
+        });
+        Route::prefix('travel')->group(function () {
+            Route::post('start', [TravelRecommendationController::class, 'start']);
+            Route::get('questions', [TravelRecommendationController::class, 'getQuestions']);
+            Route::get('questions/{type}', [TravelRecommendationController::class, 'getQuestionByType']);
+            Route::post('answer', [TravelRecommendationController::class, 'submitAnswer']);
+            Route::get('recommendation/{sessionId}', [TravelRecommendationController::class, 'getRecommendation']);
+            Route::get('transportation-costs', [TravelRecommendationController::class, 'getTransportationCosts']);
+        });
+        // Questions Management Routes
+        Route::prefix('questions')->group(function () {
+            Route::get('/', [QuestionController::class, 'index']);
+            Route::post('/', [QuestionController::class, 'store']);
+            Route::get('/{id}', [QuestionController::class, 'show']);
+            Route::put('/{id}', [QuestionController::class, 'update']);
+            Route::delete('/{id}', [QuestionController::class, 'destroy']);
+            // Question Options
+            Route::post('/{questionId}/options', [QuestionController::class, 'addOption']);
+            Route::put('/options/{optionId}', [QuestionController::class, 'updateOption']);
+            Route::delete('/options/{optionId}', [QuestionController::class, 'deleteOption']);
+        });
+        // Destinations Routes
+        Route::prefix('destinations')->group(function () {
+            Route::get('/', [TravelRecommendationController::class, 'getDestinations']);
+            Route::post('/', [DestinationController::class, 'store']);
+            Route::get('/{id}', [DestinationController::class, 'show']);
+            Route::put('/{id}', [DestinationController::class, 'update']);
+            Route::delete('/{id}', [DestinationController::class, 'destroy']);
+        });
+        // Hotels Routes
+        Route::prefix('hotels')->group(function () {
+            Route::get('/', [TravelRecommendationController::class, 'getHotels']);
+            Route::post('/', [HotelController::class, 'store']);
+            Route::get('/{id}', [HotelController::class, 'show']);
+            Route::put('/{id}', [HotelController::class, 'update']);
+            Route::delete('/{id}', [HotelController::class, 'destroy']);
+        });
+        Route::prefix('local-transport')->group(function () {
+            Route::get('/types', [LocalTransportationController::class, 'getTypes']);
+            Route::get('/type/{type}', [LocalTransportationController::class, 'getByType']);
+            Route::get('/statistics', [LocalTransportationController::class, 'getStatistics']);
+            Route::post('/recommendations', [LocalTransportationController::class, 'getRecommendations']);
+            Route::post('/compare', [LocalTransportationController::class, 'compare']);
+            Route::post('/search', [LocalTransportationController::class, 'search']);
+            // Basic CRUD Operations (/{id} route MUST be last)
+            Route::get('/', [LocalTransportationController::class, 'index']);
+            Route::post('/', [LocalTransportationController::class, 'store']);
+            Route::get('/{id}', [LocalTransportationController::class, 'show']);
+            Route::put('/{id}', [LocalTransportationController::class, 'update']);
+            Route::delete('/{id}', [LocalTransportationController::class, 'destroy']);
+        });
+        Route::prefix('meals')->group(function () {
+            Route::get('/', [MealController::class, 'index']);
+            Route::post('/', [MealController::class, 'store']);
+            Route::get('/{id}', [MealController::class, 'show']);
+            Route::put('/{id}', [MealController::class, 'update']);
+            Route::delete('/{id}', [MealController::class, 'destroy']);
+            Route::get('/categories', [MealController::class, 'getMealCategories']);
+            Route::get('/category/{category}', [MealController::class, 'getMealsByCategory']);
+            Route::get('/cuisine/{cuisine}', [MealController::class, 'getMealsByCuisine']);
+            Route::get('/popular', [MealController::class, 'getPopularMeals']);
+            Route::post('/recommendations', [MealController::class, 'getMealRecommendations']);
+            Route::post('/search', [MealController::class, 'search']);
+            Route::post('/dietary', [MealController::class, 'getDietaryRecommendations']);
+            Route::post('/calculate-costs', [MealController::class, 'calculateMealCosts']);
+            Route::get('/statistics', [MealController::class, 'getStatistics']);
+        });
+
+
         Route::prefix('dashboard')->group(function () {
-            // Main dashboard endpoints
             Route::get('/stats', [DashboardController::class, 'getStats']);
             Route::get('/data', [DashboardController::class, 'getAllDashboardData']);
             Route::get('/activity', [DashboardController::class, 'getRecentActivity']);
-
-            // Location analytics
             Route::get('/locations/top', [DashboardController::class, 'getTopLocations']);
             Route::get('/locations/by-category', [DashboardController::class, 'getLocationsByCategory']);
             Route::get('/locations/by-province', [DashboardController::class, 'getLocationsByProvince']);
-
-            // Product analytics
             Route::get('/products/top', [DashboardController::class, 'getTopProducts']);
             Route::get('/products/by-brand', [DashboardController::class, 'getProductsByBrand']);
         });
@@ -215,28 +385,31 @@ Route::middleware('login')->group(function () {
             Route::get('/{id}', [TravelQuestionController::class, 'find']);
             Route::put('/{id}', [TravelQuestionController::class, 'update']);
             Route::delete('/{id}', [TravelQuestionController::class, 'destroy']);
-
-            // Additional routes
             Route::get('/category/{category}', [TravelQuestionController::class, 'getByCategory']);
             Route::get('/location/{location}', [TravelQuestionController::class, 'getByLocation']);
             Route::get('/export/json', [TravelQuestionController::class, 'export']);
             Route::get('/export/data', [TravelQuestionController::class, 'export']);
             Route::get('/export/stats', [TravelQuestionController::class, 'exportStats']);
         });
-        // Location Management Routes
         Route::prefix('locations')->group(function () {
+            Route::prefix('travel-activities')->group(function () {
+                Route::get('/', [TravelActivityController::class, 'index']);
+                Route::post('/', [TravelActivityController::class, 'store']);
+                Route::get('/{travelActivity}', [TravelActivityController::class, 'show']);
+                Route::put('/{travelActivity}', [TravelActivityController::class, 'update']);
+                Route::delete('/{travelActivity}', [TravelActivityController::class, 'destroy']);
+                Route::get('/location/{locationId}', [TravelActivityController::class, 'getByLocation']);
+            });
             Route::get('/provinces', [LocationController::class, 'getProvinces']);
             Route::get('/districts/{provinceId}', [LocationController::class, 'getDistricts']);
             Route::get('/communes/{districtId}', [LocationController::class, 'getCommunes']);
             Route::get('/villages/{communeId}', [LocationController::class, 'getVillages']);
-
             Route::get('/', [LocationController::class, 'index']);
             Route::post('/', [LocationController::class, 'store']);
             Route::get('/{id}', [LocationController::class, 'find']);
             Route::put('/{id}', [LocationController::class, 'update']);
             Route::delete('/{id}', [LocationController::class, 'destroy']);
 
-            // Location images
             Route::get('/get/images/{id}', [LocationImageController::class, 'getImages']);
             Route::post('/images/{id}', [LocationImageController::class, 'storeImage']);
             Route::delete('/images/{imageId}', [LocationImageController::class, 'destroy']);
@@ -311,6 +484,13 @@ Route::middleware('login')->group(function () {
             Route::delete('/{id}', [ProductController::class, 'destroy']);
         });
 
+        Route::prefix('invoices')->group(function () {
+            Route::get('/', [InvoiceController::class, 'index']);
+            Route::get('/search-suggestions', [InvoiceController::class, 'searchSuggestions']);
+            Route::get('/filter-options', [InvoiceController::class, 'getFilterOptions']);
+            Route::get('/export', [InvoiceController::class, 'export']);
+        });
+
         // Product Relations Management - Changed from apiResource to individual routes
         Route::prefix('product-categories')->group(function () {
             Route::get('/', [ProductCategoryController::class, 'index']);
@@ -321,7 +501,6 @@ Route::middleware('login')->group(function () {
         });
 
         Route::post('/product-tags', [ProductTagController::class, 'sync']);
-
         Route::prefix('product-colors')->group(function () {
             Route::get('/', [ProductColorController::class, 'index']);
             Route::post('/', [ProductColorController::class, 'store']);

@@ -15,6 +15,13 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
             AddressSeeder::class,
             QuestionChatBotSeeder::class,
+
+            QuestionSeeder::class,
+            DestinationSeeder::class,
+            HotelSeeder::class,
+            TransportationCostSeeder::class,
+            LocalTransportationSeeder::class,
+            MealSeeder::class,
         ]);
     }
 }

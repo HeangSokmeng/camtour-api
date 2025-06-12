@@ -17,7 +17,7 @@ class ProductController extends Controller
         $req->validate([
             'name' => 'required|string|max:250',
             'name_km' => 'required|string|max:250',
-            'code' => 'required|string|max:250|unique:products,code,NULL,id,is_deleted,0',
+            'code' => 'nullable|string|max:250|unique:products,code,NULL,id,is_deleted,0',
             'description' => 'nullable|max:65530',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:drafting,published',
@@ -128,7 +128,7 @@ class ProductController extends Controller
             'id' => 'required|integer|min:1|exists:products,id,is_deleted,0',
             'name' => 'required|string|max:250',
             'name_km' => 'required|string|max:250',
-            'code' => "required|string|max:250|unique:products,code,$id,id,is_deleted,0",
+            'code' => "nullable|string",
             'description' => 'nullable|max:65530',
             'price' => 'required|numeric|min:0',
             'status' => 'required|string|in:drafting,published',
@@ -137,7 +137,6 @@ class ProductController extends Controller
             'category_id' => 'nullable|integer|min:1|exists:categories,id,is_deleted,0',
             'product_category_id' => 'nullable|integer|min:1|exists:product_categories,id,is_deleted,0',
         ]);
-
         // find product
         $product = Product::where('id', $id)->where('is_deleted', 0)->first();
         if (!$product) return res_fail('Product not found.', [], 1, 404);
@@ -181,7 +180,6 @@ class ProductController extends Controller
             }
             $product->thumbnail = $thumbnail;
         }
-        // save product & response
         $product->save();
         return res_success("Update product info success.", new ProductDetailResource($product));
     }

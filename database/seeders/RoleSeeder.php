@@ -11,10 +11,22 @@ class RoleSeeder extends Seeder
     public function run(): void
     {
         $dataRoles = [
-            ['id' => Role::CUSTOMER, 'name' => 'Customer'],
-            ['id' => Role::STAFF, 'name' => 'Staff'],
-            ['id' => Role::ADMIN, 'name' => 'Admin'],
-            ['id' => Role::SYSTEM_ADMIN, 'name' => 'System Admin'],
+            [
+                'id' => Role::CUSTOMER,
+                'name' => 'Customer'
+            ],
+            [
+                'id' => Role::STAFF,
+                'name' => 'Staff'
+            ],
+            [
+                'id' => Role::ADMIN,
+                'name' => 'Admin'
+            ],
+            [
+                'id' => Role::SYSTEM_ADMIN,
+                'name' => 'System Admin'
+            ],
         ];
 
         foreach ($dataRoles as $dataRole) {
@@ -22,4 +34,3 @@ class RoleSeeder extends Seeder
         }
     }
 }
-

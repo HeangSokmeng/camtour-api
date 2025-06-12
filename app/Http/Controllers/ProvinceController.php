@@ -28,10 +28,10 @@ class ProvinceController extends Controller
         $provinces = new Province();
         $provinces = $provinces->where('is_deleted', 0);
         if (strlen($search) > 0) {
-            $provinces = $provinces->where(function($q) use ($search) {
+            $provinces = $provinces->where(function ($q) use ($search) {
                 $q->where('id', $search)
-                  ->orWhere('name', 'like', "%$search%")
-                  ->orWhere('local_name', 'like', "%$search%");
+                    ->orWhere('name', 'like', "%$search%")
+                    ->orWhere('local_name', 'like', "%$search%");
             });
         }
         $provinces = $provinces->orderBy($sortCol, $sortDir)->paginate($perPage);
@@ -67,10 +67,8 @@ class ProvinceController extends Controller
         // update province
         $province = Province::where('id', $id)->where('is_deleted', 0)->first();
         if (!$province) return res_fail('Province not found.', [], 1, 404);
-
         $user = UserService::getAuthUser($req);
         $province->update_uid = $user->id;
-
         if ($req->filled('name')) {
             $province->name = $req->input('name');
         }
@@ -84,7 +82,7 @@ class ProvinceController extends Controller
     public function destroy(Request $req, $id)
     {
         // validation
-        $req->merge(['id'=> $id]);
+        $req->merge(['id' => $id]);
         $req->validate([
             'id' => 'required|integer|min:1|exists:provinces,id,is_deleted,0',
         ]);
