@@ -12,8 +12,8 @@ return new class extends Migration {
     {
         Schema::create('products', function (Blueprint $table) {
             $this->AddBaseFields($table);
-            $table->unsignedSmallInteger('product_category_id')->nullable();
-            $table->unsignedTinyInteger('category_id')->nullable();
+            $table->unsignedBigInteger('product_category_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->unsignedBigInteger('brand_id')->nullable();
             $table->string('name')->nullable();
             $table->string('name_km')->nullable();

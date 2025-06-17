@@ -28,7 +28,7 @@ return new class extends Migration
             $table->unsignedBigInteger('district_id')->nullable();
             $table->unsignedBigInteger('commune_id')->nullable();
             $table->unsignedBigInteger('village_id')->nullable();
-            $table->unsignedTinyInteger('category_id')->nullable();
+            $table->unsignedBigInteger('category_id')->nullable();
             $table->timestamp('published_at')->nullable();
 
             // setup relationship
