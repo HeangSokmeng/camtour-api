@@ -19,7 +19,6 @@ return new class extends Migration
     {
         try {
             $tables = $this->getTablesFromInformationSchema();
-
             foreach ($tables as $tableName) {
                 if (!in_array($tableName, $this->excludedTables) && Schema::hasTable($tableName)) {
                     Schema::table($tableName, function (Blueprint $table) use ($tableName) {

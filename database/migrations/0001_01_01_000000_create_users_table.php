@@ -14,7 +14,12 @@ return new class extends Migration {
         Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->boolean('is_deleted')->default(false);
+            $table->dateTimeTz('deleted_datetime')->nullable();
+            $table->unsignedBigInteger('deleted_uid')->nullable();
+            $table->timestamps();
         });
+
         Schema::create('users', function (Blueprint $table) {
             $this->AddBaseFields($table);
             $table->unsignedBigInteger('role_id');

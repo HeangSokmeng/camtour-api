@@ -71,6 +71,7 @@ Route::prefix('auth')->group(function () {
 // ===============================
 
 Route::prefix('web/view')->group(function () {
+    Route::get('/', [TravelRecommendationController::class, 'getHotels']);
     Route::get('travel-questions', [TravelRecommendationController::class, 'getQuestions']);
     Route::post('travel-start', [TravelRecommendationController::class, 'start']);
     Route::post('travel-answer', [TravelRecommendationController::class, 'submitAnswer']);
@@ -121,15 +122,6 @@ Route::prefix('web/view')->group(function () {
         Route::get('/{id}', [DestinationController::class, 'show']);
         Route::put('/{id}', [DestinationController::class, 'update']);
         Route::delete('/{id}', [DestinationController::class, 'destroy']);
-    });
-
-    // Hotels Routes
-    Route::prefix('hotels')->group(function () {
-        Route::get('/', [TravelRecommendationController::class, 'getHotels']);
-        Route::post('/', [HotelController::class, 'store']);
-        Route::get('/{id}', [HotelController::class, 'show']);
-        Route::put('/{id}', [HotelController::class, 'update']);
-        Route::delete('/{id}', [HotelController::class, 'destroy']);
     });
 
     Route::prefix('local-transport')->group(function () {
@@ -287,6 +279,14 @@ Route::middleware('login')->group(function () {
     // ROUTES FOR STAFF, ADMIN, AND SYSTEM_ADMIN (FULL CRUD except users)
     // ===============================
     Route::middleware('admin:staff,admin,system_admin')->group(function () {
+            // Hotels Routes
+    Route::prefix('hotels')->group(function () {
+        Route::get('/', [TravelRecommendationController::class, 'getHotels']);
+        Route::post('/', [HotelController::class, 'store']);
+        Route::get('/{id}', [HotelController::class, 'show']);
+        Route::put('/{id}', [HotelController::class, 'update']);
+        Route::delete('/{id}', [HotelController::class, 'destroy']);
+    });
         Route::prefix('travel-activities')->group(function () {
             Route::get('/', [TravelActivityController::class, 'index']);
             Route::post('/', [TravelActivityController::class, 'store']);

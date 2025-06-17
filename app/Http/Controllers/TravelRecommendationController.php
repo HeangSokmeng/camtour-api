@@ -114,13 +114,19 @@ class TravelRecommendationController extends Controller
     /**
      * Get hotels by star rating
      */
-    public function getHotels(Request $request): JsonResponse
-    {
-        $query = Hotel::active();
-        if ($request->has('star_rating')) $query->byStar($request->star_rating);
-        $hotels = $query->orderBy('price_per_night')->paginate(10);
-        return res_paginate($hotels, 'Hotels retrieved successfully.', $hotels);
+public function getHotels(Request $request): JsonResponse
+{
+    $query = Hotel::active();
+
+    if ($request->has('star_rating')) {
+        $query->byStar($request->star_rating);
     }
+
+    $hotels = $query->orderBy('price_per_night')->paginate(10);
+
+    return res_paginate($hotels, 'Hotels retrieved successfully.', $hotels->items());
+}
+
     /**
      * Get recommendation by session ID
      */
