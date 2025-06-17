@@ -17,9 +17,81 @@ return new class extends Migration
 
     public function up(): void
     {
-        $tables = $this->getAllTables();
-        foreach ($tables as $tableName) {
-            if (!in_array($tableName, $this->excludedTables) && Schema::hasTable($tableName)) {
+        try {
+            $tables = $this->getTablesFromInformationSchema();
+
+            foreach ($tables as $tableName) {
+                if (!in_array($tableName, $this->excludedTables) && Schema::hasTable($tableName)) {
+                    Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                        if (!Schema::hasColumn($tableName, 'is_deleted')) {
+                            $table->boolean('is_deleted')->default(false);
+                        }
+                        if (!Schema::hasColumn($tableName, 'deleted_datetime')) {
+                            $table->dateTimeTz('deleted_datetime')->nullable();
+                        }
+                        if (!Schema::hasColumn($tableName, 'deleted_uid')) {
+                            $table->unsignedBigInteger('deleted_uid')->nullable();
+                        }
+                    });
+                }
+            }
+        } catch (\Exception $e) {
+            $this->addSoftDeleteColumnsToKnownTables();
+        }
+    }
+
+    public function down(): void
+    {
+        try {
+            $tables = $this->getTablesFromInformationSchema();
+            foreach ($tables as $tableName) {
+                if (!in_array($tableName, $this->excludedTables) && Schema::hasTable($tableName)) {
+                    Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                        $columns = ['is_deleted', 'deleted_datetime', 'deleted_uid'];
+
+                        foreach ($columns as $column) {
+                            if (Schema::hasColumn($tableName, $column)) {
+                                $table->dropColumn($column);
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (\Exception $e) {
+            // Fallback for rollback
+            $this->removeSoftDeleteColumnsFromKnownTables();
+        }
+    }
+
+    /**
+     * Get tables using standard information_schema (more compatible)
+     */
+    private function getTablesFromInformationSchema(): array
+    {
+        $database = DB::connection()->getDatabaseName();
+        $tables = DB::select("
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_catalog = ?
+            AND table_schema = 'public'
+            AND table_type = 'BASE TABLE'
+        ", [$database]);
+        return array_map(function($table) {
+            return $table->table_name;
+        }, $tables);
+    }
+    private function addSoftDeleteColumnsToKnownTables(): void
+    {
+        $knownTables = [
+            'posts',
+            'categories',
+            'products',
+            'orders',
+            'comments',
+        ];
+
+        foreach ($knownTables as $tableName) {
+            if (Schema::hasTable($tableName)) {
                 Schema::table($tableName, function (Blueprint $table) use ($tableName) {
                     if (!Schema::hasColumn($tableName, 'is_deleted')) {
                         $table->boolean('is_deleted')->default(false);
@@ -35,77 +107,27 @@ return new class extends Migration
         }
     }
 
-    public function down(): void
+    private function removeSoftDeleteColumnsFromKnownTables(): void
     {
-        $tables = $this->getAllTables();
-        foreach ($tables as $tableName) {
-            if (!in_array($tableName, $this->excludedTables) && Schema::hasTable($tableName)) {
-                Schema::table($tableName, function (Blueprint $table) use ($tableName) {
-                    if (Schema::hasColumn($tableName, 'is_deleted')) {
-                        $table->dropColumn('is_deleted');
-                    }
-                    if (Schema::hasColumn($tableName, 'deleted_datetime')) {
-                        $table->dropColumn('deleted_datetime');
-                    }
-                    if (Schema::hasColumn($tableName, 'deleted_uid')) {
-                        $table->dropColumn('deleted_uid');
-                    }
-                });
-            }
-        }
-    }
-
-    private function getAllTables(): array
-    {
-        try {
-            $driver = DB::getDriverName();
-            switch ($driver) {
-                case 'pgsql':
-                    $tables = DB::select("
-                        SELECT table_name as tablename
-                        FROM information_schema.tables
-                        WHERE table_schema = 'public'
-                        AND table_type = 'BASE TABLE'
-                    ");
-                    break;
-                case 'mysql':
-                    $database = DB::getDatabaseName();
-                    $tables = DB::select("
-                        SELECT table_name as tablename
-                        FROM information_schema.tables
-                        WHERE table_schema = ?
-                        AND table_type = 'BASE TABLE'
-                    ", [$database]);
-                    break;
-                case 'sqlite':
-                    $tables = DB::select("
-                        SELECT name as tablename
-                        FROM sqlite_master
-                        WHERE type = 'table'
-                    ");
-                    break;
-                default:
-                    return $this->getTablesUsingSchemaBuilder();
-            }
-
-            return array_map(function($table) {
-                return $table->tablename;
-            }, $tables);
-        } catch (\Exception $e) {
-            return $this->getTablesUsingSchemaBuilder();
-        }
-    }
-
-    /**
-     * Alternative method using Schema Builder (Laravel way)
-     */
-    private function getTablesUsingSchemaBuilder(): array
-    {
-        return [
+        $knownTables = [
             'posts',
             'categories',
             'products',
             'orders',
+            'comments',
         ];
+
+        foreach ($knownTables as $tableName) {
+            if (Schema::hasTable($tableName)) {
+                Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+                    $columns = ['is_deleted', 'deleted_datetime', 'deleted_uid'];
+                    foreach ($columns as $column) {
+                        if (Schema::hasColumn($tableName, $column)) {
+                            $table->dropColumn($column);
+                        }
+                    }
+                });
+            }
+        }
     }
 };
