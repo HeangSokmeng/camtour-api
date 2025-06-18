@@ -64,6 +64,7 @@ class TransportationCostSeeder extends Seeder
                 'cost' => 30.00,
                 'duration_minutes' => 300,
                 'notes' => 'Return trip to Phnom Penh by car'
+
             ],
             [
                 'from_location' => 'Siem Reap',
