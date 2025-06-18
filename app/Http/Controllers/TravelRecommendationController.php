@@ -539,7 +539,7 @@ public function getHotels(Request $request): JsonResponse
         if (!$transport) {
             return [
                 'type' => $travelRequest->local_transportation,
-                'daily_cost' => 80,
+                'daily_cost' => 30,
                 'description' => 'Local transportation around Siem Reap'
             ];
         }

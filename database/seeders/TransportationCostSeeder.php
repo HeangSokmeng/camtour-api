@@ -27,7 +27,7 @@ class TransportationCostSeeder extends Seeder
                 'from_location' => 'phnom_penh',
                 'to_location' => 'Siem Reap',
                 'transportation_type' => 'car',
-                'cost' => 80.00,
+                'cost' => 30.00,
                 'duration_minutes' => 300, // 5 hours
                 'notes' => 'Private car with driver, direct route'
             ],
@@ -61,7 +61,7 @@ class TransportationCostSeeder extends Seeder
                 'from_location' => 'Siem Reap',
                 'to_location' => 'phnom_penh',
                 'transportation_type' => 'car',
-                'cost' => 80.00,
+                'cost' => 30.00,
                 'duration_minutes' => 300,
                 'notes' => 'Return trip to Phnom Penh by car'
             ],

@@ -37,6 +37,18 @@ class LocationDetailController extends Controller
             ->where('is_deleted', 0)
             ->find($id);
         if (!$location)  return res_fail("Location not found", 404);
+        $sameDistrictLocations = Location::query()
+            ->where('district_id', $location->district_id)
+            ->where('id', '!=', $location->id)
+            ->where('is_deleted', 0)
+            ->select('id', 'name','name_local', 'thumbnail', 'total_view')
+            // ->limit(5)
+            ->get();
+        foreach ($sameDistrictLocations as $loc) {
+            $loc->is_thumbnail = asset("storage/{$loc->thumbnail}");
+            unset($loc->thumbnail);
+        }
+        $location->same_district_locations = $sameDistrictLocations;
         $location->is_thumbnail = asset("storage/{$location->thumbnail}");
         foreach ($location->photos as $photo) {
             $photo->photo_url = asset("storage/{$photo->photo}");
@@ -66,7 +78,6 @@ class LocationDetailController extends Controller
             $star->rater_name = optional($star->rater)->first_name . ' ' . optional($star->rater)->last_name;
             unset($star->rater);
         });
-
         $location->products = $productRows;
         $location->increment('total_view');
         // $location->stars->increment('total_view');
